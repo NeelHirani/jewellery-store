@@ -89,7 +89,6 @@ export default function Home() {
             }`}
           />
         ))}
-
         <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
           <motion.h1
             key={slideData[current].heading}
@@ -122,7 +121,6 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
-
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
           {slideData.map((_, i) => (
             <button
@@ -158,11 +156,17 @@ export default function Home() {
           {categories.map((cat, i) => (
             <div
               key={i}
-              className="shadow-md hover:shadow-xl rounded overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
+              className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
             >
-              <img src={cat.image} alt={cat.title} className="w-full h-40 object-cover" />
-              <div className="p-3">
-                <h3 className="text-md font-medium text-gray-800">{cat.title}</h3>
+              <img
+                src={cat.image}
+                alt={cat.title}
+                className="w-full h-56 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
+                <h3 className="text-white group-hover:text-yellow-400 text-xl font-semibold tracking-wide transition">
+                  {cat.title}
+                </h3>
               </div>
             </div>
           ))}
@@ -174,11 +178,16 @@ export default function Home() {
         <h2 className="text-3xl font-semibold text-gray-800 mb-10">Best Sellers</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {[1, 2, 3, 4].map((_, index) => (
-            <div key={index} className="bg-white shadow rounded-lg overflow-hidden relative group">
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white shadow rounded-xl overflow-hidden relative"
+            >
               <img
                 src={`/images/hero${index + 1}.jpg`}
                 alt="bestseller"
-                className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="h-56 w-full object-cover"
               />
               <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                 NEW
@@ -187,15 +196,15 @@ export default function Home() {
                 <h3 className="font-medium text-lg">Elegant Pendant</h3>
                 <p className="text-purple-600 font-semibold">₹7,499</p>
                 <button className="mt-2 w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
-                  Add to Cart
+                  View Detail
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Deals of the Week - Full Bar */}
+      {/* Deals of the Week */}
       <section className="py-16 px-0 bg-purple-100">
         <div className="w-full relative h-[450px] overflow-hidden">
           {dealsData.map((deal, index) => (
@@ -211,7 +220,9 @@ export default function Home() {
 
           <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-start px-10 md:px-20 text-white">
             <h2 className="text-4xl font-bold mb-2">Deals of the Week</h2>
-            <p className="text-lg mb-4">{dealsData[dealIndex].title} — {dealsData[dealIndex].price}</p>
+            <p className="text-lg mb-4">
+              {dealsData[dealIndex].title} — {dealsData[dealIndex].price}
+            </p>
             <Link
               to="/products"
               className="bg-purple-600 text-white px-5 py-3 rounded hover:bg-purple-700 transition"

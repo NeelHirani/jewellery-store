@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaLock, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { supabase } from '../lib/supabase';
+import { format } from 'date-fns';
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const errs = {};
@@ -22,11 +25,52 @@ const Login = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      localStorage.setItem("email", formData.email);
+    setErrors({});
+    setLoading(true);
+
+    if (!validate()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Query the users table for email and password
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('id, name, email, created_at')
+        .eq('email', formData.email)
+        .eq('password', formData.password)
+        .single();
+
+      if (error || !user) {
+        setErrors({ general: "Invalid email or password" });
+        setLoading(false);
+        return;
+      }
+
+      // Format created_at to match UserProfile's joinDate (e.g., "Jan 2024")
+      const joinDate = format(new Date(user.created_at), 'MMM yyyy');
+
+      // Create user object to match UserProfile's expected structure
+      const userData = {
+        name: user.name,
+        email: user.email,
+        joinDate: joinDate,
+        profileCompletion: 80, // Example: Adjust based on your logic or additional Supabase data
+      };
+
+      // Store user data in localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Navigate to profile
       navigate("/profile");
+    } catch (err) {
+      setErrors({ general: "An unexpected error occurred. Please try again." });
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,7 +80,7 @@ const Login = () => {
       <div
         className="w-full md:w-1/2 bg-cover bg-center relative flex flex-col justify-center items-center text-white p-10"
         style={{
-          backgroundImage: "url('/images/Banner.jpg')", // Make sure the path is correct
+          backgroundImage: "url('/images/Banner.jpg')",
         }}
       >
         <div className="bg-black/50 p-6 rounded-xl text-center shadow-md">
@@ -51,7 +95,10 @@ const Login = () => {
 
         <button
           onClick={handleSubmit}
-          className="absolute bottom-10 right-10 bg-purple-600 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md hover:bg-purple-700 transition"
+          className={`absolute bottom-10 right-10 bg-purple-600 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md hover:bg-purple-700 transition ${
+            loading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          disabled={loading}
         >
           <FaArrowRight />
         </button>
@@ -68,7 +115,9 @@ const Login = () => {
           <h3 className="text-xl font-bold text-purple-600 mb-1">Welcome!</h3>
           <p className="text-sm text-gray-600 mb-6">Sign in to continue</p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {errors.general && <p className="text-red-500 text-sm mb-4">{errors.general}</p>}
+
+          <div className="space-y-5">
             {/* Email */}
             <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2">
               <FaUser className="text-gray-400 mr-2" />
@@ -78,6 +127,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full outline-none text-sm bg-transparent text-gray-700 placeholder-gray-400"
+                disabled={loading}
               />
             </div>
             {errors.email && <p className="text-red-500 text-sm -mt-3">{errors.email}</p>}
@@ -91,31 +141,36 @@ const Login = () => {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full outline-none text-sm bg-transparent text-gray-700 placeholder-gray-400"
+                disabled={loading}
               />
             </div>
             {errors.password && <p className="text-red-500 text-sm -mt-3">{errors.password}</p>}
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link to="#" className="text-sm text-purple-600 hover:underline">
+              <Link to="/forget-password" className="text-sm text-purple-600 hover:underline">
                 Forgot Password?
               </Link>
             </div>
 
             {/* Terms & Conditions */}
             <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <input type="checkbox" required />
+              <input type="checkbox" required disabled={loading} />
               <span>I agree with Terms & Conditions</span>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition"
+              className={`w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={loading}
+              onClick={handleSubmit}
             >
-              Login <FaArrowRight />
+              {loading ? 'Logging in...' : 'Login'} <FaArrowRight />
             </button>
-          </form>
+          </div>
 
           {/* Sign Up */}
           <p className="text-center text-sm text-gray-600 mt-6">

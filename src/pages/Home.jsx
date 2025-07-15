@@ -150,28 +150,29 @@ export default function Home() {
       )}
 
       {/* Shop By Category */}
-      <section className="py-16 px-6 bg-white text-center">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-          {categories.map((cat, i) => (
-            <div
-              key={i}
-              className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
-            >
-              <img
-                src={cat.image}
-                alt={cat.title}
-                className="w-full h-56 object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
-                <h3 className="text-white group-hover:text-yellow-400 text-xl font-semibold tracking-wide transition">
-                  {cat.title}
-                </h3>
+        <section className="py-16 px-6 bg-white text-center">
+          <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+            {categories.map((cat, i) => (
+              <div
+                key={i}
+                className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.title}
+                  className="w-full h-56 object-cover"
+                />
+                {/* Bottom Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
+                  <h3 className="text-white group-hover:text-yellow-400 text-xl font-semibold tracking-wide transition">
+                    {cat.title}
+                  </h3>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
 
       {/* Best Sellers */}
       <section className="py-16 px-6 bg-gray-50 text-center">

@@ -1,270 +1,142 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
 
-const sampleProducts = [
-  {
-    id: 1,
-    name: "Antique Ruby Gold Bangle",
-    price: 12999,
-    image: "https://www.kushals.com/cdn/shop/files/antique-bangle-ruby-gold-2-4-antique-bangle-164066-36710817923228.jpg?v=1698489280",
-    category: "Bangles",
-  },
-  {
-    id: 2,
-    name: "Diamond Engagement Ring",
-    price: 15999,
-    image: "https://www.brilliance.com/cdn-cgi/image/f=webp,width=1440,height=1440,quality=90/sites/default/files/vue/collections/engagement-rings-diamond_og.jpg",
-    category: "Rings",
-  },
-  {
-    id: 3,
-    name: "Gold Bridal Necklace",
-    price: 21999,
-    image: "https://i.pinimg.com/474x/fc/aa/dd/fcaaddff819bc90debe0c50714d11083.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 4,
-    name: "Traditional Stud Earrings",
-    price: 8999,
-    image: "https://www.bagadebandhusaraf.com/wp-content/uploads/2016/10/1.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 5,
-    name: "Kundan Bridal Set",
-    price: 28999,
-    image: "https://i.pinimg.com/originals/c3/07/62/c30762c4699674970839b202b41e399e.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 6,
-    name: "Floral Diamond Earrings",
-    price: 11999,
-    image: "https://i.pinimg.com/originals/67/32/8f/67328f4d8e49f4a5ae33ae5f7f9dc3e5.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 7,
-    name: "Elegant Gold Ring",
-    price: 7499,
-    image: "https://i.pinimg.com/originals/31/b3/c2/31b3c20cc3e1646b98ff7c7bb9d3023d.jpg",
-    category: "Rings",
-  },
-  {
-    id: 8,
-    name: "Temple Design Bangle",
-    price: 13999,
-    image: "https://www.kushals.com/cdn/shop/files/antique-bangle-ruby-2-4-gold-bangle-168181-36710930473196.jpg?v=1698489281",
-    category: "Bangles",
-  },
-  {
-    id: 9,
-    name: "Meenakari Jhumka",
-    price: 10999,
-    image: "https://i.pinimg.com/originals/f5/e9/fc/f5e9fcdd6711e41ee4ab8a55b920bdfa.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 10,
-    name: "Classic Solitaire Ring",
-    price: 18999,
-    image: "https://i.pinimg.com/originals/4b/89/58/4b89584b6a0c6bfbde8f32ed15ffb8fc.jpg",
-    category: "Rings",
-  },
-  {
-    id: 11,
-    name: "Maharani Necklace",
-    price: 29999,
-    image: "https://i.pinimg.com/originals/e4/f6/03/e4f603ed1b4a1639a3d580302edc1e94.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 12,
-    name: "Pearl Drop Earrings",
-    price: 6999,
-    image: "https://i.pinimg.com/originals/83/e3/d7/83e3d71cf86e8606cb9cfa8b6f39075c.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 13,
-    name: "Classic Gold Kada",
-    price: 15999,
-    image: "https://i.pinimg.com/originals/fc/ed/62/fced62b245ae8f4b3832826d3cf960df.jpg",
-    category: "Bangles",
-  },
-  {
-    id: 14,
-    name: "Green Emerald Necklace",
-    price: 24999,
-    image: "https://i.pinimg.com/originals/d4/94/79/d4947983f2560b14cb1ea56dd0acdcf1.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 15,
-    name: "Elegant Studded Ring",
-    price: 10999,
-    image: "https://i.pinimg.com/originals/f7/8d/44/f78d44191cc37653b8edddf2b7cb816e.jpg",
-    category: "Rings",
-  },
-  {
-    id: 16,
-    name: "Gold Mesh Bangle",
-    price: 18999,
-    image: "https://i.pinimg.com/originals/80/71/af/8071af857f410dbbb65057f1762b1516.jpg",
-    category: "Bangles",
-  },
-  {
-    id: 17,
-    name: "Contemporary Necklace",
-    price: 26999,
-    image: "https://i.pinimg.com/originals/13/7b/5d/137b5df3735b4ae24a66cfa598848a6a.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 18,
-    name: "Zircon Diamond Ring",
-    price: 9999,
-    image: "https://i.pinimg.com/originals/2e/47/7f/2e477f2f20742c0062a9d4737bbda567.jpg",
-    category: "Rings",
-  },
-  {
-    id: 19,
-    name: "Vintage Bridal Set",
-    price: 32999,
-    image: "https://i.pinimg.com/originals/89/8f/c2/898fc2fd187ffb234897fa9e9a249adb.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 20,
-    name: "Crystal Drop Earrings",
-    price: 7999,
-    image: "https://i.pinimg.com/originals/f1/55/bb/f155bbbe3e6f2f3469e160b7c9a42241.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 21,
-    name: "Gold & Ruby Ring",
-    price: 13499,
-    image: "https://i.pinimg.com/originals/bb/b2/e4/bbb2e4f2ffad4c9a8cc9d5d97e1f7bd3.jpg",
-    category: "Rings",
-  },
-  {
-    id: 22,
-    name: "Layered Gold Necklace",
-    price: 27999,
-    image: "https://i.pinimg.com/originals/3f/5d/32/3f5d324ad0c728e2c1a51c6ee169b366.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 23,
-    name: "Minimalist Diamond Bangle",
-    price: 15999,
-    image: "https://i.pinimg.com/originals/2e/27/e4/2e27e4877b252012d7998e2a2aa8dfb1.jpg",
-    category: "Bangles",
-  },
-  {
-    id: 24,
-    name: "Long Kundan Earrings",
-    price: 11499,
-    image: "https://i.pinimg.com/originals/9f/90/9b/9f909b70fd8c0f507c0ec14edbfce749.jpg",
-    category: "Earrings",
-  },
-  {
-    id: 25,
-    name: "Antique Gold Kada",
-    price: 19999,
-    image: "https://i.pinimg.com/originals/d1/3b/39/d13b395209ec5f12f21db83d68a3f2fc.jpg",
-    category: "Bangles",
-  },
-  {
-    id: 26,
-    name: "Rose Gold Heart Ring",
-    price: 8999,
-    image: "https://i.pinimg.com/originals/37/9a/8a/379a8a8d4b7e40bcaf7f4c22d3ed5d73.jpg",
-    category: "Rings",
-  },
-  {
-    id: 27,
-    name: "Mirror Choker Necklace",
-    price: 24999,
-    image: "https://i.pinimg.com/originals/f9/f4/84/f9f484274c9df3801df6a04cf12de0e7.jpg",
-    category: "Necklaces",
-  },
-  {
-    id: 28,
-    name: "Pearl Chain Bracelet",
-    price: 6999,
-    image: "https://i.pinimg.com/originals/4f/e5/89/4fe589efae82c64fbb7a7ebff0d41a5b.jpg",
-    category: "Bracelets",
-  },
+const heroImages = [
+  "/images/hero1.jpg",
+  "/images/hero2.jpg",
+  "/images/hero3.jpg",
+  "/images/hero4.jpg",
 ];
 
-export default function Products() {
-  const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    setProducts(sampleProducts);
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
-
-  const categories = ["All", ...new Set(sampleProducts.map((p) => p.category))];
-
   return (
-    <div className="min-h-screen bg-white pt-28 pb-10 px-6 md:px-14">
-      <div className="flex justify-between items-center flex-col md:flex-row gap-4 mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">Our Products</h1>
-        <select
-          className="border px-4 py-2 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map((cat, idx) => (
-            <option key={idx} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-      </div>
+    <section
+      className="w-full h-[60vh] bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out mt-17"
+      style={{
+        backgroundImage: `url('${heroImages[currentIndex]}')`,
+      }}
+    >
+      {/* Auto-scrolling hero background */}
+    </section>
+  );
+}
 
-      {filteredProducts.length === 0 ? (
-        <p className="text-center text-gray-500">No products found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {filteredProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: product.id * 0.02 }}
-              className="bg-white border rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-            >
-              <Link to={`/product/${product.id}`}>
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-56 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    {product.name}
-                  </h3>
-                  <p className="text-gray-600 mt-1">₹{product.price}</p>
-                  <button className="mt-4 inline-block px-4 py-2 bg-black text-white rounded-xl text-sm hover:bg-gray-800 transition">
-                    View Details
-                  </button>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      )}
+function ProductCard({ name, price, image, description }) {
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition transform hover:-translate-y-1">
+      <img src={image} alt={name} className="w-full h-48 object-cover rounded-md mb-4" />
+      <h3 className="text-xl font-semibold font-serif mb-2">{name}</h3>
+      <p className="text-gray-600 mb-2">{description}</p>
+      <p className="text-amber-600 font-bold mb-4">${price}</p>
+      <button className="bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-900 transition">
+        Add to Cart
+      </button>
     </div>
   );
 }
+
+function Shop() {
+  const products = [
+    {
+      name: "Diamond Solitaire Necklace",
+      price: 1299,
+      image: "/7065f415-b5a1-4e6d-b3c4-128338453ba7.jpg",
+      description: "A stunning 1-carat diamond pendant on a delicate gold chain.",
+    },
+    {
+      name: "Rose Gold Floral Necklace",
+      price: 1499,
+      image: "/7b395770-d3a4-49a7-a824-76a13b3620ba.jpg",
+      description: "Rose gold necklace with floral diamond arrangement.",
+    },
+    {
+      name: "Elegant Drop Earrings",
+      price: 899,
+      image: "/24a71342-f125-4ac8-8c74-88458f2782e9.jpg",
+      description: "Delicate drop earrings set in gold with a modern twist.",
+    },
+    {
+      name: "Designer Diamond Pendant",
+      price: 1099,
+      image: "/7b5c9183-5d72-450c-a970-23675c4a8f79.jpg",
+      description: "V-shaped diamond-studded pendant with central crystal.",
+    },
+  ];
+
+  return (
+    <section id="shop" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-serif font-bold text-center mb-12">Featured Jewelry</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {products.map((product, index) => (
+            <ProductCard key={index} {...product} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CollectionCard({ title, description, image }) {
+  return (
+    <div className="relative rounded-lg overflow-hidden shadow-md">
+      <img src={image} alt={title} className="w-full h-64 object-cover" />
+      <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-white p-4">
+        <h3 className="text-2xl font-serif font-semibold mb-2">{title}</h3>
+        <p className="text-center mb-4">{description}</p>
+        <a href="#shop" className="bg-amber-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-amber-700 transition">
+          Shop Now
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function Collections() {
+  const collections = [
+    {
+      title: "Bridal Collection",
+      description: "Elegant designs for your special day, crafted with love.",
+      image: "/7b395770-d3a4-49a7-a824-76a13b3620ba.jpg",
+    },
+    {
+      title: "Vintage Classics",
+      description: "Timeless pieces inspired by classic craftsmanship.",
+      image: "/24a71342-f125-4ac8-8c74-88458f2782e9.jpg",
+    },
+  ];
+
+  return (
+    <section id="collections" className="py-20">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-serif font-bold text-center mb-12">Our Collections</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {collections.map((collection, index) => (
+            <CollectionCard key={index} {...collection} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Products() {
+  return (
+    <div>
+      <Hero />
+      <Shop />
+      <Collections />
+    </div>
+  );
+}
+
+export default Products;

@@ -10,8 +10,8 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import PoliciesFaq from './pages/PoliciesFaq'; // Match the filename exactly
- // ✅ Import Policies & FAQ page
+import ForgetPassword from './pages/ForgetPassword';
+import PoliciesFaq from './pages/PoliciesFaq'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -35,7 +35,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/policies-faq" element={<PoliciesFaq />} />
-
+            <Route path="/ForgetPassword" element={<ForgetPassword />} />
           </Routes>
         </main>
         <Footer />

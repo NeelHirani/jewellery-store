@@ -51,6 +51,7 @@ export default function Navbar() {
           <Link to="/products" className={linkClass}>Products</Link>
           <Link to="/about" className={linkClass}>About</Link>
           <Link to="/contact" className={linkClass}>Contact</Link>
+          <Link to="/policies-faq" className={linkClass}>Policies & FAQ</Link> {/* ✅ New link */}
           <Link to="/login" className={linkClass}>Login</Link>
           <Link to="/cart" className={`${linkClass} text-xl`}>🛒</Link>
           <Link to="/profile" className={linkClass}>Profile</Link>

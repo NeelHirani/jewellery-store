@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { supabase } from '../lib/supabase';
-
+import { supabase } from "../lib/supabase";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -12,7 +11,9 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+  const [termsAccepted, setTermsAccepted] = useState(false); // New state for checkbox
   const [errors, setErrors] = useState({});
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
@@ -27,6 +28,7 @@ const Signup = () => {
       errs.password = "Minimum 6 characters";
     if (formData.confirmPassword !== formData.password)
       errs.confirmPassword = "Passwords do not match";
+    if (!termsAccepted) errs.terms = "You must agree to the Terms & Conditions"; // New validation
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -35,6 +37,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
+    setSuccess("");
     setLoading(true);
 
     if (!validate()) {
@@ -45,7 +48,7 @@ const Signup = () => {
     try {
       // Insert new user into the users table
       const { data, error } = await supabase
-        .from('users')
+        .from("users")
         .insert([
           {
             name: formData.name.trim(),
@@ -54,11 +57,11 @@ const Signup = () => {
             created_at: new Date().toISOString(),
           },
         ])
-        .select('id')
+        .select("id")
         .single();
 
       if (error) {
-        if (error.code === '23505') { // Unique constraint violation (email already exists)
+        if (error.code === "23505") { // Unique constraint violation (email already exists)
           setErrors({ email: "Email already registered" });
         } else {
           setErrors({ general: "Failed to register. Please try again." });
@@ -67,8 +70,10 @@ const Signup = () => {
         return;
       }
 
-      console.log("User registered:", data);
-      navigate("/login");
+      setSuccess("Signing you in...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
     } catch (err) {
       setErrors({ general: "An unexpected error occurred. Please try again." });
       console.error(err);
@@ -90,6 +95,7 @@ const Signup = () => {
         </h2>
 
         {errors.general && <p className="text-red-500 text-sm mb-4 text-center">{errors.general}</p>}
+        {success && <p className="text-green-500 text-sm mb-4 text-center">{success}</p>}
 
         <div className="space-y-5">
           {/* Name */}
@@ -101,7 +107,7 @@ const Signup = () => {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="John Doe"
+              placeholder="abc"
               className={`w-full border rounded px-4 py-2 focus:outline-none ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
@@ -173,21 +179,31 @@ const Signup = () => {
           </div>
 
           {/* Terms */}
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <input type="checkbox" required disabled={loading} />
-            <span>I agree with Terms & Conditions</span>
+          <div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                disabled={loading}
+              />
+              <span>I agree with Terms & Conditions</span>
+            </div>
+            {errors.terms && (
+              <p className="text-red-500 text-sm mt-1">{errors.terms}</p>
+            )}
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             className={`w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold transition ${
-              loading ? 'opacity-50 cursor-not-allowed' : ''
+              loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={loading}
             onClick={handleSubmit}
           >
-            {loading ? 'Signing Up...' : 'Sign Up'}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </div>
 

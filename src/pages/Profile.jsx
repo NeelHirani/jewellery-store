@@ -42,6 +42,11 @@ export default function UserProfile({ user: propUser }) {
     navigate("/login");
   };
 
+  // Handle change password navigation
+  const handleChangePassword = () => {
+    navigate("/ForgetPassword");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white pt-24 pb-10 px-4">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-purple-300">
@@ -119,12 +124,13 @@ export default function UserProfile({ user: propUser }) {
             <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition">
               <h4 className="text-xl font-semibold mb-3 text-gray-700">Account Settings</h4>
               <div className="space-y-3">
-                <button className="flex items-center text-gray-700 hover:text-purple-600">
+                <button
+                  onClick={handleChangePassword}
+                  className="flex items-center text-gray-700 hover:text-purple-600"
+                >
                   <FaLock className="mr-2" /> Change Password
                 </button>
-                <button className="flex items-center text-gray-700 hover:text-purple-600">
-                  <FaUserEdit className="mr-2" /> Manage Contact Info
-                </button>
+               
                 <button
                   onClick={handleLogout}
                   className="flex items-center text-red-500 hover:underline"
@@ -139,4 +145,4 @@ export default function UserProfile({ user: propUser }) {
       </div>
     </div>
   );
-}
+};

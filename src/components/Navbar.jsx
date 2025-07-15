@@ -5,6 +5,13 @@ export default function Navbar() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check login status on mount and when location changes
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsLoggedIn(!!user);
+  }, [location]);
 
   useEffect(() => {
     if (!isHomePage) {
@@ -51,10 +58,22 @@ export default function Navbar() {
           <Link to="/products" className={linkClass}>Products</Link>
           <Link to="/about" className={linkClass}>About</Link>
           <Link to="/contact" className={linkClass}>Contact</Link>
-          <Link to="/policies-faq" className={linkClass}>Policies & FAQ</Link> {/* ✅ New link */}
-          <Link to="/login" className={linkClass}>Login</Link>
+          <Link to="/policies-faq" className={linkClass}>Policies & FAQ</Link>
+          {!isLoggedIn && (
+            <Link to="/login" className={linkClass}>Login</Link>
+          )}
           <Link to="/cart" className={`${linkClass} text-xl`}>🛒</Link>
-          <Link to="/profile" className={linkClass}>Profile</Link>
+
+          {/* Profile icon (only if logged in) */}
+          {isLoggedIn && (
+            <Link to="/profile" className="w-7 h-7">
+              <img
+                src="icon.png"
+                alt="Profile"
+                className="w-full h-full object-contain rounded-full hover:scale-110 transition"
+              />
+            </Link>
+          )}
         </div>
       </div>
     </nav>

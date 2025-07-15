@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { supabase } from '../lib/supabase';
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ const Signup = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const validate = () => {
     const errs = {};
@@ -29,11 +32,48 @@ const Signup = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("User registered:", formData);
+    setErrors({});
+    setLoading(true);
+
+    if (!validate()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Insert new user into the users table
+      const { data, error } = await supabase
+        .from('users')
+        .insert([
+          {
+            name: formData.name.trim(),
+            email: formData.email,
+            password: formData.password,
+            created_at: new Date().toISOString(),
+          },
+        ])
+        .select('id')
+        .single();
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation (email already exists)
+          setErrors({ email: "Email already registered" });
+        } else {
+          setErrors({ general: "Failed to register. Please try again." });
+        }
+        setLoading(false);
+        return;
+      }
+
+      console.log("User registered:", data);
       navigate("/login");
+    } catch (err) {
+      setErrors({ general: "An unexpected error occurred. Please try again." });
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +89,9 @@ const Signup = () => {
           Create Your Account
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {errors.general && <p className="text-red-500 text-sm mb-4 text-center">{errors.general}</p>}
+
+        <div className="space-y-5">
           {/* Name */}
           <div>
             <label className="block font-medium mb-1">Full Name</label>
@@ -63,6 +105,7 @@ const Signup = () => {
               className={`w-full border rounded px-4 py-2 focus:outline-none ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
+              disabled={loading}
             />
             {errors.name && (
               <p className="text-red-500 text-sm">{errors.name}</p>
@@ -82,6 +125,7 @@ const Signup = () => {
               className={`w-full border rounded px-4 py-2 focus:outline-none ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
+              disabled={loading}
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
@@ -101,6 +145,7 @@ const Signup = () => {
               className={`w-full border rounded px-4 py-2 focus:outline-none ${
                 errors.password ? "border-red-500" : "border-gray-300"
               }`}
+              disabled={loading}
             />
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
@@ -120,6 +165,7 @@ const Signup = () => {
               className={`w-full border rounded px-4 py-2 focus:outline-none ${
                 errors.confirmPassword ? "border-red-500" : "border-gray-300"
               }`}
+              disabled={loading}
             />
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
@@ -128,18 +174,22 @@ const Signup = () => {
 
           {/* Terms */}
           <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <input type="checkbox" required />
+            <input type="checkbox" required disabled={loading} />
             <span>I agree with Terms & Conditions</span>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold transition"
+            className={`w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold transition ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={loading}
+            onClick={handleSubmit}
           >
-            Sign Up
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
-        </form>
+        </div>
 
         {/* Login Link */}
         <p className="text-center text-sm text-gray-600 mt-4">

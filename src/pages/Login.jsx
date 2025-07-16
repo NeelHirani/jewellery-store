@@ -69,54 +69,55 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans">
-      {/* Left Section with gradient animation */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-purple-600 via-pink-500 to-yellow-400 animate-pulse flex flex-col justify-center items-center text-white p-10 relative overflow-hidden">
-        <div className="backdrop-blur-md bg-black/40 p-8 rounded-xl shadow-2xl text-center z-10">
-          <h2 className="text-4xl font-bold mb-3 font-serif tracking-wide">
-            Welcome to <span className="italic">Jewel Mart</span>
-          </h2>
-          <p className="text-sm text-gray-200">Unlock your elegance. Sign in to shine ✨</p>
-        </div>
-      </div>
+    <div className="relative w-full min-h-screen">
+      {/* Background image */}
+      <img
+        src="https://plus.unsplash.com/premium_photo-1661645473770-90d750452fa0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Jewelry"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/20 z-10" />
 
-      {/* Right Section */}
-      <div className="w-full md:w-1/2 bg-gradient-to-b from-purple-100 to-white flex items-center justify-center px-6 py-10">
+      {/* Login box on left */}
+      <div className="relative z-20 flex items-center justify-start min-h-screen px-6 md:px-16 mt-12">
         <motion.div
-          className="w-full max-w-sm bg-white/60 backdrop-blur-lg border border-purple-100 shadow-2xl rounded-2xl p-8"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl p-8"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h3 className="text-2xl font-bold text-purple-700 mb-1">Welcome Back</h3>
-          <p className="text-sm text-gray-600 mb-6">Sign in to continue</p>
+          <h3 className="text-2xl font-bold text-white mb-1">Welcome Back</h3>
+          <p className="text-sm text-white mb-6">Sign in to continue</p>
 
           {errors.general && <p className="text-red-500 text-sm mb-4">{errors.general}</p>}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 transition-all focus-within:ring-2 ring-purple-300">
+          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+            {/* Email */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-purple-300 transition">
               <FaUser className="text-gray-400 mr-2" />
               <input
                 type="email"
                 placeholder="Email"
+                autoComplete="new-email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
                 disabled={loading}
               />
             </div>
             {errors.email && <p className="text-red-500 text-sm -mt-3">{errors.email}</p>}
 
-            {/* Password Field */}
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 transition-all focus-within:ring-2 ring-purple-300">
+            {/* Password */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-purple-300 transition">
               <FaLock className="text-gray-400 mr-2" />
               <input
                 type="password"
                 placeholder="Password"
+                autoComplete="new-password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
                 disabled={loading}
               />
             </div>
@@ -124,13 +125,13 @@ const Login = () => {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link to="/ForgetPassword" className="text-purple-600 font-semibold hover:underline">
-              Forget Password
-            </Link>
+              <Link to="/ForgetPassword" className="text-white font-semibold hover:underline">
+                Forget Password
+              </Link>
             </div>
 
             {/* Terms */}
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-white">
               <input type="checkbox" required disabled={loading} />
               <span>I agree with Terms & Conditions</span>
             </div>
@@ -148,9 +149,9 @@ const Login = () => {
           </form>
 
           {/* Sign Up Link */}
-          <p className="text-center text-sm text-gray-600 mt-6">
+          <p className="text-center text-sm text-white mt-6">
             Don’t have an account?{" "}
-            <Link to="/signup" className="text-purple-600 font-semibold hover:underline">
+            <Link to="/signup" className="text-white underline hover:text-purple-200">
               Sign Up
             </Link>
           </p>

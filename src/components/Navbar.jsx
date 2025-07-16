@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { HiOutlineShoppingBag } from "react-icons/hi";
 
 export default function Navbar() {
   const location = useLocation();
@@ -7,7 +8,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check login status on mount and when location changes
   useEffect(() => {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
@@ -27,8 +27,8 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomePage]);
 
-  const linkClass = `font-medium text-sm md:text-base transition-colors duration-300 ${
-    scrolled ? "text-black" : "text-white"
+  const linkClass = `font-medium text-sm md:text-base transition-colors duration-300 hover:text-rose-600 ${
+    scrolled ? "text-gray-900" : "text-white"
   }`;
 
   return (
@@ -53,7 +53,7 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation Links */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-5">
           <Link to="/" className={linkClass}>Home</Link>
           <Link to="/products" className={linkClass}>Products</Link>
           <Link to="/about" className={linkClass}>About</Link>
@@ -62,15 +62,17 @@ export default function Navbar() {
           {!isLoggedIn && (
             <Link to="/login" className={linkClass}>Login</Link>
           )}
-          <Link to="/cart" className={`${linkClass} text-xl`}>🛒</Link>
+          <Link to="/cart" className={`${linkClass} text-xl`}>
+            <HiOutlineShoppingBag />
+          </Link>
 
           {/* Profile icon (only if logged in) */}
           {isLoggedIn && (
-            <Link to="/profile" className="w-7 h-7">
+            <Link to="/profile" className="w-8 h-8 border-2 border-transparent hover:border-rose-700 rounded-full transition">
               <img
-                src="icon.png"
+                src="/icon.png"
                 alt="Profile"
-                className="w-full h-full object-contain rounded-full hover:scale-110 transition"
+                className="w-full h-full object-cover rounded-full"
               />
             </Link>
           )}

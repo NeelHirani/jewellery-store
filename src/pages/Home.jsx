@@ -84,9 +84,7 @@ export default function Home() {
             key={index}
             src={slide.image}
             alt={`slide-${index}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === current ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
           />
         ))}
         <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
@@ -115,7 +113,7 @@ export default function Home() {
           >
             <Link
               to="/products"
-              className="mt-6 inline-block bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 transition"
+              className="mt-6 inline-block bg-rose-800 text-white px-6 py-3 rounded-md hover:bg-rose-900 transition"
             >
               Shop Now
             </Link>
@@ -126,9 +124,7 @@ export default function Home() {
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`w-3 h-3 rounded-full ${
-                i === current ? "bg-white" : "bg-gray-400"
-              }`}
+              className={`w-3 h-3 rounded-full ${i === current ? "bg-white" : "bg-gray-400"}`}
             />
           ))}
         </div>
@@ -136,13 +132,13 @@ export default function Home() {
 
       {/* Promo Banner */}
       {showPromo && (
-        <div className="bg-purple-100 text-purple-800 py-3 px-4 text-center relative">
+        <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative">
           <p className="text-sm md:text-base font-medium">
             🎉 Free Shipping on Orders Above ₹5000! Limited time only.
           </p>
           <button
             onClick={() => setShowPromo(false)}
-            className="absolute right-4 top-1 text-purple-600 font-bold hover:text-purple-800"
+            className="absolute right-4 top-1 text-rose-900 font-bold hover:text-rose-800"
           >
             ✕
           </button>
@@ -150,29 +146,28 @@ export default function Home() {
       )}
 
       {/* Shop By Category */}
-        <section className="py-16 px-6 bg-white text-center">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {categories.map((cat, i) => (
-              <div
-                key={i}
-                className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-56 object-cover"
-                />
-                {/* Bottom Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
-                  <h3 className="text-white group-hover:text-yellow-400 text-xl font-semibold tracking-wide transition">
-                    {cat.title}
-                  </h3>
-                </div>
+      <section className="py-16 px-6 bg-white text-center">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+          {categories.map((cat, i) => (
+            <div
+              key={i}
+              className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
+            >
+              <img
+                src={cat.image}
+                alt={cat.title}
+                className="w-full h-56 object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
+                <h3 className="text-white group-hover:text-rose-400 text-xl font-semibold tracking-wide transition">
+                  {cat.title}
+                </h3>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Best Sellers */}
       <section className="py-16 px-6 bg-gray-50 text-center">
@@ -195,8 +190,8 @@ export default function Home() {
               </span>
               <div className="p-4 space-y-2">
                 <h3 className="font-medium text-lg">Elegant Pendant</h3>
-                <p className="text-purple-600 font-semibold">₹7,499</p>
-                <button className="mt-2 w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                <p className="text-rose-800 font-semibold">₹7,499</p>
+                <button className="mt-2 w-full bg-rose-800 text-white py-2 rounded hover:bg-rose-900 transition">
                   View Detail
                 </button>
               </div>
@@ -206,16 +201,14 @@ export default function Home() {
       </section>
 
       {/* Deals of the Week */}
-      <section className="py-16 px-0 bg-purple-100">
+      <section className="py-16 px-0 bg-rose-100">
         <div className="w-full relative h-[450px] overflow-hidden">
           {dealsData.map((deal, index) => (
             <img
               key={index}
               src={deal.image}
               alt={deal.title}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                index === dealIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-              }`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === dealIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
             />
           ))}
 
@@ -226,7 +219,7 @@ export default function Home() {
             </p>
             <Link
               to="/products"
-              className="bg-purple-600 text-white px-5 py-3 rounded hover:bg-purple-700 transition"
+              className="bg-rose-800 text-white px-5 py-3 rounded hover:bg-rose-900 transition"
             >
               Shop Now
             </Link>
@@ -237,9 +230,7 @@ export default function Home() {
               <button
                 key={i}
                 onClick={() => setDealIndex(i)}
-                className={`w-3 h-3 rounded-full ${
-                  i === dealIndex ? "bg-white" : "bg-gray-400"
-                }`}
+                className={`w-3 h-3 rounded-full ${i === dealIndex ? "bg-white" : "bg-gray-400"}`}
               />
             ))}
           </div>
@@ -247,7 +238,7 @@ export default function Home() {
       </section>
 
       {/* About Us */}
-      <section className="py-16 px-6 bg-purple-50 text-center">
+      <section className="py-16 px-6 bg-rose-50 text-center">
         <h2 className="text-3xl font-semibold text-gray-800 mb-6">About Jewel Mart</h2>
         <p className="max-w-3xl mx-auto text-gray-600 text-lg">
           At Jewel Mart, we curate the finest jewelry from top designers and brands,

@@ -74,7 +74,7 @@ export default function Home() {
   return (
     <>
       {/* Video Section */}
-      <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden mb-8">
+      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden mb-8">
         <video
           autoPlay
           loop
@@ -82,12 +82,12 @@ export default function Home() {
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="/videos/herovideo.mp4" type="video/mp4" />
+          <source src="/videos/main.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
           <h2 className="text-white text-3xl md:text-5xl font-bold text-center drop-shadow-lg">
-            Celebrating Raksha Bandhan with Elegance ✨
+            {/* Celebrating Raksha Bandhan with Elegance ✨ */}
           </h2>
         </div>
       </section>

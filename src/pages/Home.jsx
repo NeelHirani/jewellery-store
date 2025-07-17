@@ -85,6 +85,7 @@ export default function Home() {
 
   return (
     <>
+<<<<<<< HEAD
       {/* Video Section */}
       <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden mb-8">
         <video
@@ -106,6 +107,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+=======
+      {/* Hero Section with padding to avoid navbar overlap */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
+>>>>>>> d2117c2e90399dc028f8c8a3cdc184fc3013fa7f
         {slideData.map((slide, index) => (
           <img
             key={index}

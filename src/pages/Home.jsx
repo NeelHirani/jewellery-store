@@ -85,6 +85,25 @@ export default function Home() {
 
   return (
     <>
+      {/* Video Section */}
+      <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden mb-8">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/videos/herovideo.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <h2 className="text-white text-3xl md:text-5xl font-bold text-center drop-shadow-lg">
+            Celebrating Raksha Bandhan with Elegance ✨
+          </h2>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="relative h-[500px] md:h-[600px] overflow-hidden">
         {slideData.map((slide, index) => (
@@ -92,7 +111,9 @@ export default function Home() {
             key={index}
             src={slide.image}
             alt={`slide-${index}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${index === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
           />
         ))}
         <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
@@ -144,13 +165,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* Shop By Category with Side Switching Animation */}
+      {/* Shop By Category */}
       <section className="py-16 px-6 bg-white text-center">
         <h2 className="text-3xl font-semibold text-gray-800 mb-10">
           Shop By Category
         </h2>
         <div className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto items-center">
-          {/* Animated Main Image */}
           <motion.div
             key={categories[activeCatIndex].title}
             initial={{ opacity: 0, x: -50 }}
@@ -168,7 +188,6 @@ export default function Home() {
             </h3>
           </motion.div>
 
-          {/* Category List */}
           <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {categories.map((cat, i) => (
               <motion.div
@@ -176,7 +195,9 @@ export default function Home() {
                 onMouseEnter={() => setActiveCatIndex(i)}
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
-                className={`cursor-pointer group rounded-xl overflow-hidden shadow hover:shadow-xl transition duration-300 ${i === activeCatIndex ? 'ring-2 ring-rose-500' : ''}`}
+                className={`cursor-pointer group rounded-xl overflow-hidden shadow hover:shadow-xl transition duration-300 ${
+                  i === activeCatIndex ? "ring-2 ring-rose-500" : ""
+                }`}
               >
                 <img
                   src={cat.image}
@@ -233,10 +254,11 @@ export default function Home() {
               key={index}
               src={deal.image}
               alt={deal.title}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === dealIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                index === dealIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
             />
           ))}
-
           <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-start px-10 md:px-20 text-white">
             <h2 className="text-4xl font-bold mb-2">Deals of the Week</h2>
             <p className="text-lg mb-4">

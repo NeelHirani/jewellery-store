@@ -96,7 +96,7 @@ function Collections() {
   return (
     <section id="collections" className="py-20">
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-serif font-bold text-center mb-12 text-rose-900">Collections</h2>
+        <h2 className="text-4xl font-serif font-bold text-center mb-12 text-rose-900 mt-7">Collections</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {collections.map((collection, index) => (
             <CollectionCard key={index} {...collection} />

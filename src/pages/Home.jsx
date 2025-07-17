@@ -85,8 +85,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      {/* Hero Section with padding to avoid navbar overlap */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
         {slideData.map((slide, index) => (
           <img
             key={index}
@@ -144,13 +144,12 @@ export default function Home() {
         </div>
       )}
 
-      {/* Shop By Category with Side Switching Animation */}
+      {/* Shop By Category */}
       <section className="py-16 px-6 bg-white text-center">
         <h2 className="text-3xl font-semibold text-gray-800 mb-10">
           Shop By Category
         </h2>
         <div className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto items-center">
-          {/* Animated Main Image */}
           <motion.div
             key={categories[activeCatIndex].title}
             initial={{ opacity: 0, x: -50 }}
@@ -168,7 +167,6 @@ export default function Home() {
             </h3>
           </motion.div>
 
-          {/* Category List */}
           <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {categories.map((cat, i) => (
               <motion.div

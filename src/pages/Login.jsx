@@ -77,12 +77,12 @@ const Login = () => {
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/20 z-10" />
+      <div className="absolute inset-0 bg-black/30 z-10" />
 
-      {/* Login box on left */}
+      {/* Login box */}
       <div className="relative z-20 flex items-center justify-start min-h-screen px-6 md:px-16 mt-12">
         <motion.div
-          className="w-full max-w-sm bg-white/30 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl p-8"
+          className="w-full max-w-sm bg-white/20 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl p-8"
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
@@ -94,7 +94,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
             {/* Email */}
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-purple-300 transition">
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
               <FaUser className="text-gray-400 mr-2" />
               <input
                 type="email"
@@ -109,7 +109,7 @@ const Login = () => {
             {errors.email && <p className="text-red-500 text-sm -mt-3">{errors.email}</p>}
 
             {/* Password */}
-            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-purple-300 transition">
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
               <FaLock className="text-gray-400 mr-2" />
               <input
                 type="password"
@@ -139,7 +139,7 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit"
-              className={`w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition transform hover:scale-105 duration-300 shadow-lg ${
+              className={`w-full flex items-center justify-center gap-2 bg-[#800000] hover:bg-[#5a0d15] text-white py-2 rounded-lg font-medium transition transform hover:scale-105 duration-300 shadow-lg ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={loading}
@@ -151,7 +151,7 @@ const Login = () => {
           {/* Sign Up Link */}
           <p className="text-center text-sm text-white mt-6">
             Don’t have an account?{" "}
-            <Link to="/signup" className="text-white underline hover:text-purple-200">
+            <Link to="/signup" className="text-white underline hover:text-rose-200">
               Sign Up
             </Link>
           </p>

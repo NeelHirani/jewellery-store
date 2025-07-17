@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { HiOutlineShoppingBag } from "react-icons/hi";
+import { FiShoppingCart } from "react-icons/fi"; // Changed icon
+// import { HiOutlineShoppingBag } from "react-icons/hi"; // Removed old icon
 
 export default function Navbar() {
   const location = useLocation();
@@ -63,7 +64,7 @@ export default function Navbar() {
             <Link to="/login" className={linkClass}>Login</Link>
           )}
           <Link to="/cart" className={`${linkClass} text-xl`}>
-            <HiOutlineShoppingBag />
+            <FiShoppingCart />
           </Link>
 
           {/* Profile icon (only if logged in) */}

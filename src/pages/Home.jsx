@@ -22,27 +22,10 @@ export default function Home() {
   ];
 
   const dealsData = [
-    {
-      image: "/images/deals/bangles.jpg",
-      title: "Gold Bangles",
-      price: "₹12,499",
-    },
-    {
-      image: "/images/deals/earrings.jpg",
-      title: "Diamond Earrings",
-      price: "₹4,999",
-    },
-    {
-      image: "/images/deals/pendants.jpg",
-      title: "Classic Pendant",
-      price: "₹8,999",
-    },
+    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "₹12,499" },
+    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "₹4,999" },
+    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "₹8,999" },
   ];
-
-  const [current, setCurrent] = useState(0);
-  const [dealIndex, setDealIndex] = useState(0);
-  const [showPromo, setShowPromo] = useState(true);
-  const [activeCatIndex, setActiveCatIndex] = useState(0);
 
   const categories = [
     { title: "Bangles", image: "/images/categories/bangles.jpg" },
@@ -61,6 +44,11 @@ export default function Home() {
     { title: "Diamond Jewellery", image: "/images/categories/diamond.jpg" },
     { title: "Estate Jewellery", image: "/images/categories/estate.jpg" },
   ];
+
+  const [current, setCurrent] = useState(0);
+  const [dealIndex, setDealIndex] = useState(0);
+  const [showPromo, setShowPromo] = useState(true);
+  const [activeCatIndex, setActiveCatIndex] = useState(0);
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -85,7 +73,6 @@ export default function Home() {
 
   return (
     <>
-<<<<<<< HEAD
       {/* Video Section */}
       <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden mb-8">
         <video
@@ -106,11 +93,7 @@ export default function Home() {
       </section>
 
       {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
-=======
-      {/* Hero Section with padding to avoid navbar overlap */}
       <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
->>>>>>> d2117c2e90399dc028f8c8a3cdc184fc3013fa7f
         {slideData.map((slide, index) => (
           <img
             key={index}

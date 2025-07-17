@@ -85,57 +85,7 @@ export default function Home() {
           <source src="/videos/main.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-          <h2 className="text-white text-3xl md:text-5xl font-bold text-center drop-shadow-lg">
-            {/* Celebrating Raksha Bandhan with Elegance ✨ */}
-          </h2>
-        </div>
-      </section>
-
-      {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
-        {slideData.map((slide, index) => (
-          <img
-            key={index}
-            src={slide.image}
-            alt={`slide-${index}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === current ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          />
-        ))}
-        <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
-          <motion.h1
-            key={slideData[current].heading}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-white text-4xl md:text-5xl font-bold drop-shadow-lg"
-          >
-            {slideData[current].heading}
-          </motion.h1>
-          <motion.p
-            key={slideData[current].description}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mt-4 text-white text-lg"
-          >
-            {slideData[current].description}
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            <Link
-              to="/products"
-              className="mt-6 inline-block bg-rose-800 text-white px-6 py-3 rounded-md hover:bg-rose-900 transition"
-            >
-              Shop Now
-            </Link>
-          </motion.div>
-        </div>
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center" />
       </section>
 
       {/* Promo Banner */}
@@ -200,6 +150,52 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Hero Section (Moved Here) */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
+        {slideData.map((slide, index) => (
+          <img
+            key={index}
+            src={slide.image}
+            alt={`slide-${index}`}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
+          <motion.h1
+            key={slideData[current].heading}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-white text-4xl md:text-5xl font-bold drop-shadow-lg"
+          >
+            {slideData[current].heading}
+          </motion.h1>
+          <motion.p
+            key={slideData[current].description}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="mt-4 text-white text-lg"
+          >
+            {slideData[current].description}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          >
+            <Link
+              to="/products"
+              className="mt-6 inline-block bg-rose-800 text-white px-6 py-3 rounded-md hover:bg-rose-900 transition"
+            >
+              Shop Now
+            </Link>
+          </motion.div>
         </div>
       </section>
 

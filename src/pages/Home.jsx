@@ -42,20 +42,7 @@ export default function Home() {
   const [current, setCurrent] = useState(0);
   const [dealIndex, setDealIndex] = useState(0);
   const [showPromo, setShowPromo] = useState(true);
-
-  useEffect(() => {
-    const slideInterval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slideData.length);
-    }, 3000);
-    return () => clearInterval(slideInterval);
-  }, []);
-
-  useEffect(() => {
-    const dealInterval = setInterval(() => {
-      setDealIndex((prev) => (prev + 1) % dealsData.length);
-    }, 3000);
-    return () => clearInterval(dealInterval);
-  }, []);
+  const [activeCatIndex, setActiveCatIndex] = useState(0);
 
   const categories = [
     { title: "Bangles", image: "/images/categories/bangles.jpg" },
@@ -74,6 +61,27 @@ export default function Home() {
     { title: "Diamond Jewellery", image: "/images/categories/diamond.jpg" },
     { title: "Estate Jewellery", image: "/images/categories/estate.jpg" },
   ];
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slideData.length);
+    }, 3000);
+    return () => clearInterval(slideInterval);
+  }, []);
+
+  useEffect(() => {
+    const dealInterval = setInterval(() => {
+      setDealIndex((prev) => (prev + 1) % dealsData.length);
+    }, 3000);
+    return () => clearInterval(dealInterval);
+  }, []);
+
+  useEffect(() => {
+    const catInterval = setInterval(() => {
+      setActiveCatIndex((prev) => (prev + 1) % categories.length);
+    }, 2500);
+    return () => clearInterval(catInterval);
+  }, [categories.length]);
 
   return (
     <>
@@ -119,15 +127,6 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
-          {slideData.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`w-3 h-3 rounded-full ${i === current ? "bg-white" : "bg-gray-400"}`}
-            />
-          ))}
-        </div>
       </section>
 
       {/* Promo Banner */}
@@ -145,27 +144,53 @@ export default function Home() {
         </div>
       )}
 
-      {/* Shop By Category */}
+      {/* Shop By Category with Side Switching Animation */}
       <section className="py-16 px-6 bg-white text-center">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-          {categories.map((cat, i) => (
-            <div
-              key={i}
-              className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
-            >
-              <img
-                src={cat.image}
-                alt={cat.title}
-                className="w-full h-56 object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
-                <h3 className="text-white group-hover:text-rose-400 text-xl font-semibold tracking-wide transition">
-                  {cat.title}
-                </h3>
-              </div>
-            </div>
-          ))}
+        <h2 className="text-3xl font-semibold text-gray-800 mb-10">
+          Shop By Category
+        </h2>
+        <div className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto items-center">
+          {/* Animated Main Image */}
+          <motion.div
+            key={categories[activeCatIndex].title}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full lg:w-1/2"
+          >
+            <img
+              src={categories[activeCatIndex].image}
+              alt={categories[activeCatIndex].title}
+              className="rounded-xl shadow-lg object-cover w-full h-[300px] md:h-[400px]"
+            />
+            <h3 className="mt-4 text-2xl font-semibold text-gray-800">
+              {categories[activeCatIndex].title}
+            </h3>
+          </motion.div>
+
+          {/* Category List */}
+          <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={i}
+                onMouseEnter={() => setActiveCatIndex(i)}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+                className={`cursor-pointer group rounded-xl overflow-hidden shadow hover:shadow-xl transition duration-300 ${i === activeCatIndex ? 'ring-2 ring-rose-500' : ''}`}
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.title}
+                  className="w-full h-32 object-cover"
+                />
+                <div className="bg-black/50 p-2">
+                  <h3 className="text-white text-sm group-hover:text-rose-300">
+                    {cat.title}
+                  </h3>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -223,16 +248,6 @@ export default function Home() {
             >
               Shop Now
             </Link>
-          </div>
-
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
-            {dealsData.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setDealIndex(i)}
-                className={`w-3 h-3 rounded-full ${i === dealIndex ? "bg-white" : "bg-gray-400"}`}
-              />
-            ))}
           </div>
         </div>
       </section>

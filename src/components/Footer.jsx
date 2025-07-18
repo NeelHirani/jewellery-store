@@ -20,9 +20,8 @@ const Footer = () => {
           <ul className="space-y-2 text-sm">
             <li><Link to="/about" className="hover:underline">About Us</Link></li>
             <li><Link to="/contact" className="hover:underline">Contact</Link></li>
-            <Link to="/policies-faq" className="hover:underline">Policies & FAQ</Link>
-
-         </ul>
+            <li><Link to="/policies-faq" className="hover:underline">Policies & FAQ</Link></li>
+          </ul>
         </div>
 
         {/* Help Section */}
@@ -44,7 +43,7 @@ const Footer = () => {
               placeholder="Your email"
               className="w-full px-4 py-2 rounded-l-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none"
             />
-            <button className="bg-purple-600 px-5 py-2 rounded-r-md hover:bg-purple-700">
+            <button className="bg-rose-800 px-5 py-2 rounded-r-md hover:bg-rose-900 transition">
               Subscribe
             </button>
           </div>

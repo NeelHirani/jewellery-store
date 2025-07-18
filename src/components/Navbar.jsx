@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { FiShoppingCart } from "react-icons/fi";
 
 export default function Navbar() {
   const location = useLocation();
@@ -7,7 +8,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check login status on mount and when location changes
   useEffect(() => {
     const user = localStorage.getItem("user");
     setIsLoggedIn(!!user);
@@ -15,7 +15,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!isHomePage) {
-      setScrolled(true);
+      setScrolled(true); // Always solid on non-home pages
       return;
     }
 
@@ -28,18 +28,18 @@ export default function Navbar() {
   }, [isHomePage]);
 
   const linkClass = `font-medium text-sm md:text-base transition-colors duration-300 ${
-    scrolled ? "text-black" : "text-white"
+    scrolled ? "text-black hover:text-rose-600" : "text-white hover:text-rose-100"
   }`;
 
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled ? "bg-white shadow-md" : "bg-transparent"
+        scrolled ? "bg-rose-100 shadow-md" : "bg-transparent"
       }`}
     >
       <div
         className={`max-w-7xl mx-auto flex justify-between items-center px-6 transition-all duration-300 ${
-          scrolled ? "py-2" : "py-4"
+          scrolled ? "py-3" : "py-5"
         }`}
       >
         {/* Logo */}
@@ -48,12 +48,12 @@ export default function Navbar() {
             src={scrolled ? "/jewellmartb.png" : "/jewellmartw.png"}
             alt="Jewel Mart Logo"
             className="object-contain transition-all duration-300"
-            style={{ height: scrolled ? "50px" : "70px" }}
+            style={{ height: "50px" }}
           />
         </Link>
 
         {/* Navigation Links */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-5">
           <Link to="/" className={linkClass}>Home</Link>
           <Link to="/products" className={linkClass}>Products</Link>
           <Link to="/about" className={linkClass}>About</Link>
@@ -62,15 +62,19 @@ export default function Navbar() {
           {!isLoggedIn && (
             <Link to="/login" className={linkClass}>Login</Link>
           )}
-          <Link to="/cart" className={`${linkClass} text-xl`}>🛒</Link>
+          <Link to="/cart" className={`${linkClass} text-xl`}>
+            <FiShoppingCart />
+          </Link>
 
-          {/* Profile icon (only if logged in) */}
           {isLoggedIn && (
-            <Link to="/profile" className="w-7 h-7">
+            <Link
+              to="/profile"
+              className="w-8 h-8 border-2 border-transparent hover:border-rose-700 rounded-full transition"
+            >
               <img
-                src="icon.png"
+                src="/icon.png"
                 alt="Profile"
-                className="w-full h-full object-contain rounded-full hover:scale-110 transition"
+                className="w-full h-full object-cover rounded-full"
               />
             </Link>
           )}

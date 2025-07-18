@@ -11,7 +11,7 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
-  const [termsAccepted, setTermsAccepted] = useState(false); // New state for checkbox
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,8 @@ const Signup = () => {
       errs.password = "Minimum 6 characters";
     if (formData.confirmPassword !== formData.password)
       errs.confirmPassword = "Passwords do not match";
-    if (!termsAccepted) errs.terms = "You must agree to the Terms & Conditions"; // New validation
+    if (!termsAccepted)
+      errs.terms = "You must agree to the Terms & Conditions";
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -46,7 +47,6 @@ const Signup = () => {
     }
 
     try {
-      // Insert new user into the users table
       const { data, error } = await supabase
         .from("users")
         .insert([
@@ -61,7 +61,7 @@ const Signup = () => {
         .single();
 
       if (error) {
-        if (error.code === "23505") { // Unique constraint violation (email already exists)
+        if (error.code === "23505") {
           setErrors({ email: "Email already registered" });
         } else {
           setErrors({ general: "Failed to register. Please try again." });
@@ -83,21 +83,25 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-purple-50 px-4 pt-16">
+    <div className="flex items-center justify-center min-h-screen bg-rose-50 px-4 pt-16">
       <motion.div
         className="bg-white p-8 shadow-xl rounded-2xl w-full max-w-md"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-2xl font-bold text-center text-purple-600 mb-6">
+        <h2 className="text-2xl font-bold text-center text-[#800000] mb-6">
           Create Your Account
         </h2>
 
-        {errors.general && <p className="text-red-500 text-sm mb-4 text-center">{errors.general}</p>}
-        {success && <p className="text-green-500 text-sm mb-4 text-center">{success}</p>}
+        {errors.general && (
+          <p className="text-red-500 text-sm mb-4 text-center">{errors.general}</p>
+        )}
+        {success && (
+          <p className="text-green-600 text-sm mb-4 text-center">{success}</p>
+        )}
 
-        <div className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
             <label className="block font-medium mb-1">Full Name</label>
@@ -108,14 +112,12 @@ const Signup = () => {
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder="abc"
-              className={`w-full border rounded px-4 py-2 focus:outline-none ${
+              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
               disabled={loading}
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
           </div>
 
           {/* Email */}
@@ -128,14 +130,12 @@ const Signup = () => {
                 setFormData({ ...formData, email: e.target.value })
               }
               placeholder="you@example.com"
-              className={`w-full border rounded px-4 py-2 focus:outline-none ${
+              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               disabled={loading}
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
           </div>
 
           {/* Password */}
@@ -148,7 +148,7 @@ const Signup = () => {
                 setFormData({ ...formData, password: e.target.value })
               }
               placeholder="••••••••"
-              className={`w-full border rounded px-4 py-2 focus:outline-none ${
+              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
                 errors.password ? "border-red-500" : "border-gray-300"
               }`}
               disabled={loading}
@@ -168,7 +168,7 @@ const Signup = () => {
                 setFormData({ ...formData, confirmPassword: e.target.value })
               }
               placeholder="••••••••"
-              className={`w-full border rounded px-4 py-2 focus:outline-none ${
+              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
                 errors.confirmPassword ? "border-red-500" : "border-gray-300"
               }`}
               disabled={loading}
@@ -197,22 +197,21 @@ const Signup = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold transition ${
+            className={`w-full bg-[#800000] hover:bg-[#5a0d15] text-white py-2 rounded-lg font-semibold transition duration-300 ${
               loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={loading}
-            onClick={handleSubmit}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
-        </div>
+        </form>
 
         {/* Login Link */}
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-purple-600 hover:underline font-medium"
+            className="text-[#800000] hover:underline font-medium"
           >
             Login
           </Link>

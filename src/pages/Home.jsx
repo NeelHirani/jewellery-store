@@ -22,40 +22,10 @@ export default function Home() {
   ];
 
   const dealsData = [
-    {
-      image: "/images/deals/bangles.jpg",
-      title: "Gold Bangles",
-      price: "₹12,499",
-    },
-    {
-      image: "/images/deals/earrings.jpg",
-      title: "Diamond Earrings",
-      price: "₹4,999",
-    },
-    {
-      image: "/images/deals/pendants.jpg",
-      title: "Classic Pendant",
-      price: "₹8,999",
-    },
+    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "₹12,499" },
+    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "₹4,999" },
+    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "₹8,999" },
   ];
-
-  const [current, setCurrent] = useState(0);
-  const [dealIndex, setDealIndex] = useState(0);
-  const [showPromo, setShowPromo] = useState(true);
-
-  useEffect(() => {
-    const slideInterval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slideData.length);
-    }, 3000);
-    return () => clearInterval(slideInterval);
-  }, []);
-
-  useEffect(() => {
-    const dealInterval = setInterval(() => {
-      setDealIndex((prev) => (prev + 1) % dealsData.length);
-    }, 3000);
-    return () => clearInterval(dealInterval);
-  }, []);
 
   const categories = [
     { title: "Bangles", image: "/images/categories/bangles.jpg" },
@@ -75,10 +45,116 @@ export default function Home() {
     { title: "Estate Jewellery", image: "/images/categories/estate.jpg" },
   ];
 
+  const [current, setCurrent] = useState(0);
+  const [dealIndex, setDealIndex] = useState(0);
+  const [showPromo, setShowPromo] = useState(true);
+  const [activeCatIndex, setActiveCatIndex] = useState(0);
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slideData.length);
+    }, 3000);
+    return () => clearInterval(slideInterval);
+  }, []);
+
+  useEffect(() => {
+    const dealInterval = setInterval(() => {
+      setDealIndex((prev) => (prev + 1) % dealsData.length);
+    }, 3000);
+    return () => clearInterval(dealInterval);
+  }, []);
+
+  useEffect(() => {
+    const catInterval = setInterval(() => {
+      setActiveCatIndex((prev) => (prev + 1) % categories.length);
+    }, 2500);
+    return () => clearInterval(catInterval);
+  }, [categories.length]);
+
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      {/* Video Section */}
+      <section className="relative w-full h-[600px] md:h-[700px] overflow-hidden mb-8">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/videos/main.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center" />
+      </section>
+
+      {/* Promo Banner */}
+      {showPromo && (
+        <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative">
+          <p className="text-sm md:text-base font-medium">
+            🎉 Free Shipping on Orders Above ₹5000! Limited time only.
+          </p>
+          <button
+            onClick={() => setShowPromo(false)}
+            className="absolute right-4 top-1 text-rose-900 font-bold hover:text-rose-800"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Shop By Category */}
+      <section className="py-16 px-6 bg-white text-center">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-10">
+          Shop By Category
+        </h2>
+        <div className="flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto items-center">
+          <motion.div
+            key={categories[activeCatIndex].title}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full lg:w-1/2"
+          >
+            <img
+              src={categories[activeCatIndex].image}
+              alt={categories[activeCatIndex].title}
+              className="rounded-xl shadow-lg object-cover w-full h-[300px] md:h-[400px]"
+            />
+            <h3 className="mt-4 text-2xl font-semibold text-gray-800">
+              {categories[activeCatIndex].title}
+            </h3>
+          </motion.div>
+
+          <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={i}
+                onMouseEnter={() => setActiveCatIndex(i)}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+                className={`cursor-pointer group rounded-xl overflow-hidden shadow hover:shadow-xl transition duration-300 ${
+                  i === activeCatIndex ? "ring-2 ring-rose-500" : ""
+                }`}
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.title}
+                  className="w-full h-32 object-cover"
+                />
+                <div className="bg-black/50 p-2">
+                  <h3 className="text-white text-sm group-hover:text-rose-300">
+                    {cat.title}
+                  </h3>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Section (Moved Here) */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
         {slideData.map((slide, index) => (
           <img
             key={index}
@@ -115,64 +191,13 @@ export default function Home() {
           >
             <Link
               to="/products"
-              className="mt-6 inline-block bg-purple-600 text-white px-6 py-3 rounded-md hover:bg-purple-700 transition"
+              className="mt-6 inline-block bg-rose-800 text-white px-6 py-3 rounded-md hover:bg-rose-900 transition"
             >
               Shop Now
             </Link>
           </motion.div>
         </div>
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
-          {slideData.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`w-3 h-3 rounded-full ${
-                i === current ? "bg-white" : "bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
       </section>
-
-      {/* Promo Banner */}
-      {showPromo && (
-        <div className="bg-purple-100 text-purple-800 py-3 px-4 text-center relative">
-          <p className="text-sm md:text-base font-medium">
-            🎉 Free Shipping on Orders Above ₹5000! Limited time only.
-          </p>
-          <button
-            onClick={() => setShowPromo(false)}
-            className="absolute right-4 top-1 text-purple-600 font-bold hover:text-purple-800"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Shop By Category */}
-        <section className="py-16 px-6 bg-white text-center">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-10">Shop By Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-            {categories.map((cat, i) => (
-              <div
-                key={i}
-                className="relative group shadow-md hover:shadow-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105 bg-white"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-56 object-cover"
-                />
-                {/* Bottom Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-black/40 group-hover:bg-black/70 transition duration-300 flex items-center justify-center">
-                  <h3 className="text-white group-hover:text-yellow-400 text-xl font-semibold tracking-wide transition">
-                    {cat.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
       {/* Best Sellers */}
       <section className="py-16 px-6 bg-gray-50 text-center">
@@ -195,8 +220,8 @@ export default function Home() {
               </span>
               <div className="p-4 space-y-2">
                 <h3 className="font-medium text-lg">Elegant Pendant</h3>
-                <p className="text-purple-600 font-semibold">₹7,499</p>
-                <button className="mt-2 w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                <p className="text-rose-800 font-semibold">₹7,499</p>
+                <button className="mt-2 w-full bg-rose-800 text-white py-2 rounded hover:bg-rose-900 transition">
                   View Detail
                 </button>
               </div>
@@ -206,7 +231,7 @@ export default function Home() {
       </section>
 
       {/* Deals of the Week */}
-      <section className="py-16 px-0 bg-purple-100">
+      <section className="py-16 px-0 bg-rose-100">
         <div className="w-full relative h-[450px] overflow-hidden">
           {dealsData.map((deal, index) => (
             <img
@@ -218,7 +243,6 @@ export default function Home() {
               }`}
             />
           ))}
-
           <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-start px-10 md:px-20 text-white">
             <h2 className="text-4xl font-bold mb-2">Deals of the Week</h2>
             <p className="text-lg mb-4">
@@ -226,28 +250,16 @@ export default function Home() {
             </p>
             <Link
               to="/products"
-              className="bg-purple-600 text-white px-5 py-3 rounded hover:bg-purple-700 transition"
+              className="bg-rose-800 text-white px-5 py-3 rounded hover:bg-rose-900 transition"
             >
               Shop Now
             </Link>
-          </div>
-
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
-            {dealsData.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setDealIndex(i)}
-                className={`w-3 h-3 rounded-full ${
-                  i === dealIndex ? "bg-white" : "bg-gray-400"
-                }`}
-              />
-            ))}
           </div>
         </div>
       </section>
 
       {/* About Us */}
-      <section className="py-16 px-6 bg-purple-50 text-center">
+      <section className="py-16 px-6 bg-rose-50 text-center">
         <h2 className="text-3xl font-semibold text-gray-800 mb-6">About Jewel Mart</h2>
         <p className="max-w-3xl mx-auto text-gray-600 text-lg">
           At Jewel Mart, we curate the finest jewelry from top designers and brands,

@@ -64,41 +64,15 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.2, duration: 0.6 }}
                 viewport={{ once: true }}
-                className="bg-purple-50 p-6 rounded-xl shadow text-left"
+                className="bg-rose-50 p-6 rounded-xl shadow text-left"
               >
-                <h3 className="text-2xl font-semibold text-purple-800 mb-2">
+                <h3 className="text-2xl font-semibold text-rose-800 mb-2">
                   {value.title}
                 </h3>
                 <p className="text-gray-600">{value.desc}</p>
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Meet Our Artisans */}
-      <section className="py-20 px-6 md:px-16 bg-gray-100 text-center">
-        <h2 className="text-4xl font-bold mb-10">Meet Our Artisans</h2>
-        <p className="text-gray-600 max-w-2xl mx-auto mb-10">
-          Our jewelry is brought to life by master craftsmen and women who have inherited age-old techniques and a deep love for detail.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {[
-            "/images/photo1.jpg",
-            "/images/photo2.jpg",
-            "/images/photo3.jpg",
-          ].map((img, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.2, duration: 0.5 }}
-              viewport={{ once: true }}
-              className="overflow-hidden rounded-xl shadow-lg"
-            >
-              <img src={img} alt={`artisan-${index + 1}`} className="w-full h-72 object-cover" />
-            </motion.div>
-          ))}
         </div>
       </section>
 
@@ -130,9 +104,9 @@ const About = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1, duration: 0.6 }}
               viewport={{ once: true }}
-              className="bg-purple-100 p-6 rounded-xl"
+              className="bg-rose-100 p-6 rounded-xl"
             >
-              <h4 className="text-purple-700 font-bold text-lg mb-1">{item.year}</h4>
+              <h4 className="text-rose-800 font-bold text-lg mb-1">{item.year}</h4>
               <p className="text-gray-700">{item.event}</p>
             </motion.div>
           ))}

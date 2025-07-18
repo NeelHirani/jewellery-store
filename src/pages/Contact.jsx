@@ -32,21 +32,21 @@ const Contact = () => {
           viewport={{ once: true }}
           className="space-y-6"
         >
-          <h2 className="text-3xl font-bold text-purple-700">Visit Our Showroom</h2>
+          <h2 className="text-3xl font-bold text-rose-800">Visit Our Showroom</h2>
           <p className="text-gray-600">
             Our flagship store in Jaipur welcomes walk-ins. Drop by to explore our luxury collections or consult with a designer.
           </p>
           <div className="space-y-4 text-sm text-gray-700">
             <div className="flex items-start space-x-3">
-              <FaMapMarkerAlt className="text-purple-600 mt-1" />
+              <FaMapMarkerAlt className="text-rose-800 mt-1" />
               <span>123 Royal Lane, Pink City, Jaipur, Rajasthan, India</span>
             </div>
             <div className="flex items-start space-x-3">
-              <FaPhoneAlt className="text-purple-600 mt-1" />
+              <FaPhoneAlt className="text-rose-800 mt-1" />
               <span>+91 98765 43210</span>
             </div>
             <div className="flex items-start space-x-3">
-              <FaEnvelope className="text-purple-600 mt-1" />
+              <FaEnvelope className="text-rose-800 mt-1" />
               <span>support@jewellmart.com</span>
             </div>
           </div>
@@ -72,32 +72,32 @@ const Contact = () => {
           viewport={{ once: true }}
           className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-6"
         >
-          <h3 className="text-2xl font-semibold text-purple-700">Send us a Message</h3>
+          <h3 className="text-2xl font-semibold text-rose-800">Send us a Message</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="text"
               placeholder="First Name"
-              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
             />
             <input
               type="text"
               placeholder="Last Name"
-              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
             />
           </div>
           <input
             type="email"
             placeholder="Your Email"
-            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
           />
           <textarea
             rows="5"
             placeholder="Your Message"
-            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
           ></textarea>
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-md transition duration-300"
+            className="w-full bg-rose-800 hover:bg-rose-900 text-white font-semibold py-3 rounded-md transition duration-300"
           >
             Submit
           </button>

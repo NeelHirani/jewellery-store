@@ -57,7 +57,7 @@ const PoliciesFaq = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-purple-700 mb-8 text-center">Store Policies</h2>
+        <h2 className="text-3xl font-bold text-rose-900 mb-8 text-center">Store Policies</h2>
         <div className="space-y-8">
           {policies.map((policy, index) => (
             <motion.div
@@ -66,9 +66,9 @@ const PoliciesFaq = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="bg-gray-50 border-l-4 border-purple-600 p-5 rounded-lg shadow-sm"
+              className="bg-rose-50 border-l-4 border-rose-800 p-5 rounded-lg shadow-sm"
             >
-              <h4 className="text-xl font-semibold mb-2">{policy.title}</h4>
+              <h4 className="text-xl font-semibold text-rose-900 mb-2">{policy.title}</h4>
               <p className="text-gray-700">{policy.content}</p>
             </motion.div>
           ))}
@@ -82,7 +82,7 @@ const PoliciesFaq = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-purple-700 mb-8 text-center">Frequently Asked Questions</h2>
+        <h2 className="text-3xl font-bold text-rose-900 mb-8 text-center">Frequently Asked Questions</h2>
         <div className="space-y-8">
           {faqs.map((faq, index) => (
             <motion.div
@@ -91,9 +91,9 @@ const PoliciesFaq = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="p-5 border rounded-lg bg-gray-50 shadow-sm"
+              className="p-5 border border-rose-200 rounded-lg bg-rose-50 shadow-sm"
             >
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">{faq.question}</h4>
+              <h4 className="text-lg font-semibold text-rose-900 mb-2">{faq.question}</h4>
               <p className="text-gray-700">{faq.answer}</p>
             </motion.div>
           ))}

@@ -15,6 +15,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import EditProfile from '../src/pages/EditProfile';
+import Cart from '../src/pages/Cart';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/policies-faq" element={<PoliciesFaq />} />
             <Route path="/ForgetPassword" element={<ForgetPassword />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/cart" element={<Cart/>}/>
           </Routes>
         </main>
         <Footer />

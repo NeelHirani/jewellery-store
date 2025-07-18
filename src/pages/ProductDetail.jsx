@@ -26,7 +26,7 @@ const ProductDetail = () => {
       name: 'Diamond Tennis Bracelet',
       price: '₹125,000',
       rating: 4.9,
-      image: 'https://readdy.ai/api/search-image?query=luxury%20diamond%20tennis%20bracelet%20on%20elegant%20white% SMALL%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel002&orientation=squarish'
+      image: 'https://readdy.ai/api/search-image?query=luxury%20diamond%20tennis%20bracelet%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel002&orientation=squarish'
     },
     {
       id: 3,
@@ -139,7 +139,7 @@ const ProductDetail = () => {
                 >
                   <img
                     src={image}
-                    alt={'Product ${index + 1}'}
+                    alt={`Product ${index + 1}`}
                     className="w-full h-full object-cover object-top"
                   />
                 </button>
@@ -491,7 +491,7 @@ const ProductDetail = () => {
         </button>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .!rounded-button {
           border-radius: 8px;
         }

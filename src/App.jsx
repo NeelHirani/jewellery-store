@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -14,15 +15,13 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import ForgetPassword from './pages/ForgetPassword';
 import PoliciesFaq from './pages/PoliciesFaq'; 
+import EditAddress from './pages/EditAddress'; 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-<<<<<<< HEAD
-import EditProfile from '../src/pages/EditProfile';
+
+// FontAwesome Library Setup
 library.add(fas);
-=======
-import EditAddress from './pages/EditAddress'
->>>>>>> dae909edd4020ed4f6a7902350c5985e0b88bbd9
 
 function App() {
   return (

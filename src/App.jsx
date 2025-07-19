@@ -17,8 +17,12 @@ import PoliciesFaq from './pages/PoliciesFaq';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+<<<<<<< HEAD
 import EditProfile from '../src/pages/EditProfile';
 library.add(fas);
+=======
+import EditAddress from './pages/EditAddress'
+>>>>>>> dae909edd4020ed4f6a7902350c5985e0b88bbd9
 
 function App() {
   return (
@@ -40,7 +44,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/policies-faq" element={<PoliciesFaq />} />
             <Route path="/ForgetPassword" element={<ForgetPassword />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/EditAddress" element={<EditAddress />} />
           </Routes>
         </main>
         <Footer />

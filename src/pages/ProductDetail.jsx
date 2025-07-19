@@ -1,72 +1,68 @@
-import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { supabase } from "../lib/supabase";
 
 const ProductDetail = () => {
+  const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [selectedSize, setSelectedSize] = useState('Medium');
+  const [product, setProduct] = useState(null);
+  const [productImages, setProductImages] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [productSizes, setProductSizes] = useState([]);
 
-  const productImages = [
-    'https://readdy.ai/api/search-image?query=luxury%2018k%20gold%20diamond%20stud%20earrings%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed%20close%20up%20shot&width=600&height=600&seq=main001&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=luxury%2018k%20gold%20diamond%20stud%20earrings%20side%20view%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=600&height=600&seq=side002&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=luxury%2018k%20gold%20diamond%20stud%20earrings%20back%20view%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=600&height=600&seq=back003&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=luxury%2018k%20gold%20diamond%20stud%20earrings%20worn%20on%20model%20ear%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality&width=600&height=600&seq=worn004&orientation=squarish'
-  ];
+  useEffect(() => {
+    const fetchProductData = async () => {
+      // Fetch product details
+      const { data: productData } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories(name),
+          metal_types(name),
+          stone_types(name),
+          occasions(name)
+        `)
+        .eq('id', id)
+        .single();
+      setProduct(productData);
 
-  const relatedProducts = [
-    {
-      id: 1,
-      name: '18K Gold Diamond Necklace',
-      price: '₹85,000',
-      rating: 4.8,
-      image: 'https://readdy.ai/api/search-image?query=luxury%2018k%20gold%20diamond%20necklace%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel001&orientation=squarish'
-    },
-    {
-      id: 2,
-      name: 'Diamond Tennis Bracelet',
-      price: '₹125,000',
-      rating: 4.9,
-      image: 'https://readdy.ai/api/search-image?query=luxury%20diamond%20tennis%20bracelet%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel002&orientation=squarish'
-    },
-    {
-      id: 3,
-      name: 'Gold Diamond Ring',
-      price: '₹65,000',
-      rating: 4.7,
-      image: 'https://readdy.ai/api/search-image?query=luxury%20gold%20diamond%20engagement%20ring%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel003&orientation=squarish'
-    },
-    {
-      id: 4,
-      name: 'Pearl Drop Earrings',
-      price: '₹45,000',
-      rating: 4.6,
-      image: 'https://readdy.ai/api/search-image?query=luxury%20pearl%20drop%20earrings%20on%20elegant%20white%20marble%20background%20with%20soft%20lighting%20professional%20jewelry%20photography%20high%20quality%20detailed&width=300&height=300&seq=rel004&orientation=squarish'
-    }
-  ];
+      // Fetch product images
+      const { data: imagesData } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', id);
+      setProductImages(imagesData || []);
 
-  const reviews = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      rating: 5,
-      date: 'March 15, 2024',
-      comment: 'Absolutely stunning earrings! The diamonds sparkle beautifully and the craftsmanship is exceptional. Worth every penny.'
-    },
-    {
-      id: 2,
-      name: 'Priya Sharma',
-      rating: 5,
-      date: 'March 10, 2024',
-      comment: 'Perfect for special occasions. The quality is outstanding and they arrived exactly as described. Highly recommend!'
-    },
-    {
-      id: 3,
-      name: 'Emily Chen',
-      rating: 4,
-      date: 'March 5, 2024',
-      comment: 'Beautiful earrings with excellent shine. Delivery was prompt and packaging was luxurious.'
-    }
-  ];
+      // Fetch reviews
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', id);
+      setReviews(reviewsData || []);
+
+      // Fetch related products
+      const { data: relatedData } = await supabase
+        .from('related_products')
+        .select(`
+          related_product_id,
+          products!related_products_related_product_id_fkey(*, categories(name), metal_types(name), stone_types(name))
+        `)
+        .eq('product_id', id);
+      setRelatedProducts(relatedData ? relatedData.map(r => r.products) : []);
+
+      // Fetch product sizes
+      const { data: sizesData } = await supabase
+        .from('product_sizes')
+        .select('size')
+        .eq('product_id', id);
+      setProductSizes(sizesData ? sizesData.map(s => s.size) : []);
+    };
+    fetchProductData();
+  }, [id]);
 
   const handleQuantityChange = (change) => {
     setQuantity(Math.max(1, quantity + change));
@@ -81,9 +77,10 @@ const ProductDetail = () => {
     ));
   };
 
+  if (!product) return <div>Loading...</div>;
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -116,15 +113,13 @@ const ProductDetail = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
               <img
-                src={productImages[selectedImage]}
-                alt="Product"
+                src={productImages[selectedImage]?.image_url}
+                alt={product.name}
                 className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in"
               />
             </div>
@@ -138,7 +133,7 @@ const ProductDetail = () => {
                   }`}
                 >
                   <img
-                    src={image}
+                    src={image.image_url}
                     alt={`Product ${index + 1}`}
                     className="w-full h-full object-cover object-top"
                   />
@@ -147,50 +142,47 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Information */}
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-                18K Gold Diamond Stud Earrings
+                {product.name}
               </h1>
               <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center space-x-1">
-                  {renderStars(5)}
-                  <span className="text-sm text-gray-600 ml-2">(127 reviews)</span>
+                <div className="flex items-center">
+                  {renderStars(product.rating)}
+                  <span className="text-sm text-gray-600">({product.reviews} reviews)</span>
                 </div>
               </div>
-              <p className="text-4xl font-bold text-yellow-600 mb-4">₹95,000</p>
+              <p className="text-4xl font-bold text-yellow-600 mb-4">₹{product.price.toLocaleString()}</p>
               <p className="text-gray-600 leading-relaxed">
-                Exquisite 18K gold diamond stud earrings featuring brilliant cut diamonds. 
-                Perfect for special occasions or everyday elegance. Crafted with precision and attention to detail.
+                Exquisite {product.metal_types.name.toLowerCase()} {product.stone_types.name.toLowerCase()} jewelry. 
+                Perfect for {product.occasions.name.toLowerCase()} occasions or everyday elegance. Crafted with precision and attention to detail.
               </p>
             </div>
 
-            {/* Product Specifications */}
             <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
                 <span className="text-sm font-medium text-gray-700">Metal:</span>
-                <span className="text-sm text-gray-900 ml-2">18K Gold</span>
+                <span className="text-sm text-gray-900 ml-2">{product.metal_types.name}</span>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-700">Stone:</span>
-                <span className="text-sm text-gray-900 ml-2">Diamond</span>
+                <span className="text-sm text-gray-900 ml-2">{product.stone_types.name}</span>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-700">Weight:</span>
-                <span className="text-sm text-gray-900 ml-2">2.5 grams</span>
+                <span className="text-sm text-gray-900 ml-2">{product.weight ? `${product.weight} grams` : 'N/A'}</span>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-700">Purity:</span>
-                <span className="text-sm text-gray-900 ml-2">18K (75%)</span>
+                <span className="text-sm text-gray-900 ml-2">{product.purity || 'N/A'}</span>
               </div>
             </div>
 
-            {/* Size Selection */}
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
               <div className="flex space-x-3">
-                {['Small', 'Medium', 'Large'].map((size) => (
+                {productSizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
@@ -206,7 +198,6 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Quantity */}
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
               <div className="flex items-center space-x-3">
@@ -214,19 +205,18 @@ const ProductDetail = () => {
                   onClick={() => handleQuantityChange(-1)}
                   className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 cursor-pointer !rounded-button whitespace-nowrap"
                 >
-                  <i className="fas fa-minus text-sm"></i>
+                  <span className="text-lg font-semibold">-</span>
                 </button>
                 <span className="w-12 text-center font-medium">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
                   className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 cursor-pointer !rounded-button whitespace-nowrap"
                 >
-                  <i className="fas fa-plus text-sm"></i>
+                  <span className="text-lg font-semibold">+</span>
                 </button>
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="space-y-4">
               <div className="flex space-x-4">
                 <button className="flex-1 bg-red-800 text-white py-3 px-6 rounded-lg hover:bg-red-900 transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap">
@@ -236,12 +226,11 @@ const ProductDetail = () => {
                   Buy Now
                 </button>
                 <button className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 cursor-pointer !rounded-button whitespace-nowrap">
-                  <i className="fas fa-heart text-gray-600"></i>
+                  <i className="fas fa-heart text-gray-600 text-lg"></i>
                 </button>
               </div>
             </div>
 
-            {/* Delivery Info */}
             <div className="border-t pt-6">
               <div className="flex items-center space-x-4 text-sm text-gray-600">
                 <div className="flex items-center space-x-2">
@@ -261,7 +250,6 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Tabbed Content */}
         <div className="mt-16">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8">
@@ -290,18 +278,15 @@ const ProductDetail = () => {
             {activeTab === 'description' && (
               <div className="prose max-w-none">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  These exquisite 18K gold diamond stud earrings represent the pinnacle of fine jewelry craftsmanship. 
-                  Each earring features a brilliant cut diamond carefully selected for its exceptional clarity and fire, 
-                  set in a classic four-prong setting that maximizes light reflection and brilliance.
+                  Exquisite {product.metal_types.name.toLowerCase()} {product.stone_types.name.toLowerCase()} jewelry. 
+                  Each piece features a carefully selected {product.stone_types.name.toLowerCase()} set in a classic {product.setting_style?.toLowerCase() || 'setting'}.
                 </p>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  The 18K gold setting provides the perfect backdrop for the diamonds, offering both durability and 
-                  timeless elegance. These earrings are versatile enough for everyday wear yet sophisticated enough 
-                  for the most special occasions.
+                  The {product.metal_types.name.toLowerCase()} setting provides durability and timeless elegance. 
+                  Suitable for {product.occasions.name.toLowerCase()} occasions or daily wear.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Each pair comes with a certificate of authenticity and is backed by our lifetime warranty, 
-                  ensuring your investment in luxury jewelry is protected for years to come.
+                  Comes with a certificate of authenticity and {product.warranty?.toLowerCase() || 'warranty'} support.
                 </p>
               </div>
             )}
@@ -312,23 +297,23 @@ const ProductDetail = () => {
                   <tbody className="space-y-2">
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Metal Type</td>
-                      <td className="py-2 text-gray-900">18K Gold</td>
+                      <td className="py-2 text-gray-900">{product.metal_types.name}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Purity</td>
-                      <td className="py-2 text-gray-900">75% (18K)</td>
+                      <td className="py-2 text-gray-900">{product.purity || 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Stone Type</td>
-                      <td className="py-2 text-gray-900">Natural Diamond</td>
+                      <td className="py-2 text-gray-900">{product.stone_types.name}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Cut</td>
-                      <td className="py-2 text-gray-900">Brilliant Round</td>
+                      <td className="py-2 text-gray-900">{product.cut || 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Clarity</td>
-                      <td className="py-2 text-gray-900">VS1-VS2</td>
+                      <td className="py-2 text-gray-900">{product.clarity || 'N/A'}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -336,23 +321,23 @@ const ProductDetail = () => {
                   <tbody className="space-y-2">
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Color Grade</td>
-                      <td className="py-2 text-gray-900">G-H</td>
+                      <td className="py-2 text-gray-900">{product.color_grade || 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Total Weight</td>
-                      <td className="py-2 text-gray-900">2.5 grams</td>
+                      <td className="py-2 text-gray-900">{product.weight ? `${product.weight} grams` : 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Setting Style</td>
-                      <td className="py-2 text-gray-900">Four Prong</td>
+                      <td className="py-2 text-gray-900">{product.setting_style || 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Occasion</td>
-                      <td className="py-2 text-gray-900">Daily Wear, Special Events</td>
+                      <td className="py-2 text-gray-900">{product.occasions.name}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Warranty</td>
-                      <td className="py-2 text-gray-900">Lifetime</td>
+                      <td className="py-2 text-gray-900">{product.warranty || 'N/A'}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -365,9 +350,9 @@ const ProductDetail = () => {
                   <h3 className="text-lg font-medium text-gray-900">Customer Reviews</h3>
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">
-                      {renderStars(5)}
+                      {renderStars(product.rating)}
                     </div>
-                    <span className="text-sm text-gray-600">4.9 out of 5 (127 reviews)</span>
+                    <span className="text-sm text-gray-600">{product.rating} out of 5 ({product.reviews} reviews)</span>
                   </div>
                 </div>
                 <div className="space-y-6">
@@ -380,7 +365,7 @@ const ProductDetail = () => {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">{review.name}</p>
-                            <p className="text-sm text-gray-500">{review.date}</p>
+                            <p className="text-sm text-gray-500">{review.review_date}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-1">
@@ -443,7 +428,6 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Related Products */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8" style={{ fontFamily: 'Playfair Display, serif' }}>
             You May Also Like
@@ -453,7 +437,7 @@ const ProductDetail = () => {
               <div key={product.id} className="group cursor-pointer">
                 <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 mb-4 relative">
                   <img
-                    src={product.image}
+                    src={product.image_url}
                     alt={product.name}
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                   />
@@ -470,21 +454,19 @@ const ProductDetail = () => {
                   </div>
                   <span className="text-sm text-gray-600">({product.rating})</span>
                 </div>
-                <p className="text-lg font-bold text-yellow-600">{product.price}</p>
+                <p className="text-lg font-bold text-yellow-600">₹{product.price.toLocaleString()}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Live Chat Bubble */}
       <div className="fixed bottom-6 right-6 z-50">
         <button className="w-14 h-14 bg-yellow-600 text-white rounded-full shadow-lg hover:bg-yellow-700 transition-colors flex items-center justify-center cursor-pointer">
           <i className="fas fa-comments text-xl"></i>
         </button>
       </div>
 
-      {/* Back to Top Button */}
       <div className="fixed bottom-6 left-6 z-50">
         <button className="w-12 h-12 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-900 transition-colors flex items-center justify-center cursor-pointer">
           <i className="fas fa-arrow-up"></i>
@@ -495,17 +477,14 @@ const ProductDetail = () => {
         .!rounded-button {
           border-radius: 8px;
         }
-        
         body {
           font-family: 'Open Sans', sans-serif;
         }
-        
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
           -webkit-appearance: none;
           margin: 0;
         }
-        
         input[type="number"] {
           -moz-appearance: textfield;
         }

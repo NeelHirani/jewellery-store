@@ -15,7 +15,7 @@ import PoliciesFaq from './pages/PoliciesFaq';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import EditProfile from '../src/pages/EditProfile';
+import EditAddress from './pages/EditAddress'
 
 function App() {
   return (
@@ -37,7 +37,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/policies-faq" element={<PoliciesFaq />} />
             <Route path="/ForgetPassword" element={<ForgetPassword />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/EditAddress" element={<EditAddress />} />
           </Routes>
         </main>
         <Footer />

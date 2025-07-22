@@ -1,10 +1,9 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { supabase } from "../lib/supabase";
+import Header from '../components/Navbar'; 
 
 
-const Products = () => {
-  const navigate = useNavigate();
+export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedMetal, setSelectedMetal] = useState([]);
@@ -20,6 +19,9 @@ const Products = () => {
   const [stoneTypes, setStoneTypes] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [products, setProducts] = useState([]);
+  const [productSizes, setProductSizes] = useState({});
+  const [selectedSizes, setSelectedSizes] = useState({});
+  const [error, setError] = useState(null);
 
   const sortOptions = [
     { id: 'newest', label: 'Newest' },
@@ -30,31 +32,51 @@ const Products = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch categories
-      const { data: categoriesData } = await supabase.from('categories').select('*');
-      setCategories(categoriesData || []);
+      try {
 
-      // Fetch metal types
-      const { data: metalsData } = await supabase.from('metal_types').select('*');
-      setMetalTypes(metalsData || []);
+        // Fetch categories
+        const { data: categoriesData, error: catError } = await supabase.from('categories').select('*');
+        if (catError) throw catError;
+        setCategories(categoriesData || []);
 
-      // Fetch stone types
-      const { data: stonesData } = await supabase.from('stone_types').select('*');
-      setStoneTypes(stonesData || []);
+        // Fetch metal types
+        const { data: metalsData, error: metalError } = await supabase.from('metal_types').select('*');
+        if (metalError) throw metalError;
+        setMetalTypes(metalsData || []);
 
-      // Fetch occasions
-      const { data: occasionsData } = await supabase.from('occasions').select('*');
-      setOccasions(occasionsData || []);
+        // Fetch stone types
+        const { data: stonesData, error: stoneError } = await supabase.from('stone_types').select('*');
+        if (stoneError) throw stoneError;
+        setStoneTypes(stonesData || []);
 
-      // Fetch products
-      const { data: productsData } = await supabase.from('products').select(`
-        *,
-        categories(name),
-        metal_types(name),
-        stone_types(name),
-        occasions(name)
-      `);
-      setProducts(productsData || []);
+        // Fetch occasions
+        const { data: occasionsData, error: occError } = await supabase.from('occasions').select('*');
+        if (occError) throw occError;
+        setOccasions(occasionsData || []);
+
+        // Fetch products
+        const { data: productsData, error: prodError } = await supabase.from('products').select(`
+          *,
+          categories(name),
+          metal_types(name),
+          stone_types(name),
+          occasions(name)
+        `);
+        if (prodError) throw prodError;
+        setProducts(productsData || []);
+
+        // Fetch product sizes
+        const { data: sizesData, error: sizeError } = await supabase.from('product_sizes').select('product_id, size');
+        if (sizeError) throw sizeError;
+        const sizesMap = sizesData.reduce((acc, { product_id, size }) => {
+          acc[product_id] = [...(acc[product_id] || []), size];
+          return acc;
+        }, {});
+        setProductSizes(sizesMap);
+      } catch (err) {
+        setError('Failed to load data.');
+        console.error('Error fetching data:', err);
+      }
     };
     fetchData();
   }, []);
@@ -65,12 +87,41 @@ const Products = () => {
     );
   };
 
-  const handleAddToCart = (product) => {
-    alert(`Added ${product.name} to cart!`);
-  };
+ const handleAddToCart = (product) => {
+  const selectedSize = selectedSizes[product.id] || null;
+
+  if (!product || (productSizes[product.id]?.length > 0 && !selectedSize)) {
+    setError(`Please select a size for ${product.name}.`);
+    return;
+  }
+
+  try {
+    const savedCart = localStorage.getItem('jewelMartCart');
+    const cart = savedCart ? JSON.parse(savedCart) : [];
+
+    const newItem = {
+      id: `${product.id}-${Date.now()}`, // Unique ID
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image_url: product.image_url,
+      size: selectedSize,
+      quantity: 1,
+    };
+
+    const updatedCart = [...cart, newItem];
+    localStorage.setItem('jewelMartCart', JSON.stringify(updatedCart));
+
+    alert(`${product.name} added to cart!`);
+    setError(null);
+  } catch (err) {
+    setError('Failed to add to cart.');
+    console.error('Add to cart error:', err);
+  }
+};
 
   const handleQuickView = (product) => {
-    navigate(`/products/${product.id}`);
+    window.location.href = `/products/${product.id}`;
   };
 
   const renderStars = (rating) => {
@@ -110,6 +161,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+      <Header />
       <div className="bg-gradient-to-r from-yellow-50 to-red-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -122,6 +174,7 @@ const Products = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
@@ -131,6 +184,17 @@ const Products = () => {
               <div className="mb-6">
                 <h4 className="font-medium text-gray-900 mb-3">Category</h4>
                 <div className="space-y-2">
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
+                      selectedCategory === 'all'
+                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                        : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <i className="fas fa-th-large mr-3 text-sm"></i>
+                    <span className="text-sm">All Categories</span>
+                  </button>
                   {categories.map((category) => (
                     <button
                       key={category.id}
@@ -333,9 +397,8 @@ const Products = () => {
                       className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                     >
                       <i className={`${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart ${
-                          wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400'
-                        }`}
-                      ></i>
+                        wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400'
+                      }`} />
                     </button>
                   </div>
                   <div className="p-4">
@@ -354,6 +417,20 @@ const Products = () => {
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
                     </div>
+                    {productSizes[product.id]?.length > 0 && (
+                      <div className="mb-4">
+                        <select
+                          value={selectedSizes[product.id] || ''}
+                          onChange={(e) => setSelectedSizes({ ...selectedSizes, [product.id]: e.target.value })}
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
+                        >
+                          <option value="">Select Size</option>
+                          {productSizes[product.id].map((size) => (
+                            <option key={size} value={size}>{size}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                     <button
                       onClick={() => handleAddToCart(product)}
                       className="w-full bg-red-800 text-white py-2 px-4 rounded-lg hover:bg-red-900 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
@@ -388,6 +465,5 @@ const Products = () => {
       `}</style>
     </div>
   );
-};
+}
 
-export default Products;

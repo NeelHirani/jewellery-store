@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Header from '../components/Navbar'; 
-
+import Header from '../components/Navbar';
+import { supabase } from '../lib/supabase';
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -22,6 +22,7 @@ export default function Products() {
   const [productSizes, setProductSizes] = useState({});
   const [selectedSizes, setSelectedSizes] = useState({});
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const sortOptions = [
     { id: 'newest', label: 'Newest' },
@@ -33,40 +34,39 @@ export default function Products() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-        // Fetch categories
-        const { data: categoriesData, error: catError } = await supabase.from('categories').select('*');
+        const { data: categoriesData, error: catError } = await supabase
+          .from('categories')
+          .select('name, icon');
         if (catError) throw catError;
         setCategories(categoriesData || []);
 
-        // Fetch metal types
-        const { data: metalsData, error: metalError } = await supabase.from('metal_types').select('*');
+        const { data: metalsData, error: metalError } = await supabase
+          .from('metal_types')
+          .select('id, name');
         if (metalError) throw metalError;
         setMetalTypes(metalsData || []);
 
-        // Fetch stone types
-        const { data: stonesData, error: stoneError } = await supabase.from('stone_types').select('*');
+        const { data: stonesData, error: stoneError } = await supabase
+          .from('stone_types')
+          .select('id, name');
         if (stoneError) throw stoneError;
         setStoneTypes(stonesData || []);
 
-        // Fetch occasions
-        const { data: occasionsData, error: occError } = await supabase.from('occasions').select('*');
+        const { data: occasionsData, error: occError } = await supabase
+          .from('occasions')
+          .select('id, name');
         if (occError) throw occError;
         setOccasions(occasionsData || []);
 
-        // Fetch products
-        const { data: productsData, error: prodError } = await supabase.from('products').select(`
-          *,
-          categories(name),
-          metal_types(name),
-          stone_types(name),
-          occasions(name)
-        `);
+        const { data: productsData, error: prodError } = await supabase
+          .from('products')
+          .select('id, name, price, image_url, category, metal, stone, occasion, rating, reviews');
         if (prodError) throw prodError;
         setProducts(productsData || []);
 
-        // Fetch product sizes
-        const { data: sizesData, error: sizeError } = await supabase.from('product_sizes').select('product_id, size');
+        const { data: sizesData, error: sizeError } = await supabase
+          .from('product_sizes')
+          .select('product_id, size');
         if (sizeError) throw sizeError;
         const sizesMap = sizesData.reduce((acc, { product_id, size }) => {
           acc[product_id] = [...(acc[product_id] || []), size];
@@ -74,7 +74,7 @@ export default function Products() {
         }, {});
         setProductSizes(sizesMap);
       } catch (err) {
-        setError('Failed to load data.');
+        setError('Failed to load data from Supabase.');
         console.error('Error fetching data:', err);
       }
     };
@@ -87,41 +87,41 @@ export default function Products() {
     );
   };
 
- const handleAddToCart = (product) => {
-  const selectedSize = selectedSizes[product.id] || null;
+  const handleAddToCart = (product) => {
+    const selectedSize = selectedSizes[product.id] || null;
+    if (!product || (productSizes[product.id]?.length > 0 && !selectedSize)) {
+      setError(`Please select a size for ${product.name}.`);
+      return;
+    }
+    try {
+      const savedCart = localStorage.getItem('jewelMartCart');
+      const cart = savedCart ? JSON.parse(savedCart) : [];
+      const newItem = {
+        id: `${product.id}-${Date.now()}`,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image_url,
+        metal: product.metal,
+        stone: product.stone,
+        selectedSize,
+        quantity: 1,
+      };
+      const updatedCart = [...cart, newItem];
+      localStorage.setItem('jewelMartCart', JSON.stringify(updatedCart));
+      setError(null);
+      navigate('/cart');
+    } catch (err) {
+      setError('Failed to add to cart.');
+      console.error('Add to cart error:', err);
+    }
+  };
 
-  if (!product || (productSizes[product.id]?.length > 0 && !selectedSize)) {
-    setError(`Please select a size for ${product.name}.`);
-    return;
-  }
-
-  try {
-    const savedCart = localStorage.getItem('jewelMartCart');
-    const cart = savedCart ? JSON.parse(savedCart) : [];
-
-    const newItem = {
-      id: `${product.id}-${Date.now()}`, // Unique ID
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image_url: product.image_url,
-      size: selectedSize,
-      quantity: 1,
-    };
-
-    const updatedCart = [...cart, newItem];
-    localStorage.setItem('jewelMartCart', JSON.stringify(updatedCart));
-
-    alert(`${product.name} added to cart!`);
-    setError(null);
-  } catch (err) {
-    setError('Failed to add to cart.');
-    console.error('Add to cart error:', err);
-  }
-};
-
-  const handleQuickView = (product) => {
-    window.location.href = `/products/${product.id}`;
+  const handleQuickView = (product, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Navigating to product detail page for product:', product.id); // Debugging
+    navigate(`/products/${product.id}`);
   };
 
   const renderStars = (rating) => {
@@ -142,13 +142,13 @@ export default function Products() {
   };
 
   const filteredProducts = products
-    .filter(product => {
-      const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
+    .filter((product) => {
+      const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      const matchesMetal = selectedMetal.length === 0 || selectedMetal.includes(product.metal_types.name);
-      const matchesStone = selectedStone.length === 0 || selectedStone.includes(product.stone_types.name);
-      const matchesRating = selectedRating.length === 0 || selectedRating.some(r => product.rating >= parseInt(r));
-      const matchesOccasion = selectedOccasion.length === 0 || selectedOccasion.includes(product.occasions.name);
+      const matchesMetal = selectedMetal.length === 0 || selectedMetal.includes(product.metal);
+      const matchesStone = selectedStone.length === 0 || selectedStone.includes(product.stone);
+      const matchesRating = selectedRating.length === 0 || selectedRating.some((r) => product.rating >= parseInt(r));
+      const matchesOccasion = selectedOccasion.length === 0 || selectedOccasion.includes(product.occasion);
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesPrice && matchesMetal && matchesStone && matchesRating && matchesOccasion && matchesSearch;
     })
@@ -191,21 +191,23 @@ export default function Products() {
                         ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                         : 'hover:bg-gray-50 text-gray-700'
                     }`}
+                    aria-label="Select all categories"
                   >
                     <i className="fas fa-th-large mr-3 text-sm"></i>
                     <span className="text-sm">All Categories</span>
                   </button>
                   {categories.map((category) => (
                     <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
+                      key={category.name}
+                      onClick={() => setSelectedCategory(category.name)}
                       className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
-                        selectedCategory === category.id
+                        selectedCategory === category.name
                           ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                           : 'hover:bg-gray-50 text-gray-700'
                       }`}
+                      aria-label={`Select category ${category.name}`}
                     >
-                      <i className={`${category.icon} mr-3 text-sm`}></i>
+                      <i className={`${category.icon || 'fas fa-circle'} mr-3 text-sm`}></i>
                       <span className="text-sm">{category.name}</span>
                     </button>
                   ))}
@@ -215,7 +217,7 @@ export default function Products() {
                 <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Min Price: ₹{priceRange[0].toLocaleString()}</label>
+                    <label className="text-sm text-gray-600">Min Price: ${priceRange[0].toLocaleString()}</label>
                     <input
                       type="range"
                       min="0"
@@ -223,10 +225,11 @@ export default function Products() {
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
                       className="w-full"
+                      aria-label="Minimum price"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Max Price: ₹{priceRange[1].toLocaleString()}</label>
+                    <label className="text-sm text-gray-600">Max Price: ${priceRange[1].toLocaleString()}</label>
                     <input
                       type="range"
                       min="0"
@@ -234,6 +237,7 @@ export default function Products() {
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                       className="w-full"
+                      aria-label="Maximum price"
                     />
                   </div>
                 </div>
@@ -254,6 +258,7 @@ export default function Products() {
                           }
                         }}
                         className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                        aria-label={`Select metal ${metal.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{metal.name}</span>
                     </label>
@@ -276,6 +281,7 @@ export default function Products() {
                           }
                         }}
                         className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                        aria-label={`Select stone ${stone.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{stone.name}</span>
                     </label>
@@ -299,6 +305,7 @@ export default function Products() {
                           }
                         }}
                         className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                        aria-label={`Select rating ${rating} and up`}
                       />
                       <span className="ml-2 text-sm text-gray-700 flex items-center">
                         {rating}
@@ -325,6 +332,7 @@ export default function Products() {
                           }
                         }}
                         className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                        aria-label={`Select occasion ${occasion.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{occasion.name}</span>
                     </label>
@@ -346,6 +354,7 @@ export default function Products() {
                 <button
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
                   className="flex items-center px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 cursor-pointer whitespace-nowrap !rounded-button"
+                  aria-label="Toggle sort options"
                 >
                   <span className="text-sm text-gray-700 mr-2">
                     Sort by: {sortOptions.find((opt) => opt.id === sortBy)?.label || 'Newest'}
@@ -362,6 +371,7 @@ export default function Products() {
                           setShowSortDropdown(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-yellow-100"
+                        aria-label={`Sort by ${option.label}`}
                       >
                         {option.label}
                       </button>
@@ -385,8 +395,9 @@ export default function Products() {
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                       <button
-                        onClick={() => handleQuickView(product)}
+                        onClick={(e) => handleQuickView(product, e)}
                         className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer whitespace-nowrap !rounded-button"
+                        aria-label={`Quick view ${product.name}`}
                       >
                         <i className="fas fa-eye mr-2"></i>
                         Quick View
@@ -395,6 +406,7 @@ export default function Products() {
                     <button
                       onClick={() => toggleWishlist(product.id)}
                       className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      aria-label={wishlist.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
                       <i className={`${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart ${
                         wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400'
@@ -406,7 +418,7 @@ export default function Products() {
                       className="font-semibold text-gray-900 mb-2 line-clamp-2"
                       style={{ fontFamily: 'Playfair Display, serif' }}
                     >
-                      <Link to={`/products/${product.id}`}>
+                      <Link to={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
                         {product.name}
                       </Link>
                     </h3>
@@ -415,7 +427,7 @@ export default function Products() {
                       <span className="text-sm text-gray-500">({product.reviews})</span>
                     </div>
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
+                      <span className="text-xl font-bold text-gray-900">${product.price.toLocaleString()}</span>
                     </div>
                     {productSizes[product.id]?.length > 0 && (
                       <div className="mb-4">
@@ -423,6 +435,7 @@ export default function Products() {
                           value={selectedSizes[product.id] || ''}
                           onChange={(e) => setSelectedSizes({ ...selectedSizes, [product.id]: e.target.value })}
                           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
+                          aria-label={`Select size for ${product.name}`}
                         >
                           <option value="">Select Size</option>
                           {productSizes[product.id].map((size) => (
@@ -433,7 +446,8 @@ export default function Products() {
                     )}
                     <button
                       onClick={() => handleAddToCart(product)}
-                      className="w-full bg-red-800 text-white py-2 px-4 rounded-lg hover:bg-red-900 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                      className="w-full bg-amber-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                      aria-label={`Add ${product.name} to cart`}
                     >
                       <i className="fas fa-shopping-cart mr-2"></i>
                       Add to Cart
@@ -444,7 +458,10 @@ export default function Products() {
             </div>
 
             <div className="text-center mt-12">
-              <button className="bg-yellow-500 text-white px-8 py-3 rounded-lg hover:bg-yellow-600 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button">
+              <button
+                className="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-amber-700 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                aria-label="Load more products"
+              >
                 Load More Products
               </button>
             </div>
@@ -466,4 +483,3 @@ export default function Products() {
     </div>
   );
 }
-

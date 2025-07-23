@@ -85,7 +85,7 @@ const Footer = () => {
 
       {/* Bottom Note */}
       <div className="text-center text-sm mt-12 border-t border-gray-700 pt-6">
-        © {new Date().getFullYear()} Jewel Mart. All rights reserved.
+        © {new Date().getFullYear()} Jewell Mart. All rights reserved.
       </div>
     </footer>
   );

@@ -9,11 +9,10 @@ const Contact = () => {
       <section
         className="relative h-[60vh] w-full bg-cover bg-center"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1617042375877-7b43c0a3e1b0?auto=format&fit=crop&w=1600&q=80')",
+          backgroundImage: "url('./images/Banner.jpg')", // Same as About page
         }}
       >
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/80" />
         <div className="relative z-10 flex flex-col justify-center h-full px-6 md:px-20 text-white">
           <h1 className="text-5xl font-bold mb-4">Let’s Connect</h1>
           <p className="text-lg max-w-xl">

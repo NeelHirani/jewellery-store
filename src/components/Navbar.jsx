@@ -56,9 +56,9 @@ export default function Navbar() {
         <div className="flex items-center space-x-5">
           <Link to="/" className={linkClass}>Home</Link>
           <Link to="/products" className={linkClass}>Products</Link>
-          <Link to="/about" className={linkClass}>About</Link>
+          <Link to="/about" className={linkClass}>About Us</Link>
           <Link to="/contact" className={linkClass}>Contact</Link>
-          <Link to="/policies-faq" className={linkClass}>Policies & FAQ</Link>
+         
           {!isLoggedIn && (
             <Link to="/login" className={linkClass}>Login</Link>
           )}

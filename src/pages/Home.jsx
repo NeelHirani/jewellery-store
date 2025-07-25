@@ -73,116 +73,107 @@ export default function Home() {
 
   return (
     <>
-     {/* Video Section */}
-<section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-lg">
-  {/* Background Video */}
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="absolute top-0 left-0 w-full h-full object-cover"
-  >
-    <source src="/videos/main.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-
-  {/* Gradient overlay at bottom */}
-  <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
-
-  {/* Text + Button */}
-  <div className="absolute bottom-10 w-full text-center px-4">
-    <h2 className="text-white text-2xl md:text-4xl font-bold drop-shadow-lg">
-      Celebrate Raksha Bandhan with Timeless Elegance 🎁
-    </h2>
-    <p className="text-white text-base md:text-lg mt-2 drop-shadow">
-      Discover our exclusive collection of rakhis, rings & more—crafted with love for every sibling bond.
-    </p>
-    <a
-      href="/products"
-      className="inline-block mt-4 bg-white text-pink-600 font-semibold px-6 py-3 rounded-full shadow-md hover:bg-pink-100 transition duration-300"
-    >
-      Shop Now
-    </a>
-  </div>
-</section>
-
-
-     {/* Promo Banner */}
-<div className="mb-6">
-  {showPromo && (
-    <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative rounded shadow">
-      <p className="text-sm md:text-base font-medium">
-        🎉 Free Shipping on Orders Above ₹5000! Limited time only.
-      </p>
-      <button
-        onClick={() => setShowPromo(false)}
-        className="absolute right-4 top-1 text-rose-900 font-bold hover:text-rose-800"
-      >
-        ✕
-      </button>
-    </div>
-  )}
-</div>    
-{/* Shop By Category */}
-<section className="py-20 px-6 bg-gradient-to-b from-white via-rose-50 to-white text-center">
-  <h2 className="text-4xl font-bold text-gray-800 mb-12 tracking-tight">
-    Shop By Category
-  </h2>
-  <div className="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto items-center justify-center">
-    
-    {/* Large Featured Category Image */}
-    <motion.div
-      key={categories[activeCatIndex].title}
-      initial={{ opacity: 0, x: -60 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6 }}
-      className="w-full lg:w-1/2"
-    >
-      <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
-        <img
-          src={categories[activeCatIndex].image}
-          alt={categories[activeCatIndex].title}
-          className="w-full h-[300px] md:h-[400px] object-cover transform group-hover:scale-105 transition duration-500"
-        />
-        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition duration-300 flex items-end">
-          <h3 className="text-white text-2xl font-semibold p-4">
-            {categories[activeCatIndex].title}
-          </h3>
-        </div>
-      </div>
-    </motion.div>
-
-    {/* Thumbnail Categories */}
-    <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-      {categories.map((cat, i) => (
-        <motion.div
-          key={i}
-          onMouseEnter={() => setActiveCatIndex(i)}
-          whileHover={{ scale: 1.06 }}
-          transition={{ duration: 0.3 }}
-          className={`cursor-pointer group rounded-xl overflow-hidden shadow-lg relative ring-offset-2 ${
-            i === activeCatIndex
-              ? "ring-2 ring-rose-400 ring-offset-rose-100"
-              : "ring-1 ring-transparent hover:ring-rose-300"
-          }`}
+      {/* Video Section */}
+      <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-lg">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
         >
-          <img
-            src={cat.image}
-            alt={cat.title}
-            className="w-full h-28 object-cover transform transition duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-            <h3 className="text-white text-sm font-medium">{cat.title}</h3>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
+          <source src="/videos/final.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-10 w-full text-center px-4">
+          <h2 className="text-white text-2xl md:text-4xl font-bold drop-shadow-lg">
+            Celebrate Raksha Bandhan with Timeless Elegance 🎁
+          </h2>
+          <p className="text-white text-base md:text-lg mt-2 drop-shadow">
+            Discover our exclusive collection of rakhis, rings & more—crafted with love for every sibling bond.
+          </p>
+          <a
+            href="/products"
+            className="inline-block mt-4 bg-white text-pink-600 font-semibold px-6 py-3 rounded-full shadow-md hover:bg-pink-100 transition duration-300"
+          >
+            Shop Now
+          </a>
+        </div>
+      </section>
 
-      {/* Hero Section (Moved Here) */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden pt-[70px]">
+      {/* Promo Banner */}
+      <div className="mb-6">
+        {showPromo && (
+          <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative rounded shadow">
+            <p className="text-sm md:text-base font-medium">
+              🎉 Free Shipping on Orders Above ₹5000! Limited time only.
+            </p>
+            <button
+              onClick={() => setShowPromo(false)}
+              className="absolute right-4 top-1 text-rose-900 font-bold hover:text-rose-800"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Shop By Category */}
+      <section className="py-20 px-6 bg-gradient-to-b from-white via-rose-50 to-white text-center">
+        <h2 className="text-4xl font-bold text-gray-800 mb-12 tracking-tight">
+          Shop By Category
+        </h2>
+        <div className="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto items-center justify-center">
+          <motion.div
+            key={categories[activeCatIndex].title}
+            initial={{ opacity: 0, x: -60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full lg:w-1/2"
+          >
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
+              <img
+                src={categories[activeCatIndex].image}
+                alt={categories[activeCatIndex].title}
+                className="w-full h-[300px] md:h-[400px] object-cover transform group-hover:scale-105 transition duration-500"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition duration-300 flex items-end">
+                <h3 className="text-white text-2xl font-semibold p-4">
+                  {categories[activeCatIndex].title}
+                </h3>
+              </div>
+            </div>
+          </motion.div>
+          <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {categories.map((cat, i) => (
+              <motion.div
+                key={i}
+                onMouseEnter={() => setActiveCatIndex(i)}
+                whileHover={{ scale: 1.06 }}
+                transition={{ duration: 0.3 }}
+                className={`cursor-pointer group rounded-xl overflow-hidden shadow-lg relative ring-offset-2 ${
+                  i === activeCatIndex
+                    ? "ring-2 ring-rose-400 ring-offset-rose-100"
+                    : "ring-1 ring-transparent hover:ring-rose-300"
+                }`}
+              >
+                <img
+                  src={cat.image}
+                  alt={cat.title}
+                  className="w-full h-28 object-cover transform transition duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                  <h3 className="text-white text-sm font-medium">{cat.title}</h3>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Section */}
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden pt-[70px]">
         {slideData.map((slide, index) => (
           <img
             key={index}
@@ -225,93 +216,79 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
-      </section>  
+      </section>
 
-      
       {/* Customer Testimonials */}
-<section className="bg-pink-50 py-16 px-4">
-  <h2 className="text-center text-4xl font-serif text-blue-900 mb-12">
-   Our Special Customer Testimonials
-  </h2>
-  <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-    {/* Testimonial Card 1 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-3deg]">
-      <img src="https://www.weddingsutra.com/images/wedding-images/wedding_on_location/wsol_jan_2019/akansha_wsol_jan_2019_05.jpg" alt="Akanksha Khanna" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Akanksha Khanna, 27</h3>
-      <p className="text-sm text-gray-700">
-        Delighted with my engagement ring from Jewel Mart! It's my dream ring, fits perfectly and is stunning to look at.
-      </p>
-    </div>
-
-    {/* Testimonial Card 2 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[2deg]">
-      <img src="https://zariin.com/cdn/shop/articles/divya-bhatt-mishra-for-zariin-real-women.jpg?v=1674100355&width=1100" alt="Nutan Mishra" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Nutan Mishra, 33</h3>
-      <p className="text-sm text-gray-700">
-        I got a Nazariya for my baby boy. It's so cute and gives a sense of comfort knowing it’s on his wrist.
-      </p>
-    </div>
-
-    {/* Testimonial Card 3 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-2deg]">
-      <img src="https://as2.ftcdn.net/jpg/01/95/43/59/1000_F_195435986_5Zymzu1CfIL0kEMlKa2RUIaBin8QK5JF.jpg" alt="Divya Mishra" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Divya Mishra, 26</h3>
-      <p className="text-sm text-gray-700">
-        On Valentine’s Day, I received a necklace I just can't take off. Everyone asks where I got it from!
-      </p>
-    </div>
-
-    {/* Testimonial Card 4 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[1.5deg]">
-      <img src="https://www.shutterstock.com/image-photo/photo-girl-wear-white-shirt-600nw-2471646043.jpg" alt="Raj Patel" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Rajvi Patel, 30</h3>
-      <p className="text-sm text-gray-700">
-        Gifted my sister a bracelet for Raksha Bandhan. She loved the packaging and craftsmanship. Great experience!
-      </p>
-    </div>
-
-    {/* Testimonial Card 5 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-1deg]">
-      <img src="https://images.pexels.com/photos/21898588/pexels-photo-21898588.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200" alt="Sneha Desai" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Sneha Desai, 24</h3>
-      <p className="text-sm text-gray-700">
-        Jewel Mart made my first online jewelry purchase so easy. The ring fit like a dream. I'm definitely coming back!
-      </p>
-    </div>
-
-    {/* Testimonial Card 6 */}
-    <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[3deg]">
-      <img src="https://i.pinimg.com/736x/89/28/e0/8928e02b4aa74b8342c65ff69d004441.jpg" alt="Karan Verma" className="rounded-md mb-4" />
-      <h3 className="text-lg font-semibold text-blue-900">Karan Verma, 29</h3>
-      <p className="text-sm text-gray-700">
-        I bought a gold chain for my dad’s birthday. He was thrilled. Delivery was quick and secure. Impressed!
-      </p>
-    </div>
-  </div>
-</section>
-  
+      <section className="bg-pink-50 py-16 px-4">
+        <h2 className="text-center text-4xl font-serif text-blue-900 mb-12">
+          Our Special Customer Testimonials
+        </h2>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-3deg]">
+            <img src="https://www.weddingsutra.com/images/wedding-images/wedding_on_location/wsol_jan_2019/akansha_wsol_jan_2019_05.jpg" alt="Akanksha Khanna" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Akanksha Khanna, 27</h3>
+            <p className="text-sm text-gray-700">
+              Delighted with my engagement ring from Jewel Mart! It's my dream ring, fits perfectly and is stunning to look at.
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[2deg]">
+            <img src="https://zariin.com/cdn/shop/articles/divya-bhatt-mishra-for-zariin-real-women.jpg?v=1674100355&width=1100" alt="Nutan Mishra" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Nutan Mishra, 33</h3>
+            <p className="text-sm text-gray-700">
+              I got a Nazariya for my baby boy. It's so cute and gives a sense of comfort knowing it’s on his wrist.
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-2deg]">
+            <img src="https://as2.ftcdn.net/jpg/01/95/43/59/1000_F_195435986_5Zymzu1CfIL0kEMlKa2RUIaBin8QK5JF.jpg" alt="Divya Mishra" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Divya Mishra, 26</h3>
+            <p className="text-sm text-gray-700">
+              On Valentine’s Day, I received a necklace I just can't take off. Everyone asks where I got it from!
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[1.5deg]">
+            <img src="https://www.shutterstock.com/image-photo/photo-girl-wear-white-shirt-600nw-2471646043.jpg" alt="Raj Patel" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Rajvi Patel, 30</h3>
+            <p className="text-sm text-gray-700">
+              Gifted my sister a bracelet for Raksha Bandhan. She loved the packaging and craftsmanship. Great experience!
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-1deg]">
+            <img src="https://images.pexels.com/photos/21898588/pexels-photo-21898588.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200" alt="Sneha Desai" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Sneha Desai, 24</h3>
+            <p className="text-sm text-gray-700">
+              Jewel Mart made my first online jewelry purchase so easy. The ring fit like a dream. I'm definitely coming back!
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[3deg]">
+            <img src="https://i.pinimg.com/736x/89/28/e0/8928e02b4aa74b8342c65ff69d004441.jpg" alt="Karan Verma" className="rounded-md mb-4" />
+            <h3 className="text-lg font-semibold text-blue-900">Karan Verma, 29</h3>
+            <p className="text-sm text-gray-700">
+              I bought a gold chain for my dad’s birthday. He was thrilled. Delivery was quick and secure. Impressed!
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Strokes of Genius Section */}
-<section className="py-12 px-6 bg-white flex flex-col md:flex-row items-center justify-center gap-8 max-w-7xl mx-auto">
-  <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-lg">
-    <video
-      autoPlay
-      loop
-      muted
-      playsInline
-      className="w-full h-full object-cover"
-    >
-      <source src="/videos/new2v.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-  </div>
-  <div className="w-full md:w-1/2 flex items-center justify-center">
-    <h2 className="text-4xl md:text-6xl font-serif font-semibold text-rose-900 whitespace-nowrap">
-      #YourShine with US
-    </h2>
-  </div>
-</section>
-
+      <section className="py-12 px-6 bg-white flex flex-col md:flex-row items-center justify-center gap-8 max-w-7xl mx-auto">
+        <div className="w-full md:w-1/2 rounded-xl overflow-hidden shadow-lg">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/videos/new2v.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div className="w-full md:w-1/2 flex items-center justify-center">
+          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-rose-900 whitespace-nowrap">
+            #YourShine with US
+          </h2>
+        </div>
+      </section>
 
       {/* Best Sellers */}
       <section className="py-16 px-6 bg-gray-50 text-center">

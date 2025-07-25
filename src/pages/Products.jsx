@@ -60,7 +60,7 @@ export default function Products() {
 
         const { data: productsData, error: prodError } = await supabase
           .from('products')
-          .select('id, name, price, image_url, category, metal, stone, occasion, rating, reviews');
+          .select('id, name, price, image_base64, category, metal, stone, occasion, rating, reviews, created_at');
         if (prodError) throw prodError;
         setProducts(productsData || []);
 
@@ -101,7 +101,7 @@ export default function Products() {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_url,
+        image: product.image_base64,
         metal: product.metal,
         stone: product.stone,
         selectedSize,
@@ -165,7 +165,7 @@ export default function Products() {
       <div className="bg-gradient-to-r from-yellow-50 to-red-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h2 className="text-4xl font-bold text-gray-900 mb-2 mt-19" style={{ fontFamily: 'Playfair Display, serif' }}>
               Elegance Crafted for Every Occasion
             </h2>
             <p className="text-lg text-gray-600">Discover our exquisite collection of luxury jewelry</p>
@@ -389,7 +389,7 @@ export default function Products() {
                 >
                   <div className="relative aspect-square overflow-hidden">
                     <img
-                      src={product.image_url}
+                      src={product.image_base64}
                       alt={product.name}
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                     />

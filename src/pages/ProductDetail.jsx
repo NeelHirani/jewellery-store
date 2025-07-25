@@ -25,7 +25,7 @@ const ProductDetail = () => {
         // Fetch product details with existing columns
         const { data: productData, error: productError } = await supabase
           .from('products')
-          .select('id, name, price, image_url, category, metal, stone, occasion, rating, reviews')
+          .select('id, name, price, image_base64, category, metal, stone, occasion, rating, reviews, created_at')
           .eq('id', parseInt(id)) // Ensure id is an integer
           .single();
         
@@ -42,9 +42,9 @@ const ProductDetail = () => {
 
         // Mock product_images (since table doesn't exist)
         setProductImages([
-          { image_url: productData.image_url }, // Use main image
-          { image_url: productData.image_url + '_alt1' }, // Mock alternate images
-          { image_url: productData.image_url + '_alt2' },
+          { image_base64: productData.image_base64, image_base64: productData.image_base64 }, // Use main image
+          { image_base64: productData.image_base64 + '_alt1' }, // Mock alternate images
+          { image_base64: productData.image_base64 + '_alt2' },
         ]);
 
         // Mock product_sizes (since table doesn't exist)
@@ -85,7 +85,7 @@ const ProductDetail = () => {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_url,
+        image: product.image_base64,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
         selectedSize,
@@ -114,7 +114,7 @@ const ProductDetail = () => {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_url,
+        image: product.image_base64,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
         selectedSize,
@@ -277,7 +277,7 @@ const ProductDetail = () => {
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
               <img
-                src={productImages[selectedImage]?.image_url || product.image_url}
+                src={product.image_base64 || productImages[selectedImage]?.image_base64 || product.image_base64}
                 alt={product.name}
                 className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in"
               />
@@ -293,7 +293,7 @@ const ProductDetail = () => {
                   aria-label={`Select image ${index + 1}`}
                 >
                   <img
-                    src={image.image_url}
+                    src={image.image_base64}
                     alt={`Product ${index + 1}`}
                     className="w-full h-full object-cover object-top"
                   />
@@ -431,7 +431,7 @@ const ProductDetail = () => {
               {[
                 { id: 'description', label: 'Description' },
                 { id: 'specifications', label: 'Specifications' },
-                // { id: 'reviews', label: 'Reviews' }, // Uncomment when reviews table is added
+                { id: 'reviews', label: 'Reviews' }, // Uncomment when reviews table is added
                 { id: 'shipping', label: 'Shipping & Returns' },
               ].map((tab) => (
                 <button
@@ -504,7 +504,7 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Placeholder for Reviews (uncomment when reviews table is added)
+            {/* Placeholder for Reviews (uncomment when reviews table is added) */}
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -517,7 +517,7 @@ const ProductDetail = () => {
                 <p className="text-gray-600">No reviews available yet.</p>
               </div>
             )}
-            */}
+           
 
             {activeTab === 'shipping' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -91,7 +91,7 @@ export default function Home() {
   <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
 
   {/* Text + Button */}
-  <div className="absolute bottom-10 w-full text-center px-4">
+  <div className="absolute bottom-5 w-full text-center px-4">
     <h2 className="text-white text-2xl md:text-4xl font-bold drop-shadow-lg">
       Celebrate Raksha Bandhan with Timeless Elegance 🎁
     </h2>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaLock, FaEnvelope } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
 
@@ -79,90 +80,99 @@ const ForgetPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-rose-50 px-4 pt-16">
-      <motion.div
-        className="bg-white p-8 shadow-xl rounded-2xl w-full max-w-md"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="text-2xl font-bold text-center text-[#800000] mb-6">
-          Reset Your Password
-        </h2>
+    <div className="relative w-full min-h-screen">
+      {/* Background image */}
+      <img
+        src="https://plus.unsplash.com/premium_photo-1661645473770-90d750452fa0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Jewelry"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/30 z-10" />
 
-        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
-        {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
+      {/* Reset Password box */}
+      <div className="relative z-20 flex items-center justify-start min-h-screen px-6 md:px-16 mt-12">
+        <motion.div
+          className="w-full max-w-sm bg-white/20 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl p-8"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h3 className="text-2xl font-bold text-white mb-1">Reset Your Password</h3>
+          <p className="text-sm text-white mb-6">Enter your email and new password</p>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div>
-            <label className="block font-medium mb-1">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
-                error ? "border-red-500" : "border-gray-300"
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
+
+          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
+            {/* Email */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaEnvelope className="text-gray-400 mr-2" />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="Email"
+                disabled={loading}
+              />
+            </div>
+
+            {/* New Password */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaLock className="text-gray-400 mr-2" />
+              <input
+                type="password"
+                name="password"
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="New Password"
+                disabled={loading}
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaLock className="text-gray-400 mr-2" />
+              <input
+                type="password"
+                name="confirmPassword"
+                id="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="Confirm Password"
+                disabled={loading}
+              />
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              className={`w-full flex items-center justify-center gap-2 bg-[#800000] hover:bg-[#5a0d15] text-white py-2 rounded-lg font-medium transition transform hover:scale-105 duration-300 shadow-lg ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
-              placeholder="you@example.com"
               disabled={loading}
-            />
-          </div>
+            >
+              {loading ? "Resetting..." : "Reset Password"}
+            </button>
+          </form>
 
-          <div>
-            <label className="block font-medium mb-1">New Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
-                error ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="••••••••"
-              disabled={loading}
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium mb-1">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              id="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#800000] ${
-                error ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="••••••••"
-              disabled={loading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className={`w-full bg-[#800000] hover:bg-[#5a0d15] text-white py-2 rounded-lg font-semibold transition duration-300 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={loading}
-          >
-            {loading ? "Resetting..." : "Reset Password"}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Remember your password?{" "}
-          <Link
-            to="/login"
-            className="text-[#800000] hover:underline font-medium"
-          >
-            Login
-          </Link>
-        </p>
-      </motion.div>
+          <p className="text-center text-sm text-white mt-6">
+            Remember your password?{" "}
+            <Link
+              to="/login"
+              className="text-white underline hover:text-rose-200"
+            >
+              Login
+            </Link>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 };

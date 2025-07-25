@@ -145,7 +145,7 @@ export default function Profile({ user: propUser }) {
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white pt-24 pb-10 px-4">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 hover:shadow-black-300">
         {/* Banner */}
-        <div className="bg-rose-600 text-white px-8 py-6 flex flex-col md:flex-row justify-between items-center rounded-t-3xl">
+        <div className="bg-red-700 text-white px-8 py-6 flex flex-col md:flex-row justify-between items-center rounded-t-3xl">
           <div>
             <h2 className="text-3xl font-bold">Welcome back, {user.name}.</h2>
           </div>
@@ -195,9 +195,9 @@ export default function Profile({ user: propUser }) {
                 <FaHeart className="mr-2" /> My Wishlist
               </h4>
               <p className="text-gray-600">Your wishlist is currently empty.</p>
-              <button className="text-sm text-[#c4002d] hover:underline mt-2">
+              <Link to="/products" className="text-sm text-[#c4002d] hover:underline mt-2 inline-block">
                 Add Your Favorites
-              </button>
+              </Link>
             </div>
 
             {/* Address */}

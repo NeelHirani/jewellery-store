@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaMapMarkerAlt, FaBuilding, FaCity, FaGlobe, FaMailBulk } from "react-icons/fa";
+import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
 
 export default function EditAddress() {
@@ -84,109 +86,137 @@ export default function EditAddress() {
   };
 
   return (
-    <div className="min-h-screen bg-rose-50 flex items-center justify-center px-4 pt-20">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-lg">
-        <h2 className="text-2xl font-bold text-center text-[#800000] mb-6">
-          Edit Your Address
-        </h2>
+    <div className="relative w-full min-h-screen">
+      {/* Background image */}
+      <img
+        src="https://plus.unsplash.com/premium_photo-1661645473770-90d750452fa0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Jewelry"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/30 z-10" />
 
-        {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
-        {success && <p className="text-green-600 text-sm mb-4 text-center">{success}</p>}
+      {/* Edit Address box */}
+      <div className="relative z-20 flex items-center justify-start min-h-screen px-6 md:px-16 mt-12">
+        <motion.div
+          className="w-full max-w-sm bg-white/20 backdrop-blur-lg border border-white/20 shadow-2xl rounded-2xl p-8"
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h3 className="text-2xl font-bold text-white mb-1">Edit Your Address</h3>
+          <p className="text-sm text-white mb-6">Update your address details</p>
 
-        <form onSubmit={handleSave} className="space-y-5">
-          <div>
-            <label className="block font-medium mb-1">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="123 Main Street"
-            />
-          </div>
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {success && <p className="text-green-600 text-sm mb-4">{success}</p>}
 
-          <div>
-            <label className="block font-medium mb-1">Apartment, suite, etc.</label>
-            <input
-              type="text"
-              name="apartment"
-              value={form.apartment}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="Apt 1B"
-            />
-          </div>
+          <form onSubmit={handleSave} className="space-y-5" autoComplete="off">
+            {/* Address */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaMapMarkerAlt className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="123 Main Street"
+                disabled={loading}
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium mb-1">City</label>
-            <input
-              type="text"
-              name="city"
-              value={form.city}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="City"
-            />
-          </div>
+            {/* Apartment */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaBuilding className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="apartment"
+                value={form.apartment}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="Apt 1B"
+                disabled={loading}
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium mb-1">State/province</label>
-            <input
-              type="text"
-              name="state"
-              value={form.state}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="State or Province"
-            />
-          </div>
+            {/* City */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaCity className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="City"
+                disabled={loading}
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium mb-1">Country</label>
-            <input
-              type="text"
-              name="country"
-              value={form.country}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="Country"
-            />
-          </div>
+            {/* State */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaMapMarkerAlt className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="state"
+                value={form.state}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="State or Province"
+                disabled={loading}
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium mb-1">ZIP/postal code</label>
-            <input
-              type="text"
-              name="zip"
-              value={form.zip}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              placeholder="ZIP Code"
-            />
-          </div>
+            {/* Country */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaGlobe className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="country"
+                value={form.country}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="Country"
+                disabled={loading}
+              />
+            </div>
 
-          <div className="flex justify-between">
-            <button
-              type="button"
-              onClick={() => navigate("/profile")}
-              className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm font-medium"
-              disabled={loading}
-            >
-              Cancel
-            </button>
+            {/* ZIP */}
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 ring-[#800000] transition">
+              <FaMailBulk className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                name="zip"
+                value={form.zip}
+                onChange={handleChange}
+                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-300"
+                placeholder="ZIP Code"
+                disabled={loading}
+              />
+            </div>
 
-            <button
-              type="submit"
-              className={`px-6 py-2 rounded bg-[#800000] text-white font-semibold hover:bg-[#5a0d15] transition ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Address"}
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-between">
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-sm font-medium text-gray-800 transition transform hover:scale-105 duration-300 shadow-lg"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className={`px-6 py-2 rounded bg-[#800000] text-white font-semibold hover:bg-[#5a0d15] transition transform hover:scale-105 duration-300 shadow-lg ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Address"}
+              </button>
+            </div>
+          </form>
+        </motion.div>
       </div>
     </div>
   );

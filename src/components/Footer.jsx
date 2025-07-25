@@ -75,9 +75,9 @@ const Footer = () => {
           <div className="flex items-center space-x-3">
             <IoGlobeOutline className="text-xl" />
             <select className="bg-gray-800 px-3 py-1 rounded text-white">
-              <option>EN / USD</option>
+              <option>IN / IND</option>
               <option>FR / EUR</option>
-              <option>IN / INR</option>
+              <option>EN / USD</option>
             </select>
           </div>
         </div>
@@ -92,3 +92,4 @@ const Footer = () => {
 };
 
 export default Footer;
+ 

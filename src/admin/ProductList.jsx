@@ -138,7 +138,7 @@ const ProductList = () => {
           </Link>
           <button
             onClick={() => setShowAddProductModal(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all whitespace-nowrap"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center whitespace-nowrap"
           >
             <FaPlus className="mr-2" />
             Add Product

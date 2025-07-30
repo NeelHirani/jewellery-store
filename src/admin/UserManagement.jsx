@@ -264,8 +264,8 @@ const UserManagement = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-400px)]"> {/* Added max-height and overflow-y-auto */}
+          <table className="w-full min-w-[600px]"> {/* Set minimum width to ensure horizontal scroll */}
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Customer</th>

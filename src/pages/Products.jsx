@@ -8,7 +8,6 @@ export default function Products() {
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedMetal, setSelectedMetal] = useState([]);
   const [selectedStone, setSelectedStone] = useState([]);
-  const [selectedRating, setSelectedRating] = useState([]);
   const [selectedOccasion, setSelectedOccasion] = useState([]);
   const [sortBy, setSortBy] = useState('newest');
   const [wishlist, setWishlist] = useState([]);
@@ -19,8 +18,6 @@ export default function Products() {
   const [stoneTypes, setStoneTypes] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [products, setProducts] = useState([]);
-  const [productSizes, setProductSizes] = useState({});
-  const [selectedSizes, setSelectedSizes] = useState({});
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -28,7 +25,6 @@ export default function Products() {
     { id: 'newest', label: 'Newest' },
     { id: 'price-low-high', label: 'Price: Low to High' },
     { id: 'price-high-low', label: 'Price: High to Low' },
-    { id: 'rating-high-low', label: 'Rating: High to Low' },
   ];
 
   useEffect(() => {
@@ -60,19 +56,9 @@ export default function Products() {
 
         const { data: productsData, error: prodError } = await supabase
           .from('products')
-          .select('id, name, price, image_base64, category, metal, stone, occasion, rating, reviews, created_at');
+          .select('id, name, price, additional_images, category, metal, stone, occasion, created_at');
         if (prodError) throw prodError;
         setProducts(productsData || []);
-
-        const { data: sizesData, error: sizeError } = await supabase
-          .from('product_sizes')
-          .select('product_id, size');
-        if (sizeError) throw sizeError;
-        const sizesMap = sizesData.reduce((acc, { product_id, size }) => {
-          acc[product_id] = [...(acc[product_id] || []), size];
-          return acc;
-        }, {});
-        setProductSizes(sizesMap);
       } catch (err) {
         setError('Failed to load data from Supabase.');
         console.error('Error fetching data:', err);
@@ -98,9 +84,8 @@ export default function Products() {
   };
 
   const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id] || null;
-    if (!product || (productSizes[product.id]?.length > 0 && !selectedSize)) {
-      setError(`Please select a size for ${product.name}.`);
+    if (!product) {
+      setError('Product data is unavailable.');
       return;
     }
     try {
@@ -111,10 +96,9 @@ export default function Products() {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_base64,
+        image: product.additional_images[0] || '', // Use first image as main image
         metal: product.metal,
         stone: product.stone,
-        selectedSize,
         quantity: 1,
       };
       const updatedCart = [...cart, newItem];
@@ -134,38 +118,19 @@ export default function Products() {
     navigate(`/products/${product.id}`);
   };
 
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<i key={i} className="fas fa-star text-yellow-400"></i>);
-    }
-    if (hasHalfStar) {
-      stars.push(<i key="half" className="fas fa-star-half-alt text-yellow-400"></i>);
-    }
-    const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300"></i>);
-    }
-    return stars;
-  };
-
   const filteredProducts = products
     .filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
       const matchesMetal = selectedMetal.length === 0 || selectedMetal.includes(product.metal);
       const matchesStone = selectedStone.length === 0 || selectedStone.includes(product.stone);
-      const matchesRating = selectedRating.length === 0 || selectedRating.some((r) => product.rating >= parseInt(r));
       const matchesOccasion = selectedOccasion.length === 0 || selectedOccasion.includes(product.occasion);
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesPrice && matchesMetal && matchesStone && matchesRating && matchesOccasion && matchesSearch;
+      return matchesCategory && matchesPrice && matchesMetal && matchesStone && matchesOccasion && matchesSearch;
     })
     .sort((a, b) => {
       if (sortBy === 'price-low-high') return a.price - b.price;
       if (sortBy === 'price-high-low') return b.price - a.price;
-      if (sortBy === 'rating-high-low') return b.rating - a.rating;
       return new Date(b.created_at) - new Date(a.created_at);
     });
 
@@ -298,34 +263,6 @@ export default function Products() {
                   ))}
                 </div>
               </div>
-              <div className="mb-6">
-                <h4 className="font-medium text-gray-900 mb-3">Customer Rating</h4>
-                <div className="space-y-2">
-                  {['4', '3'].map((rating) => (
-                    <label key={rating} className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedRating.includes(`${rating}+`)}
-                        onChange={(e) => {
-                          const ratingValue = `${rating}+`;
-                          if (e.target.checked) {
-                            setSelectedRating([...selectedRating, ratingValue]);
-                          } else {
-                            setSelectedRating(selectedRating.filter((r) => r !== ratingValue));
-                          }
-                        }}
-                        className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
-                        aria-label={`Select rating ${rating} and up`}
-                      />
-                      <span className="ml-2 text-sm text-gray-700 flex items-center">
-                        {rating}
-                        <i className="fas fa-star text-yellow-400 ml-1 mr-1"></i>
-                        & up
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Occasion</h4>
                 <div className="space-y-2">
@@ -399,11 +336,13 @@ export default function Products() {
                 >
                   <div className="relative aspect-square overflow-hidden">
                     <img
-                      src={product.image_base64}
+                      src={product.additional_images && product.additional_images.length > 0
+                        ? product.additional_images[0]
+                        : 'https://via.placeholder.com/300?text=No+Image'}
                       alt={product.name}
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                       <button
                         onClick={(e) => handleQuickView(product, e)}
                         className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer whitespace-nowrap !rounded-button"
@@ -432,28 +371,9 @@ export default function Products() {
                         {product.name}
                       </Link>
                     </h3>
-                    <div className="flex items-center mb-2">
-                      <div className="flex items-center mr-2">{renderStars(product.rating)}</div>
-                      <span className="text-sm text-gray-500">({product.reviews})</span>
-                    </div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xl font-bold text-gray-900">${product.price.toLocaleString()}</span>
                     </div>
-                    {productSizes[product.id]?.length > 0 && (
-                      <div className="mb-4">
-                        <select
-                          value={selectedSizes[product.id] || ''}
-                          onChange={(e) => setSelectedSizes({ ...selectedSizes, [product.id]: e.target.value })}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
-                          aria-label={`Select size for ${product.name}`}
-                        >
-                          <option value="">Select Size</option>
-                          {productSizes[product.id].map((size) => (
-                            <option key={size} value={size}>{size}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
                     <button
                       onClick={() => handleAddToCart(product)}
                       className="w-full bg-amber-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"

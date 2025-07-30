@@ -29,7 +29,7 @@ const ProductDetail = () => {
         }
         const { data: productData, error: productError } = await supabase
           .from('products')
-          .select('id, name, price, image_base64, category, metal, stone, occasion, short_description, detailed_description, created_at')
+          .select('id, name, price, category, metal, stone, occasion, short_description, detailed_description, created_at, additional_images')
           .eq('id', parseInt(id))
           .single();
 
@@ -37,6 +37,11 @@ const ProductDetail = () => {
         if (!productData) throw new Error(`No product found for ID ${id}`);
         console.log('Product data:', productData);
         setProduct(productData);
+
+        // Populate productImages with additional images
+        const images = [...(productData.additional_images || [])].filter(Boolean); // Use only additional_images array
+        setProductImages(images);
+        console.log('Product Images:', images);
 
         const { data: sizesData } = await supabase
           .from('product_sizes')
@@ -46,7 +51,7 @@ const ProductDetail = () => {
 
         const { data: reviewsData, error: reviewsError } = await supabase
           .from('reviews')
-          .select('id, user_id, rating, comment, created_at')
+          .select('id, user_id, rating, comment, created_at, status')
           .eq('product_id', parseInt(id))
           .order('created_at', { ascending: false });
         if (reviewsError) console.error('Error fetching reviews:', reviewsError);
@@ -92,7 +97,7 @@ const ProductDetail = () => {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_base64,
+        image: product.additional_images,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
         selectedSize,
@@ -120,7 +125,7 @@ const ProductDetail = () => {
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.image_base64,
+        image: product.additional_images,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
         selectedSize,
@@ -166,13 +171,14 @@ const ProductDetail = () => {
           user_id: user.id,
           rating: newReview.rating,
           comment: newReview.comment,
+          status: 'pending' // Default status as per schema
         });
 
       if (error) throw error;
 
       const { data: reviewsData } = await supabase
         .from('reviews')
-        .select('id, user_id, rating, comment, created_at')
+        .select('id, user_id, rating, comment, created_at, status')
         .eq('product_id', parseInt(id))
         .order('created_at', { ascending: false });
       setReviews(reviewsData || []);
@@ -303,7 +309,7 @@ const ProductDetail = () => {
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
               <img
-                src={product.image_base64 || (productImages[selectedImage]?.image_base64 || product.image_base64)}
+                src={productImages[selectedImage]}
                 alt={product.name}
                 className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in"
               />
@@ -319,7 +325,7 @@ const ProductDetail = () => {
                   aria-label={`Select image ${index + 1}`}
                 >
                   <img
-                    src={image.image_base64}
+                    src={image}
                     alt={`Product ${index + 1}`}
                     className="w-full h-full object-cover object-top"
                   />
@@ -339,7 +345,9 @@ const ProductDetail = () => {
                   <span className="text-sm text-gray-600">({reviews.length} reviews)</span>
                 </div>
               </div>
-              <p className="text-4xl font-bold text-yellow-600 mb-4">₹{product.price.toLocaleString('en-IN')}</p>
+              <p className="text-4xl font-bold text-yellow-600 mb-4">
+                {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              </p>
               <p className="text-gray-600 leading-relaxed">
                 {product.short_description || 'No short description available.'}
               </p>
@@ -574,6 +582,11 @@ const ProductDetail = () => {
                             <div className="flex">{renderStars(review.rating)}</div>
                             <span className="text-sm text-gray-600">{new Date(review.created_at).toLocaleDateString()}</span>
                           </div>
+                          {review.status && (
+                            <span className={`text-xs px-2 py-1 rounded ${review.status === 'approved' ? 'bg-green-100 text-green-800' : review.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                              {review.status}
+                            </span>
+                          )}
                         </div>
                         <p className="mt-2 text-gray-700">{review.comment}</p>
                       </div>
@@ -592,7 +605,7 @@ const ProductDetail = () => {
                   <ul className="space-y-3 text-gray-700">
                     <li className="flex items-start space-x-2">
                       <i className="fas fa-check text-green-500 mt-1" aria-hidden="true"></i>
-                      <span>Free shipping on orders over ₹50,000</span>
+                      <span>Free shipping on orders over $500</span>
                     </li>
                     <li className="flex items-start space-x-2">
                       <i className="fas fa-check text-green-500 mt-1" aria-hidden="true"></i>
@@ -659,8 +672,8 @@ const ProductDetail = () => {
           }
         `}</style>
       </div>
-      </div>
-    );
+    </div>
+  );
 };
 
 export default ProductDetail;

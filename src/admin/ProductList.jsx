@@ -181,7 +181,6 @@ const ProductList = () => {
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Product</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Category</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Price</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Rating</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Created</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
               </tr>
@@ -198,7 +197,7 @@ const ProductList = () => {
                     <td className="py-4 px-4">
                       <div className="flex items-center">
                         <img
-                          src={product.image_base64 || '/placeholder-image.jpg'}
+                          src={product.additional_images && product.additional_images.length > 0 ? product.additional_images[0] : (product.image_base64 || '/placeholder-image.jpg')}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded-lg mr-3"
                         />
@@ -210,9 +209,6 @@ const ProductList = () => {
                     </td>
                     <td className="py-4 px-4 text-gray-700">{product.category}</td>
                     <td className="py-4 px-4 font-medium text-gray-900">${product.price?.toLocaleString()}</td>
-                    <td className="py-4 px-4">
-                      {product.rating}/5 ({product.reviews} reviews)
-                    </td>
                     <td className="py-4 px-4 text-gray-500">
                       {new Date(product.created_at).toLocaleDateString()}
                     </td>
@@ -245,7 +241,7 @@ const ProductList = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="py-4 px-4 text-center text-gray-500">
+                  <td colSpan="5" className="py-4 px-4 text-center text-gray-500">
                     No products found
                   </td>
                 </tr>

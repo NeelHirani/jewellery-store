@@ -14,8 +14,7 @@ const ProductForm = ({ product, onClose }) => {
     metal: '',
     stone: '',
     occasion: '',
-    image_base64: [''],
-    additional_images: ['']
+    additional_images: ['', '', '', '', '']
   });
 
   const [categories, setCategories] = useState([]);
@@ -24,7 +23,7 @@ const ProductForm = ({ product, onClose }) => {
   const [occasions, setOccasions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [imagePreviews, setImagePreviews] = useState({ main: [''], additional: [''] });
+  const [imagePreviews, setImagePreviews] = useState(['', '', '', '', '']);
 
   useEffect(() => {
     fetchDropdownData();
@@ -38,13 +37,15 @@ const ProductForm = ({ product, onClose }) => {
         metal: product.metal || '',
         stone: product.stone || '',
         occasion: product.occasion || '',
-        image_base64: product.image_base64 ? [product.image_base64] : [''],
-        additional_images: product.additional_images || ['']
+        additional_images: product.additional_images?.length
+          ? [...product.additional_images, ...Array(5 - product.additional_images.length).fill('')]
+          : ['', '', '', '', '']
       });
-      setImagePreviews({
-        main: product.image_base64 ? [product.image_base64] : [''],
-        additional: product.additional_images || ['']
-      });
+      setImagePreviews(
+        product.additional_images?.length
+          ? [...product.additional_images, ...Array(5 - product.additional_images.length).fill('')]
+          : ['', '', '', '', '']
+      );
     }
   }, [product, isEditing]);
 
@@ -81,7 +82,7 @@ const ProductForm = ({ product, onClose }) => {
     }
   };
 
-  const handleImageChange = (e, section) => {
+  const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -93,38 +94,30 @@ const ProductForm = ({ product, onClose }) => {
       reader.onload = (e) => {
         const base64String = e.target.result;
         setFormData(prev => {
-          const newImages = [...(prev[section === 'main' ? 'image_base64' : 'additional_images'])];
-          newImages[0] = base64String; // Replace the first image
-          return {
-            ...prev,
-            [section === 'main' ? 'image_base64' : 'additional_images']: newImages
-          };
+          const newImages = [...prev.additional_images];
+          newImages[index] = base64String;
+          return { ...prev, additional_images: newImages };
         });
-        setImagePreviews(prev => ({
-          ...prev,
-          [section]: [base64String]
-        }));
+        setImagePreviews(prev => {
+          const newPreviews = [...prev];
+          newPreviews[index] = base64String;
+          return newPreviews;
+        });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = (index, section) => {
+  const removeImage = (index) => {
     setFormData(prev => {
-      const newImages = [...prev[section === 'main' ? 'image_base64' : 'additional_images']];
+      const newImages = [...prev.additional_images];
       newImages[index] = '';
-      return {
-        ...prev,
-        [section === 'main' ? 'image_base64' : 'additional_images']: newImages
-      };
+      return { ...prev, additional_images: newImages };
     });
     setImagePreviews(prev => {
-      const newPreviews = [...prev[section]];
+      const newPreviews = [...prev];
       newPreviews[index] = '';
-      return {
-        ...prev,
-        [section]: newPreviews
-      };
+      return newPreviews;
     });
   };
 
@@ -139,8 +132,8 @@ const ProductForm = ({ product, onClose }) => {
     if (!formData.occasion) newErrors.occasion = 'Occasion is required';
     if (!formData.short_description.trim()) newErrors.short_description = 'Short description is required';
     if (!formData.detailed_description.trim()) newErrors.detailed_description = 'Detailed description is required';
-    if (!formData.image_base64[0] || formData.image_base64[0] === '') {
-      newErrors.image_base64 = 'Main product image is required';
+    if (!formData.additional_images.some(img => img && img !== '')) {
+      newErrors.additional_images = 'At least one product image is required';
     }
 
     setErrors(newErrors);
@@ -163,8 +156,7 @@ const ProductForm = ({ product, onClose }) => {
         metal: formData.metal,
         stone: formData.stone,
         occasion: formData.occasion,
-        image_base64: formData.image_base64[0] || null,
-        additional_images: formData.additional_images.filter(img => img && img !== '') || null
+        additional_images: formData.additional_images.filter(img => img && img !== '') || []
       };
 
       if (isEditing) {
@@ -299,7 +291,7 @@ const ProductForm = ({ product, onClose }) => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price (₹) *
+                Price ($) *
               </label>
               <input
                 type="number"
@@ -377,91 +369,51 @@ const ProductForm = ({ product, onClose }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Image *
+              Product Images * (Up to 5)
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-auto">
-              {imagePreviews.main[0] ? (
-                <div className="relative">
-                  <img
-                    src={imagePreviews.main[0]}
-                    alt="Main product preview"
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(0, 'main')}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-                    disabled={loading}
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <FaImage className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="mt-4">
-                    <label className="cursor-pointer">
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Upload main product image
-                      </span>
-                      <input
-                        type="file"
-                        className="sr-only"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e, 'main')}
-                        disabled={loading}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {imagePreviews.map((preview, index) => (
+                <div key={index} className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-auto">
+                  {preview ? (
+                    <div className="relative">
+                      <img
+                        src={preview}
+                        alt={`Product preview ${index + 1}`}
+                        className="w-full h-48 object-cover rounded-lg"
                       />
-                    </label>
-                  </div>
-                  <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
-                </div>
-              )}
-            </div>
-            {errors.image_base64 && <p className="mt-1 text-sm text-red-600">{errors.image_base64}</p>}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Product Images
-            </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-auto">
-              {imagePreviews.additional[0] ? (
-                <div className="relative">
-                  <img
-                    src={imagePreviews.additional[0]}
-                    alt="Additional product preview"
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(0, 'additional')}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-                    disabled={loading}
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <FaImage className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="mt-4">
-                    <label className="cursor-pointer">
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Upload additional product image
-                      </span>
-                      <input
-                        type="file"
-                        className="sr-only"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e, 'additional')}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                         disabled={loading}
-                      />
-                    </label>
-                  </div>
-                  <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <FaImage className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="mt-4">
+                        <label className="cursor-pointer">
+                          <span className="mt-2 block text-sm font-medium text-gray-900">
+                            Upload image {index + 1}
+                          </span>
+                          <input
+                            type="file"
+                            className="sr-only"
+                            accept="image/*"
+                            onChange={(e) => handleImageChange(e, index)}
+                            disabled={loading}
+                          />
+                        </label>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
+            {errors.additional_images && <p className="mt-2 text-sm text-red-600">{errors.additional_images}</p>}
           </div>
 
           <div className="flex justify-end space-x-4 pt-6">

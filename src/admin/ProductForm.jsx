@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { FaSave, FaArrowLeft, FaImage, FaTimes } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
+import { motion } from 'framer-motion';
 
-const ProductForm = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const isEditing = Boolean(id);
-
+const ProductForm = ({ product, onClose }) => {
+  const isEditing = Boolean(product);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
+    short_description: '',
+    detailed_description: '',
     category: '',
     metal: '',
     stone: '',
     occasion: '',
-    rating: 5,
-    reviews: 0,
-    image_base64: ''
+    image_base64: [''],
+    additional_images: ['']
   });
 
   const [categories, setCategories] = useState([]);
@@ -26,14 +24,29 @@ const ProductForm = () => {
   const [occasions, setOccasions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [imagePreview, setImagePreview] = useState('');
+  const [imagePreviews, setImagePreviews] = useState({ main: [''], additional: [''] });
 
   useEffect(() => {
     fetchDropdownData();
     if (isEditing) {
-      fetchProduct();
+      setFormData({
+        name: product.name || '',
+        price: product.price || '',
+        short_description: product.short_description || '',
+        detailed_description: product.detailed_description || '',
+        category: product.category || '',
+        metal: product.metal || '',
+        stone: product.stone || '',
+        occasion: product.occasion || '',
+        image_base64: product.image_base64 ? [product.image_base64] : [''],
+        additional_images: product.additional_images || ['']
+      });
+      setImagePreviews({
+        main: product.image_base64 ? [product.image_base64] : [''],
+        additional: product.additional_images || ['']
+      });
     }
-  }, [id, isEditing]);
+  }, [product, isEditing]);
 
   const fetchDropdownData = async () => {
     try {
@@ -53,40 +66,6 @@ const ProductForm = () => {
     }
   };
 
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      setFormData({
-        name: data.name || '',
-        price: data.price || '',
-        category: data.category || '',
-        metal: data.metal || '',
-        stone: data.stone || '',
-        occasion: data.occasion || '',
-        rating: data.rating || 5,
-        reviews: data.reviews || 0,
-        image_base64: data.image_base64 || ''
-      });
-
-      if (data.image_base64) {
-        setImagePreview(data.image_base64);
-      }
-    } catch (error) {
-      console.error('Error fetching product:', error);
-      alert('Failed to load product data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -94,7 +73,6 @@ const ProductForm = () => {
       [name]: value
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -103,10 +81,9 @@ const ProductForm = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, section) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('Image size should be less than 5MB');
         return;
@@ -115,22 +92,40 @@ const ProductForm = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64String = e.target.result;
-        setFormData(prev => ({
+        setFormData(prev => {
+          const newImages = [...(prev[section === 'main' ? 'image_base64' : 'additional_images'])];
+          newImages[0] = base64String; // Replace the first image
+          return {
+            ...prev,
+            [section === 'main' ? 'image_base64' : 'additional_images']: newImages
+          };
+        });
+        setImagePreviews(prev => ({
           ...prev,
-          image_base64: base64String
+          [section]: [base64String]
         }));
-        setImagePreview(base64String);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      image_base64: ''
-    }));
-    setImagePreview('');
+  const removeImage = (index, section) => {
+    setFormData(prev => {
+      const newImages = [...prev[section === 'main' ? 'image_base64' : 'additional_images']];
+      newImages[index] = '';
+      return {
+        ...prev,
+        [section === 'main' ? 'image_base64' : 'additional_images']: newImages
+      };
+    });
+    setImagePreviews(prev => {
+      const newPreviews = [...prev[section]];
+      newPreviews[index] = '';
+      return {
+        ...prev,
+        [section]: newPreviews
+      };
+    });
   };
 
   const validateForm = () => {
@@ -142,6 +137,11 @@ const ProductForm = () => {
     if (!formData.metal) newErrors.metal = 'Metal type is required';
     if (!formData.stone) newErrors.stone = 'Stone type is required';
     if (!formData.occasion) newErrors.occasion = 'Occasion is required';
+    if (!formData.short_description.trim()) newErrors.short_description = 'Short description is required';
+    if (!formData.detailed_description.trim()) newErrors.detailed_description = 'Detailed description is required';
+    if (!formData.image_base64[0] || formData.image_base64[0] === '') {
+      newErrors.image_base64 = 'Main product image is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -149,10 +149,7 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
 
@@ -160,20 +157,21 @@ const ProductForm = () => {
       const productData = {
         name: formData.name.trim(),
         price: parseFloat(formData.price),
+        short_description: formData.short_description || '',
+        detailed_description: formData.detailed_description || '',
         category: formData.category,
         metal: formData.metal,
         stone: formData.stone,
         occasion: formData.occasion,
-        rating: parseFloat(formData.rating),
-        reviews: parseInt(formData.reviews),
-        image_base64: formData.image_base64
+        image_base64: formData.image_base64[0] || null,
+        additional_images: formData.additional_images.filter(img => img && img !== '') || null
       };
 
       if (isEditing) {
         const { error } = await supabase
           .from('products')
           .update(productData)
-          .eq('id', id);
+          .eq('id', product.id);
 
         if (error) throw error;
         alert('Product updated successfully!');
@@ -186,7 +184,7 @@ const ProductForm = () => {
         alert('Product created successfully!');
       }
 
-      navigate('/admin/products');
+      onClose();
     } catch (error) {
       console.error('Error saving product:', error);
       alert('Failed to save product. Please try again.');
@@ -196,68 +194,46 @@ const ProductForm = () => {
   };
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <button
-            onClick={() => navigate('/admin/products')}
-            className="text-gray-600 hover:text-gray-900 p-2"
+            onClick={onClose}
+            className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <FaArrowLeft />
           </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {isEditing ? 'Edit Product' : 'Add New Product'}
-            </h1>
-            <p className="text-gray-600">
-              {isEditing ? 'Update product information' : 'Create a new product for your store'}
-            </p>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEditing ? 'Edit Product' : 'Add New Product'}
+          </h1>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-xl shadow-sm p-6 border border-gray-200"
+      >
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Product Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Name *
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter product name"
-              disabled={loading}
-            />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-          </div>
-
-          {/* Price */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price ($) *
-            </label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              min="0"
-              step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="0.00"
-              disabled={loading}
-            />
-            {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
-          </div>
-
-          {/* Category, Metal, Stone, Occasion */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter product name"
+                disabled={loading}
+              />
+              {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category *
@@ -266,7 +242,7 @@ const ProductForm = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-8"
                 disabled={loading}
               >
                 <option value="">Select Category</option>
@@ -276,7 +252,7 @@ const ProductForm = () => {
                   </option>
                 ))}
               </select>
-              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+              {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
             </div>
 
             <div>
@@ -287,7 +263,7 @@ const ProductForm = () => {
                 name="metal"
                 value={formData.metal}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-8"
                 disabled={loading}
               >
                 <option value="">Select Metal</option>
@@ -297,7 +273,7 @@ const ProductForm = () => {
                   </option>
                 ))}
               </select>
-              {errors.metal && <p className="text-red-500 text-sm mt-1">{errors.metal}</p>}
+              {errors.metal && <p className="mt-1 text-sm text-red-600">{errors.metal}</p>}
             </div>
 
             <div>
@@ -308,7 +284,7 @@ const ProductForm = () => {
                 name="stone"
                 value={formData.stone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-8"
                 disabled={loading}
               >
                 <option value="">Select Stone</option>
@@ -318,7 +294,27 @@ const ProductForm = () => {
                   </option>
                 ))}
               </select>
-              {errors.stone && <p className="text-red-500 text-sm mt-1">{errors.stone}</p>}
+              {errors.stone && <p className="mt-1 text-sm text-red-600">{errors.stone}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Price (₹) *
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleInputChange}
+                step="0.01"
+                min="0"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  errors.price ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="0.00"
+                disabled={loading}
+              />
+              {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price}</p>}
             </div>
 
             <div>
@@ -329,7 +325,7 @@ const ProductForm = () => {
                 name="occasion"
                 value={formData.occasion}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-8"
                 disabled={loading}
               >
                 <option value="">Select Occasion</option>
@@ -339,61 +335,61 @@ const ProductForm = () => {
                   </option>
                 ))}
               </select>
-              {errors.occasion && <p className="text-red-500 text-sm mt-1">{errors.occasion}</p>}
+              {errors.occasion && <p className="mt-1 text-sm text-red-600">{errors.occasion}</p>}
             </div>
           </div>
 
-          {/* Rating and Reviews */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rating (1-5)
-              </label>
-              <input
-                type="number"
-                name="rating"
-                value={formData.rating}
-                onChange={handleInputChange}
-                min="1"
-                max="5"
-                step="0.1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={loading}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Number of Reviews
-              </label>
-              <input
-                type="number"
-                name="reviews"
-                value={formData.reviews}
-                onChange={handleInputChange}
-                min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Product Image
+              Short Description *
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-              {imagePreview ? (
+            <textarea
+              name="short_description"
+              value={formData.short_description}
+              onChange={handleInputChange}
+              rows={4}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                errors.short_description ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter a brief description (max 500 characters)"
+              disabled={loading}
+            />
+            {errors.short_description && <p className="mt-1 text-sm text-red-600">{errors.short_description}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Detailed Description *
+            </label>
+            <textarea
+              name="detailed_description"
+              value={formData.detailed_description}
+              onChange={handleInputChange}
+              rows={4}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                errors.detailed_description ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Enter a detailed description (max 500 characters)"
+              disabled={loading}
+            />
+            {errors.detailed_description && <p className="mt-1 text-sm text-red-600">{errors.detailed_description}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Product Image *
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-auto">
+              {imagePreviews.main[0] ? (
                 <div className="relative">
                   <img
-                    src={imagePreview}
-                    alt="Product preview"
+                    src={imagePreviews.main[0]}
+                    alt="Main product preview"
                     className="w-full h-64 object-cover rounded-lg"
                   />
                   <button
                     type="button"
-                    onClick={removeImage}
+                    onClick={() => removeImage(0, 'main')}
                     className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
                     disabled={loading}
                   >
@@ -406,13 +402,58 @@ const ProductForm = () => {
                   <div className="mt-4">
                     <label className="cursor-pointer">
                       <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Upload product image
+                        Upload main product image
                       </span>
                       <input
                         type="file"
                         className="sr-only"
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => handleImageChange(e, 'main')}
+                        disabled={loading}
+                      />
+                    </label>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                </div>
+              )}
+            </div>
+            {errors.image_base64 && <p className="mt-1 text-sm text-red-600">{errors.image_base64}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Additional Product Images
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 h-auto">
+              {imagePreviews.additional[0] ? (
+                <div className="relative">
+                  <img
+                    src={imagePreviews.additional[0]}
+                    alt="Additional product preview"
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(0, 'additional')}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
+                    disabled={loading}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <FaImage className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4">
+                    <label className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                        Upload additional product image
+                      </span>
+                      <input
+                        type="file"
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e, 'additional')}
                         disabled={loading}
                       />
                     </label>
@@ -423,27 +464,32 @@ const ProductForm = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end space-x-4 pt-6">
             <button
               type="button"
-              onClick={() => navigate('/admin/products')}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              onClick={onClose}
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
               disabled={loading}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 whitespace-nowrap"
             >
-              <FaSave />
-              <span>{loading ? 'Saving...' : (isEditing ? 'Update Product' : 'Create Product')}</span>
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </div>
+              ) : (
+                isEditing ? 'Update Product' : 'Add Product'
+              )}
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 };

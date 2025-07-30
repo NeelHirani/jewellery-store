@@ -15,48 +15,55 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchProductData = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching product with id:', id); // Debug: Log the ID
-
-        // Fetch product details with existing columns
+        console.log('Fetching product with id:', id);
+        if (!supabase) {
+          throw new Error('Supabase client not initialized. Check ../lib/supabase.js');
+        }
         const { data: productData, error: productError } = await supabase
           .from('products')
-          .select('id, name, price, image_base64, category, metal, stone, occasion, rating, reviews, created_at')
-          .eq('id', parseInt(id)) // Ensure id is an integer
+          .select('id, name, price, image_base64, category, metal, stone, occasion, short_description, detailed_description, created_at')
+          .eq('id', parseInt(id))
           .single();
-        
-        if (productError) {
-          console.error('Product query error:', productError);
-          throw new Error(`Product not found for ID ${id}: ${productError.message}`);
-        }
-        if (!productData) {
-          console.warn('No product data returned for ID:', id);
-          throw new Error(`No product found for ID ${id}`);
-        }
-        console.log('Product data fetched:', productData); // Debug: Log product data
+
+        if (productError) throw new Error(`Product not found for ID ${id}: ${productError.message}`);
+        if (!productData) throw new Error(`No product found for ID ${id}`);
+        console.log('Product data:', productData);
         setProduct(productData);
 
-        // Mock product_images (since table doesn't exist)
-        setProductImages([
-          { image_base64: productData.image_base64, image_base64: productData.image_base64 }, // Use main image
-          { image_base64: productData.image_base64 + '_alt1' }, // Mock alternate images
-          { image_base64: productData.image_base64 + '_alt2' },
-        ]);
+        const { data: sizesData } = await supabase
+          .from('product_sizes')
+          .select('size')
+          .eq('product_id', parseInt(id));
+        setProductSizes(sizesData?.map(size => size.size) || ['Small', 'Medium', 'Large']);
 
-        // Mock product_sizes (since table doesn't exist)
-        setProductSizes(['Small', 'Medium', 'Large']);
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('id, user_id, rating, comment, created_at')
+          .eq('product_id', parseInt(id))
+          .order('created_at', { ascending: false });
+        if (reviewsError) console.error('Error fetching reviews:', reviewsError);
+        console.log('Reviews data:', reviewsData);
+        setReviews(reviewsData || []);
 
-        setError(null); // Clear any previous errors
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log('Current user:', user);
+        setUser(user || null);
+
+        setError(null);
       } catch (err) {
+        console.error('Fetch error:', err);
         setError(err.message || 'Failed to load product details.');
-        console.error('Fetch product data error:', err);
-        setProduct(null); // Ensure product is null on error
+        setProduct(null);
       } finally {
-        setIsLoading(false); // Always stop loading
+        setIsLoading(false);
       }
     };
     fetchProductData();
@@ -97,7 +104,6 @@ const ProductDetail = () => {
       navigate('/cart');
     } catch (err) {
       setError('Failed to add to cart.');
-      console.error('Add to cart error:', err);
     }
   };
 
@@ -126,7 +132,6 @@ const ProductDetail = () => {
       navigate('/checkout');
     } catch (err) {
       setError('Failed to process buy now.');
-      console.error('Buy now error:', err);
     }
   };
 
@@ -134,22 +139,53 @@ const ProductDetail = () => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<i key={i} className="fas fa-star text-yellow-400" aria-hidden="true"></i>);
-    }
-    if (hasHalfStar) {
-      stars.push(<i key="half" className="fas fa-star-half-alt text-yellow-400" aria-hidden="true"></i>);
-    }
+    for (let i = 0; i < fullStars; i++) stars.push(<i key={i} className="fas fa-star text-yellow-400" aria-hidden="true"></i>);
+    if (hasHalfStar) stars.push(<i key="half" className="fas fa-star-half-alt text-yellow-400" aria-hidden="true"></i>);
     const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300" aria-hidden="true"></i>);
-    }
+    for (let i = 0; i < emptyStars; i++) stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300" aria-hidden="true"></i>);
     return stars;
   };
 
-  if (isLoading) {
-    return <div className="text-center p-8">Loading...</div>;
-  }
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Submitting review with user:', user);
+    if (!user?.id) {
+      setError('Please log in to submit a review.');
+      return;
+    }
+    if (!newReview.rating || !newReview.comment.trim()) {
+      setError('Please provide both a rating and a comment.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .insert({
+          product_id: parseInt(id),
+          user_id: user.id,
+          rating: newReview.rating,
+          comment: newReview.comment,
+        });
+
+      if (error) throw error;
+
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('id, user_id, rating, comment, created_at')
+        .eq('product_id', parseInt(id))
+        .order('created_at', { ascending: false });
+      setReviews(reviewsData || []);
+
+      setNewReview({ rating: 0, comment: '' });
+      setError(null);
+    } catch (err) {
+      console.error('Review submission error:', err);
+      setError('Failed to submit review.');
+    }
+  };
+
+  if (isLoading) return <div className="text-center p-8">Loading...</div>;
 
   if (error || !product) {
     return (
@@ -179,25 +215,13 @@ const ProductDetail = () => {
                   />
                   <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" aria-hidden="true"></i>
                 </div>
-                <button
-                  onClick={() => navigate('/wishlist')}
-                  className="text-gray-600 hover:text-red-500 cursor-pointer text-lg"
-                  aria-label="View wishlist"
-                >
+                <button onClick={() => navigate('/wishlist')} className="text-gray-600 hover:text-red-500 cursor-pointer text-lg" aria-label="View wishlist">
                   <i className="fas fa-heart"></i>
                 </button>
-                <button
-                  onClick={() => navigate('/cart')}
-                  className="text-gray-600 hover:text-yellow-600 cursor-pointer text-lg"
-                  aria-label="View cart"
-                >
+                <button onClick={() => navigate('/cart')} className="text-gray-600 hover:text-yellow-600 cursor-pointer text-lg" aria-label="View cart">
                   <i className="fas fa-shopping-bag"></i>
                 </button>
-                <button
-                  onClick={() => navigate('/profile')}
-                  className="text-gray-600 hover:text-gray-800 cursor-pointer text-lg"
-                  aria-label="View profile"
-                >
+                <button onClick={() => navigate('/profile')} className="text-gray-600 hover:text-gray-800 cursor-pointer text-lg" aria-label="View profile">
                   <i className="fas fa-user"></i>
                 </button>
               </div>
@@ -217,6 +241,8 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
@@ -277,7 +303,7 @@ const ProductDetail = () => {
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
               <img
-                src={product.image_base64 || productImages[selectedImage]?.image_base64 || product.image_base64}
+                src={product.image_base64 || (productImages[selectedImage]?.image_base64 || product.image_base64)}
                 alt={product.name}
                 className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in"
               />
@@ -309,14 +335,13 @@ const ProductDetail = () => {
               </h1>
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex items-center">
-                  {renderStars(product.rating)}
-                  <span className="text-sm text-gray-600">({product.reviews} reviews)</span>
+                  {renderStars(averageRating)}
+                  <span className="text-sm text-gray-600">({reviews.length} reviews)</span>
                 </div>
               </div>
               <p className="text-4xl font-bold text-yellow-600 mb-4">₹{product.price.toLocaleString('en-IN')}</p>
               <p className="text-gray-600 leading-relaxed">
-                Exquisite {product.metal?.toLowerCase() || 'metal'} {product.stone?.toLowerCase() || 'stone'} jewelry.
-                Perfect for {product.occasion?.toLowerCase() || 'any occasion'} occasions or everyday elegance. Crafted with precision and attention to detail.
+                {product.short_description || 'No short description available.'}
               </p>
             </div>
 
@@ -431,7 +456,7 @@ const ProductDetail = () => {
               {[
                 { id: 'description', label: 'Description' },
                 { id: 'specifications', label: 'Specifications' },
-                { id: 'reviews', label: 'Reviews' }, // Uncomment when reviews table is added
+                { id: 'reviews', label: 'Reviews' },
                 { id: 'shipping', label: 'Shipping & Returns' },
               ].map((tab) => (
                 <button
@@ -454,15 +479,7 @@ const ProductDetail = () => {
             {activeTab === 'description' && (
               <div className="prose max-w-none">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Exquisite {product.metal?.toLowerCase() || 'metal'} {product.stone?.toLowerCase() || 'stone'} jewelry.
-                  Each piece is crafted with a carefully selected {product.stone?.toLowerCase() || 'stone'} set in a classic design.
-                </p>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  The {product.metal?.toLowerCase() || 'metal'} setting provides durability and timeless elegance.
-                  Suitable for {product.occasion?.toLowerCase() || 'any occasion'} occasions or daily wear.
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  Comes with a certificate of authenticity and lifetime warranty support.
+                  {product.detailed_description || 'No detailed description available.'}
                 </p>
               </div>
             )}
@@ -493,31 +510,80 @@ const ProductDetail = () => {
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Rating</td>
-                      <td className="py-2 text-gray-900">{product.rating || 'N/A'}</td>
+                      <td className="py-2 text-gray-900">{averageRating.toFixed(1) || 'N/A'}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-2 font-medium text-gray-700">Reviews</td>
-                      <td className="py-2 text-gray-900">{product.reviews || 'N/A'}</td>
+                      <td className="py-2 text-gray-900">{reviews.length || 'N/A'}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             )}
 
-            {/* Placeholder for Reviews (uncomment when reviews table is added) */}
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-900">Customer Reviews</h3>
                   <div className="flex items-center space-x-2">
-                    <div className="flex items-center space-x-1">{renderStars(product.rating)}</div>
-                    <span className="text-sm text-gray-600">{product.rating} out of 5 ({product.reviews} reviews)</span>
+                    <div className="flex items-center space-x-1">{renderStars(averageRating)}</div>
+                    <span className="text-sm text-gray-600">{averageRating.toFixed(1)} out of 5 ({reviews.length} reviews)</span>
                   </div>
                 </div>
-                <p className="text-gray-600">No reviews available yet.</p>
+
+                {user && (
+                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Your Rating</label>
+                      <select
+                        value={newReview.rating}
+                        onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                      >
+                        <option value="0">Select Rating</option>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <option key={num} value={num}>{num} Star{num > 1 ? 's' : ''}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Your Comment</label>
+                      <textarea
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        rows="4"
+                        placeholder="Write your review here..."
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                    >
+                      Submit Review
+                    </button>
+                  </form>
+                )}
+
+                {reviews.length > 0 ? (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b pb-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex">{renderStars(review.rating)}</div>
+                            <span className="text-sm text-gray-600">{new Date(review.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <p className="mt-2 text-gray-700">{review.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No reviews available yet.</p>
+                )}
               </div>
             )}
-           
 
             {activeTab === 'shipping' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -568,42 +634,33 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Placeholder for Related Products (uncomment when related_products table is added)
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8" style={{ fontFamily: 'Playfair Display, serif' }}>
-            You May Also Like
-          </h2>
-          <p className="text-gray-600">No related products available yet.</p>
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            className="w-14 h-14 bg-yellow-600 text-white rounded-full shadow-lg hover:bg-yellow-700 transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Open chat support"
+          >
+            <i className="fas fa-comments text-xl" aria-hidden="true"></i>
+          </button>
         </div>
-        */}
-      </div>
 
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          className="w-14 h-14 bg-yellow-600 text-white rounded-full shadow-lg hover:bg-yellow-700 transition-colors flex items-center justify-center cursor-pointer"
-          aria-label="Open chat support"
-        >
-          <i className="fas fa-comments text-xl" aria-hidden="true"></i>
-        </button>
-      </div>
+        <div className="fixed bottom-6 left-6 z-50">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="w-12 h-12 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-900 transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Scroll to top"
+          >
+            <i className="fas fa-arrow-up" aria-hidden="true"></i>
+          </button>
+        </div>
 
-      <div className="fixed bottom-6 left-6 z-50">
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="w-12 h-12 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-900 transition-colors flex items-center justify-center cursor-pointer"
-          aria-label="Scroll to top"
-        >
-          <i className="fas fa-arrow-up" aria-hidden="true"></i>
-        </button>
+        <style jsx>{`
+          .!rounded-button {
+            border-radius: 8px;
+          }
+        `}</style>
       </div>
-
-      <style jsx>{`
-        .!rounded-button {
-          border-radius: 8px;
-        }
-      `}</style>
-    </div>
-  );
+      </div>
+    );
 };
 
 export default ProductDetail;

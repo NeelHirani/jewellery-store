@@ -79,6 +79,16 @@ export default function Products() {
       }
     };
     fetchData();
+
+    // Re-fetch data when products change (e.g., after admin adds a product)
+    const subscription = supabase
+      .channel('products-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchData())
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
   const toggleWishlist = (productId) => {
@@ -120,7 +130,7 @@ export default function Products() {
   const handleQuickView = (product, e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Navigating to product detail page for product:', product.id); // Debugging
+    console.log('Navigating to product detail page for product:', product.id);
     navigate(`/products/${product.id}`);
   };
 
@@ -393,7 +403,7 @@ export default function Products() {
                       alt={product.name}
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                       <button
                         onClick={(e) => handleQuickView(product, e)}
                         className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer whitespace-nowrap !rounded-button"

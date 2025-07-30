@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSearch, FaTimes } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
+import { motion } from 'framer-motion';
+import ProductForm from './ProductForm';
+import AddCategory from './AddCategory';
+import EditProduct from './EditProduct';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -13,6 +17,9 @@ const ProductList = () => {
   const [productsPerPage] = useState(10);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showEditProductModal, setShowEditProductModal] = useState(null); // Stores product ID for editing
 
   useEffect(() => {
     fetchProducts();
@@ -75,14 +82,13 @@ const ProductList = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const DeleteModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(5px)' }}>
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Delete</h3>
         <p className="text-gray-600 mb-6">
@@ -111,32 +117,37 @@ const ProductList = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
-          <p className="text-gray-600">Manage your jewelry inventory</p>
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+        <div className="flex space-x-4">
+          <Link
+            to="#"
+            onClick={() => setShowAddCategoryModal(true)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center whitespace-nowrap"
+          >
+            <FaPlus className="mr-2" />
+            Add Category
+          </Link>
+          <button
+            onClick={() => setShowAddProductModal(true)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all whitespace-nowrap"
+          >
+            <FaPlus className="mr-2" />
+            Add Product
+          </button>
         </div>
-        <Link
-          to="/admin/products/new"
-          className="mt-4 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-        >
-          <FaPlus />
-          <span>Add Product</span>
-        </Link>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1">
             <div className="relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -145,117 +156,96 @@ const ProductList = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
               />
             </div>
           </div>
-          <div className="sm:w-48">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((category) => (
-                <option key={category.name} value={category.name}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent pr-8 text-sm"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((category) => (
+              <option key={category.name} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
 
-      {/* Products Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Product
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rating
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Product</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Category</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Price</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Rating</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Created</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {currentProducts.length > 0 ? (
                 currentProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <motion.tr
+                    key={product.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-4 px-4">
                       <div className="flex items-center">
                         <img
                           src={product.image_base64 || '/placeholder-image.jpg'}
                           alt={product.name}
-                          className="w-12 h-12 object-cover rounded-lg mr-4"
+                          className="w-12 h-12 object-cover rounded-lg mr-3"
                         />
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                          <div className="text-sm text-gray-500">ID: {product.id}</div>
+                          <p className="font-medium text-gray-900">{product.name}</p>
+                          <p className="text-sm text-gray-600">ID: {product.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${product.price?.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="py-4 px-4 text-gray-700">{product.category}</td>
+                    <td className="py-4 px-4 font-medium text-gray-900">${product.price?.toLocaleString()}</td>
+                    <td className="py-4 px-4">
                       {product.rating}/5 ({product.reviews} reviews)
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="py-4 px-4 text-gray-500">
                       {new Date(product.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                    <td className="py-4 px-4">
+                      <div className="flex space-x-2">
                         <Link
                           to={`/products/${product.id}`}
-                          className="text-blue-600 hover:text-blue-900 p-1"
-                          title="View Product"
+                          className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <FaEye />
                         </Link>
-                        <Link
-                          to={`/admin/products/edit/${product.id}`}
-                          className="text-green-600 hover:text-green-900 p-1"
-                          title="Edit Product"
+                        <button
+                          onClick={() => setShowEditProductModal(product.id)}
+                          className="w-8 h-8 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <FaEdit />
-                        </Link>
+                        </button>
                         <button
                           onClick={() => {
                             setProductToDelete(product);
                             setShowDeleteModal(true);
                           }}
-                          className="text-red-600 hover:text-red-900 p-1"
-                          title="Delete Product"
+                          className="w-8 h-8 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <FaTrash />
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan="6" className="py-4 px-4 text-center text-gray-500">
                     No products found
                   </td>
                 </tr>
@@ -264,7 +254,6 @@ const ProductList = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
             <div className="flex items-center justify-between">
@@ -302,7 +291,7 @@ const ProductList = () => {
                         onClick={() => setCurrentPage(page)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           page === currentPage
-                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
                             : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                         }`}
                       >
@@ -317,7 +306,54 @@ const ProductList = () => {
         )}
       </div>
 
-      {/* Delete Modal */}
+      {showAddProductModal && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(5px)' }}>
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowAddProductModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <ProductForm onClose={() => setShowAddProductModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {showAddCategoryModal && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(5px)' }}>
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowAddCategoryModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <AddCategory onClose={() => setShowAddCategoryModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {showEditProductModal && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50" style={{ backdropFilter: 'blur(5px)' }}>
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowEditProductModal(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <EditProduct id={showEditProductModal} onClose={() => setShowEditProductModal(null)} />
+          </div>
+        </div>
+      )}
+
       {showDeleteModal && <DeleteModal />}
     </div>
   );

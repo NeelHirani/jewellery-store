@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaUsers, FaBox, FaShoppingCart, FaDollarSign, FaEye, FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -74,17 +75,32 @@ const Dashboard = () => {
 
   const StatCard = ({ icon: Icon, title, value, color, link }) => (
     <Link to={link} className="block">
-      <div className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${color} hover:shadow-lg transition-shadow`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition-shadow"
+      >
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-600 text-sm font-medium">{title}</p>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
+            <p className="text-sm font-medium text-gray-600">{title}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
           </div>
-          <Icon className={`text-3xl ${color.replace('border-l-', 'text-')}`} />
+          <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}>
+            <Icon className="text-white text-xl" />
+          </div>
         </div>
-      </div>
+      </motion.div>
     </Link>
   );
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'processing': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   if (loading) {
     return (
@@ -95,41 +111,43 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">Welcome to your jewelry store management panel</p>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <div className="text-sm text-gray-500">
+          Last updated: {new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={FaUsers}
           title="Total Users"
           value={stats.totalUsers.toLocaleString()}
-          color="border-l-blue-500 text-blue-500"
+          color="from-blue-500 to-blue-600"
           link="/admin/users"
         />
         <StatCard
           icon={FaBox}
           title="Total Products"
           value={stats.totalProducts.toLocaleString()}
-          color="border-l-green-500 text-green-500"
+          color="from-green-500 to-green-600"
           link="/admin/products"
         />
         <StatCard
           icon={FaShoppingCart}
           title="Total Orders"
           value={stats.totalOrders.toLocaleString()}
-          color="border-l-yellow-500 text-yellow-500"
+          color="from-yellow-500 to-yellow-600"
           link="/admin/orders"
         />
         <StatCard
           icon={FaDollarSign}
           title="Total Revenue"
           value={`$${stats.totalRevenue.toLocaleString()}`}
-          color="border-l-purple-500 text-purple-500"
+          color="from-purple-500 to-purple-600"
           link="/admin/orders"
         />
       </div>
@@ -137,9 +155,14 @@ const Dashboard = () => {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-xl shadow-sm p-6 border border-gray-200"
+        >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Orders</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
             <Link to="/admin/orders" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
               View All
             </Link>
@@ -147,21 +170,14 @@ const Dashboard = () => {
           <div className="space-y-4">
             {recentOrders.length > 0 ? (
               recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
+                <div key={order.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div className="flex-1">
                     <p className="font-medium text-gray-900">#{order.id}</p>
                     <p className="text-sm text-gray-600">{order.users?.name || 'Unknown User'}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${order.total_amount}</p>
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      order.order_status === 'completed' ? 'bg-green-100 text-green-800' :
-                      order.order_status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <p className="font-medium text-gray-900">${order.total_amount.toLocaleString()}</p>
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.order_status)}`}>
                       {order.order_status}
                     </span>
                   </div>
@@ -171,12 +187,17 @@ const Dashboard = () => {
               <p className="text-gray-500 text-center py-4">No recent orders</p>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent Products */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-xl shadow-sm p-6 border border-gray-200"
+        >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Products</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
             <Link to="/admin/products" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
               View All
             </Link>
@@ -184,7 +205,7 @@ const Dashboard = () => {
           <div className="space-y-4">
             {recentProducts.length > 0 ? (
               recentProducts.map((product) => (
-                <div key={product.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div key={product.id} className="flex items-center space-x-3 py-3 border-b border-gray-100 last:border-b-0">
                   <img
                     src={product.image_base64 || '/placeholder-image.jpg'}
                     alt={product.name}
@@ -193,12 +214,9 @@ const Dashboard = () => {
                   <div className="flex-1">
                     <p className="font-medium text-gray-900">{product.name}</p>
                     <p className="text-sm text-gray-600">{product.category}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(product.created_at).toLocaleDateString()}
-                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${product.price}</p>
+                    <p className="font-medium text-gray-900">${product.price.toLocaleString()}</p>
                   </div>
                 </div>
               ))
@@ -206,12 +224,12 @@ const Dashboard = () => {
               <p className="text-gray-500 text-center py-4">No recent products</p>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+      <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/admin/products/new"

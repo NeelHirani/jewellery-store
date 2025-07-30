@@ -30,6 +30,7 @@ import ProductForm from './admin/ProductForm';
 import EditProduct from './admin/EditProduct';
 import OrderManagement from './admin/OrderManagement';
 import UserManagement from './admin/UserManagement';
+import AddCategory from './admin/AddCategory';
 
 library.add(fas);
 
@@ -47,7 +48,8 @@ function App() {
         <Route path="/admin/products/edit/:id" element={<AdminRoute><EditProduct /></AdminRoute>} />
         <Route path="/admin/orders" element={<AdminRoute><OrderManagement /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
-
+        <Route path="/admin/products/new" element={<AdminRoute><AddCategory /></AdminRoute>} />
+        
         {/* Public Routes with layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />

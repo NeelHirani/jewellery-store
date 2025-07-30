@@ -10,8 +10,10 @@ import {
   FaTimes,
   FaPlus,
   FaList,
-  FaEdit
+  FaEdit,
+  FaGem
 } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -29,11 +31,7 @@ const Sidebar = () => {
     {
       title: 'Products',
       icon: FaBox,
-      path: '/admin/products',
-      subItems: [
-        { title: 'All Products', path: '/admin/products', icon: FaList },
-        { title: 'Add Product', path: '/admin/products/new', icon: FaPlus },
-      ]
+      path: '/admin/products'
     },
     {
       title: 'Orders',
@@ -44,6 +42,11 @@ const Sidebar = () => {
       title: 'Users',
       icon: FaUsers,
       path: '/admin/users'
+    },
+    {
+      title: 'Reviews',
+      icon: FaList,
+      path: '/admin/reviews'
     }
   ];
 
@@ -62,58 +65,58 @@ const Sidebar = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">JM</span>
+      <div className="p-6">
+        <div className="flex items-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <FaGem className="text-white text-xl" />
           </div>
           {!isCollapsed && (
-            <div>
-              <h2 className="text-white font-bold text-lg">JewelMart</h2>
-              <p className="text-gray-400 text-xs">Admin Panel</p>
-            </div>
+            <h2 className="ml-3 text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              JewelMart
+            </h2>
           )}
         </div>
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:block text-gray-400 hover:text-white transition-colors"
-        >
-          {isCollapsed ? <FaBars /> : <FaTimes />}
-        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="mt-8 p-4 space-y-2">
         {menuItems.map((item) => (
           <div key={item.path}>
-            <Link
-              to={item.path}
-              className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+            <motion.button
+              onClick={() => {
+                if (item.subItems) return;
+                navigate(item.path);
+              }}
+              className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-all duration-200 hover:bg-gray-50 ${
                 isActiveRoute(item.path, item.exact)
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-r-4 border-purple-500 text-purple-700'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
+              whileHover={{ x: 5 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <item.icon className="text-lg" />
-              {!isCollapsed && <span className="font-medium">{item.title}</span>}
-            </Link>
+              <item.icon className="text-xl" />
+              {!isCollapsed && <span className="font-medium whitespace-nowrap">{item.title}</span>}
+            </motion.button>
             
             {/* Sub-items */}
             {item.subItems && !isCollapsed && isActiveRoute(item.path) && (
               <div className="ml-6 mt-2 space-y-1">
                 {item.subItems.map((subItem) => (
-                  <Link
+                  <motion.button
                     key={subItem.path}
-                    to={subItem.path}
-                    className={`flex items-center space-x-3 p-2 rounded-lg text-sm transition-colors ${
+                    onClick={() => navigate(subItem.path)}
+                    className={`w-full flex items-center space-x-3 p-2 rounded-lg text-sm transition-all duration-200 hover:bg-gray-50 ${
                       location.pathname === subItem.path
-                        ? 'bg-blue-500 text-white'
-                        : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                        ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-r-4 border-purple-500 text-purple-700'
+                        : 'text-gray-600 hover:text-gray-900'
                     }`}
+                    whileHover={{ x: 5 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <subItem.icon className="text-sm" />
                     <span>{subItem.title}</span>
-                  </Link>
+                  </motion.button>
                 ))}
               </div>
             )}
@@ -122,25 +125,27 @@ const Sidebar = () => {
       </nav>
 
       {/* User Info & Logout */}
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-gray-200">
         <div className="flex items-center space-x-3 mb-3">
           <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-medium">A</span>
           </div>
           {!isCollapsed && (
             <div>
-              <p className="text-white text-sm font-medium">Admin User</p>
-              <p className="text-gray-400 text-xs">Administrator</p>
+              <p className="text-gray-900 text-sm font-medium">Admin User</p>
+              <p className="text-gray-500 text-xs">Administrator</p>
             </div>
           )}
         </div>
-        <button
+        <motion.button
           onClick={handleLogout}
-          className="flex items-center space-x-3 w-full p-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors"
+          className="flex items-center space-x-3 w-full p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200"
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.95 }}
         >
           <FaSignOutAlt />
           {!isCollapsed && <span>Logout</span>}
-        </button>
+        </motion.button>
       </div>
     </div>
   );
@@ -164,22 +169,24 @@ const Sidebar = () => {
       )}
 
       {/* Desktop Sidebar */}
-      <div
-        className={`hidden lg:block bg-gray-800 transition-all duration-300 ${
+      <motion.div
+        initial={{ x: -300 }}
+        animate={{ x: 0 }}
+        className={`hidden lg:block shadow-lg transition-all duration-300 ${
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
         <SidebarContent />
-      </div>
+      </motion.div>
 
       {/* Mobile Sidebar */}
-      <div
-        className={`lg:hidden fixed left-0 top-0 h-full bg-gray-800 z-50 transition-transform duration-300 w-64 ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <motion.div
+        initial={{ x: -300 }}
+        animate={{ x: isMobileOpen ? 0 : -300 }}
+        className="lg:hidden fixed left-0 top-0 h-full bg-white z-50 transition-all duration-300 w-64"
       >
         <SidebarContent />
-      </div>
+      </motion.div>
     </>
   );
 };

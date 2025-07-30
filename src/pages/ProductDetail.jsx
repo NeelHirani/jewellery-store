@@ -8,16 +8,15 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
-  const [selectedSize, setSelectedSize] = useState('Medium');
   const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  const [productSizes, setProductSizes] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [user, setUser] = useState(null);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -38,16 +37,9 @@ const ProductDetail = () => {
         console.log('Product data:', productData);
         setProduct(productData);
 
-        // Populate productImages with additional images
-        const images = [...(productData.additional_images || [])].filter(Boolean); // Use only additional_images array
+        const images = [...(productData.additional_images || [])].filter(Boolean);
         setProductImages(images);
         console.log('Product Images:', images);
-
-        const { data: sizesData } = await supabase
-          .from('product_sizes')
-          .select('size')
-          .eq('product_id', parseInt(id));
-        setProductSizes(sizesData?.map(size => size.size) || ['Small', 'Medium', 'Large']);
 
         const { data: reviewsData, error: reviewsError } = await supabase
           .from('reviews')
@@ -55,11 +47,10 @@ const ProductDetail = () => {
           .eq('product_id', parseInt(id))
           .order('created_at', { ascending: false });
         if (reviewsError) console.error('Error fetching reviews:', reviewsError);
-        console.log('Reviews data:', reviewsData);
         setReviews(reviewsData || []);
 
         const { data: { user } } = await supabase.auth.getUser();
-        console.log('Current user:', user);
+        console.log('Current user after fetch:', user);
         setUser(user || null);
 
         setError(null);
@@ -71,7 +62,17 @@ const ProductDetail = () => {
         setIsLoading(false);
       }
     };
+
     fetchProductData();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user);
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [id]);
 
   const handleQuantityChange = (change) => {
@@ -85,8 +86,8 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    if (!product || !selectedSize) {
-      setError(`Please select a size for ${product?.name || 'this product'}.`);
+    if (!product) {
+      setError('Product not available.');
       return;
     }
     try {
@@ -100,7 +101,6 @@ const ProductDetail = () => {
         image: product.additional_images,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
-        selectedSize,
         quantity,
       };
       const updatedCart = [...cart, newItem];
@@ -113,8 +113,8 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
-    if (!product || !selectedSize) {
-      setError(`Please select a size for ${product?.name || 'this product'}.`);
+    if (!product) {
+      setError('Product not available.');
       return;
     }
     try {
@@ -128,7 +128,6 @@ const ProductDetail = () => {
         image: product.additional_images,
         metal: product.metal || 'N/A',
         stone: product.stone || 'N/A',
-        selectedSize,
         quantity,
       };
       const updatedCart = [...cart, newItem];
@@ -153,13 +152,12 @@ const ProductDetail = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting review with user:', user);
     if (!user?.id) {
-      setError('Please log in to submit a review.');
+      setSubmitStatus('Please log in to submit a review.');
       return;
     }
     if (!newReview.rating || !newReview.comment.trim()) {
-      setError('Please provide both a rating and a comment.');
+      setSubmitStatus('Please provide both a rating and a comment.');
       return;
     }
 
@@ -171,7 +169,7 @@ const ProductDetail = () => {
           user_id: user.id,
           rating: newReview.rating,
           comment: newReview.comment,
-          status: 'pending' // Default status as per schema
+          status: 'pending',
         });
 
       if (error) throw error;
@@ -184,11 +182,21 @@ const ProductDetail = () => {
       setReviews(reviewsData || []);
 
       setNewReview({ rating: 0, comment: '' });
-      setError(null);
+      setSubmitStatus('Review submitted successfully! (Pending approval)');
+      setTimeout(() => setSubmitStatus(null), 3000);
     } catch (err) {
       console.error('Review submission error:', err);
-      setError('Failed to submit review.');
+      setSubmitStatus(`Failed to submit review: ${err.message}`);
+      setTimeout(() => setSubmitStatus(null), 3000);
     }
+  };
+
+  const handleRatingChange = (e) => {
+    setNewReview({ ...newReview, rating: parseInt(e.target.value) });
+  };
+
+  const handleCommentChange = (e) => {
+    setNewReview({ ...newReview, comment: e.target.value });
   };
 
   if (isLoading) return <div className="text-center p-8">Loading...</div>;
@@ -373,26 +381,6 @@ const ProductDetail = () => {
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
-              <div className="flex space-x-3">
-                {productSizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 border rounded-lg cursor-pointer whitespace-nowrap !rounded-button ${
-                      selectedSize === size
-                        ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
-                        : 'border-gray-300 text-gray-700 hover:border-gray-400'
-                    }`}
-                    aria-label={`Select size ${size}`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
               <div className="flex items-center space-x-3">
                 <button
@@ -539,14 +527,23 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                {user && (
-                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                {submitStatus && (
+                  <div className={`p-3 rounded-lg text-center ${
+                    submitStatus.includes('successfully') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {submitStatus}
+                  </div>
+                )}
+
+                {user?.id ? (
+                  <form onSubmit={handleReviewSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Your Rating</label>
                       <select
                         value={newReview.rating}
-                        onChange={(e) => setNewReview({ ...newReview, rating: parseInt(e.target.value) })}
+                        onChange={handleRatingChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        aria-label="Select rating"
                       >
                         <option value="0">Select Rating</option>
                         {[1, 2, 3, 4, 5].map((num) => (
@@ -558,19 +555,25 @@ const ProductDetail = () => {
                       <label className="block text-sm font-medium text-gray-700">Your Comment</label>
                       <textarea
                         value={newReview.comment}
-                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        onChange={handleCommentChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                         rows="4"
                         placeholder="Write your review here..."
+                        aria-label="Enter review comment"
                       ></textarea>
                     </div>
                     <button
                       type="submit"
-                      className="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                      className="w-full px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                      aria-label="Submit review"
                     >
                       Submit Review
                     </button>
                   </form>
+                ) : (
+                  <p className="text-gray-600 text-center">
+                    Please <a href="/login" className="text-yellow-600 hover:underline">log in</a> to submit a review.
+                  </p>
                 )}
 
                 {reviews.length > 0 ? (
@@ -583,7 +586,11 @@ const ProductDetail = () => {
                             <span className="text-sm text-gray-600">{new Date(review.created_at).toLocaleDateString()}</span>
                           </div>
                           {review.status && (
-                            <span className={`text-xs px-2 py-1 rounded ${review.status === 'approved' ? 'bg-green-100 text-green-800' : review.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              review.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              review.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
                               {review.status}
                             </span>
                           )}

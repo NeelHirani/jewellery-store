@@ -57,14 +57,20 @@ const Dashboard = () => {
 
       setRecentOrders(ordersData || []);
 
-      // Fetch recent products
+      // Fetch recent products with additional_images
       const { data: productsData } = await supabase
         .from('products')
-        .select('id, name, price, image_base64, category, created_at')
+        .select('id, name, price, additional_images, category, created_at')
         .order('created_at', { ascending: false })
         .limit(5);
 
-      setRecentProducts(productsData || []);
+      // Map products to use the first image from additional_images
+      const formattedProducts = productsData?.map(product => ({
+        ...product,
+        image_base64: product.additional_images?.[0] || '/placeholder-image.jpg'
+      })) || [];
+
+      setRecentProducts(formattedProducts);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -207,7 +213,7 @@ const Dashboard = () => {
               recentProducts.map((product) => (
                 <div key={product.id} className="flex items-center space-x-3 py-3 border-b border-gray-100 last:border-b-0">
                   <img
-                    src={product.image_base64 || '/placeholder-image.jpg'}
+                    src={product.image_base64}
                     alt={product.name}
                     className="w-12 h-12 object-cover rounded-lg"
                   />

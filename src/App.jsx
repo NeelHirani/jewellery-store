@@ -4,7 +4,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 
 import ScrollToTop from './components/ScrollToTop';
-import Layout from './Layout'; // New layout component
+import Layout from './Layout';
 
 // Public Pages
 import Home from './pages/Home';
@@ -31,6 +31,7 @@ import EditProduct from './admin/EditProduct';
 import OrderManagement from './admin/OrderManagement';
 import UserManagement from './admin/UserManagement';
 import AddCategory from './admin/AddCategory';
+import ReviewManagement from './admin/ReviewManagement'; // Added import
 
 library.add(fas);
 
@@ -39,7 +40,6 @@ function App() {
     <Router>
       <ScrollToTop />
       <Routes>
-
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminRoute><Dashboard /></AdminRoute>} />
@@ -48,8 +48,9 @@ function App() {
         <Route path="/admin/products/edit/:id" element={<AdminRoute><EditProduct /></AdminRoute>} />
         <Route path="/admin/orders" element={<AdminRoute><OrderManagement /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
-        <Route path="/admin/products/new" element={<AdminRoute><AddCategory /></AdminRoute>} />
-        
+        <Route path="/admin/categories" element={<AdminRoute><AddCategory /></AdminRoute>} /> {/* Updated path for clarity */}
+        <Route path="/admin/reviews" element={<AdminRoute><ReviewManagement /></AdminRoute>} /> {/* Added route */}
+
         {/* Public Routes with layout */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -66,7 +67,6 @@ function App() {
           <Route path="ForgetPassword" element={<ForgetPassword />} />
           <Route path="EditAddress" element={<EditAddress />} />
         </Route>
-
       </Routes>
     </Router>
   );

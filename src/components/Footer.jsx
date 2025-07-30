@@ -12,12 +12,12 @@ import { IoGlobeOutline } from "react-icons/io5";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white px-8 md:px-16 py-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-x-16 gap-y-10">
+    <footer className="bg-[#0B1120] text-white px-6 py-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Company Links */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Company</h3>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-gray-300">
             <li><Link to="/about" className="hover:underline">About Us</Link></li>
             <li><Link to="/contact" className="hover:underline">Contact</Link></li>
             <li><Link to="/policies-faq" className="hover:underline">Policies & FAQ</Link></li>
@@ -27,7 +27,7 @@ const Footer = () => {
         {/* Help Section */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Help</h3>
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-gray-300">
             <li><a href="#" className="hover:underline">Track Order</a></li>
             <li><a href="#" className="hover:underline">Shipping Info</a></li>
           </ul>
@@ -36,7 +36,7 @@ const Footer = () => {
         {/* Newsletter Signup */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Newsletter</h3>
-          <p className="text-sm mb-3">Subscribe for updates & offers</p>
+          <p className="text-sm text-gray-300 mb-3">Subscribe for updates & offers</p>
           <div className="flex">
             <input
               type="email"
@@ -49,12 +49,12 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Social & Payment */}
-        <div className="flex flex-col justify-between h-full space-y-6 items-end text-right">
+        {/* Social + Payment + Language */}
+        <div className="flex flex-col space-y-6 items-end text-right">
           {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-            <div className="flex space-x-4 text-xl">
+            <div className="flex justify-end space-x-4 text-xl text-gray-300">
               <FaFacebookF className="hover:text-purple-400 cursor-pointer" />
               <FaTwitter className="hover:text-purple-400 cursor-pointer" />
               <FaInstagram className="hover:text-purple-400 cursor-pointer" />
@@ -64,7 +64,7 @@ const Footer = () => {
           {/* Payment Icons */}
           <div>
             <h3 className="text-lg font-semibold mb-3">We Accept</h3>
-            <div className="flex space-x-4 text-2xl">
+            <div className="flex justify-end space-x-4 text-2xl text-gray-300">
               <FaCcVisa />
               <FaCcMastercard />
               <FaCcPaypal />
@@ -72,9 +72,9 @@ const Footer = () => {
           </div>
 
           {/* Language & Currency */}
-          <div className="flex items-center space-x-3">
-            <IoGlobeOutline className="text-xl" />
-            <select className="bg-gray-800 px-3 py-1 rounded text-white">
+          <div className="flex items-center space-x-3 justify-end">
+            <IoGlobeOutline className="text-xl text-gray-300" />
+            <select className="bg-gray-800 px-3 py-1 rounded text-white text-sm">
               <option>IN / IND</option>
               <option>FR / EUR</option>
               <option>EN / USD</option>
@@ -84,12 +84,11 @@ const Footer = () => {
       </div>
 
       {/* Bottom Note */}
-      <div className="text-center text-sm mt-12 border-t border-gray-700 pt-6">
-        © {new Date().getFullYear()} Jewell Mart. All rights reserved.
+      <div className="text-center text-sm text-gray-400 mt-10 border-t border-gray-700 pt-6">
+        © {new Date().getFullYear()} Jewel Mart. All rights reserved.
       </div>
     </footer>
   );
 };
 
 export default Footer;
- 

@@ -1,107 +1,81 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 
 const Contact = () => {
   return (
-    <div className="bg-white min-h-screen text-gray-900 pt-[70px]">
+    <div className="text-gray-800">
       {/* Hero Section */}
-      <section
-        className="relative h-[60vh] w-full bg-cover bg-center"
-        style={{
-          backgroundImage: "url('./images/Banner.jpg')", // Same as About page
-        }}
+      <div className="relative bg-cover bg-center h-[400px] flex items-center justify-center text-white"
+        style={{ backgroundImage: `url('https://t4.ftcdn.net/jpg/03/15/75/73/240_F_315757330_Zkush37QibcEPWsmqZaEed67sO1lNrJm.jpg')` }} // Replace with your image path
       >
-        <div className="absolute inset-0 bg-black/80" />
-        <div className="relative z-10 flex flex-col justify-center h-full px-6 md:px-20 text-white">
-          <h1 className="text-5xl font-bold mb-4">Let’s Connect</h1>
-          <p className="text-lg max-w-xl">
-            Reach out to our team for orders, questions, collaborations, or custom designs. We're happy to help!
-          </p>
+        <div className="bg-black/50 absolute inset-0 z-0"></div>
+        <div className="z-10 text-center">
+          <h1 className="text-4xl font-bold mb-2">Contact us</h1>
+          <p className="text-lg">Jewel Mart is here to provide the perfect solution for all your jewelry needs</p>
         </div>
-      </section>
+      </div>
 
-      {/* Contact Info + Form */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-10 py-20 px-6 md:px-16 items-start">
-        {/* Info Column */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="space-y-6"
-        >
-          <h2 className="text-3xl font-bold text-rose-800">Visit Our Showroom</h2>
-          <p className="text-gray-600">
-            Our flagship store in Jaipur welcomes walk-ins. Drop by to explore our luxury collections or consult with a designer.
-          </p>
-          <div className="space-y-4 text-sm text-gray-700">
-            <div className="flex items-start space-x-3">
-              <FaMapMarkerAlt className="text-rose-800 mt-1" />
-              <span>123 Royal Lane, Pink City, Jaipur, Rajasthan, India</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <FaPhoneAlt className="text-rose-800 mt-1" />
-              <span>+91 98765 43210</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <FaEnvelope className="text-rose-800 mt-1" />
-              <span>support@jewellmart.com</span>
-            </div>
+      {/* Contact Section */}
+      <div className="bg-white shadow-lg rounded-xl mx-auto max-w-6xl mt-[-80px] relative z-20 grid md:grid-cols-2 gap-6 p-8">
+        {/* Left: Get in Touch */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold">Get in touch</h2>
+          <p>Reach out to us through any of the methods below.</p>
+
+          <div>
+            <h4 className="font-bold text-black-200">Head Office</h4>
+            <p>Jewel Tower, Ring Road, Nikol, Ahmedabad, India</p>
           </div>
 
-          {/* Embedded Google Map */}
-          <div className="mt-6">
-            <iframe
-              title="Jewel Mart Map"
-              className="rounded-xl w-full h-64 border-none"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.8167337082263!2d75.7873!3d26.9124!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db41c7f4ec1f5%3A0x93be5e80c7e5d8!2sJaipur!5e0!3m2!1sen!2sin!4v1683111980911!5m2!1sen!2sin"
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+          <div>
+            <h4 className="font-bold text-black-200">Email Us</h4>
+            <p>support@jewelmart.com</p>
+            <p>sales@jewelmart.com</p>
           </div>
-        </motion.div>
 
-        {/* Contact Form */}
-        <motion.form
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-6"
-        >
-          <h3 className="text-2xl font-semibold text-rose-800">Send us a Message</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="First Name"
-              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              className="bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
-            />
+          <div>
+            <h4 className="font-bold text-black-200">Call Us</h4>
+            <p>Phone: +91 98765 43210</p>
+            <p>Fax: +91 22334 55667</p>
           </div>
-          <input
-            type="email"
-            placeholder="Your Email"
-            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
-          />
-          <textarea
-            rows="5"
-            placeholder="Your Message"
-            className="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-800"
-          ></textarea>
-          <button
-            type="submit"
-            className="w-full bg-rose-800 hover:bg-rose-900 text-white font-semibold py-3 rounded-md transition duration-300"
-          >
-            Submit
-          </button>
-        </motion.form>
-      </section>
+
+         
+        </div>
+
+        {/* Right: Contact Form */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold mb-2">Send us a message</h2>
+          <form className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" placeholder="Name" className="border p-2 rounded-md" />
+              <input type="text" placeholder="Company" className="border p-2 rounded-md" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <input type="tel" placeholder="Phone" className="border p-2 rounded-md" />
+              <input type="email" placeholder="Email" className="border p-2 rounded-md" />
+            </div>
+            <input type="text" placeholder="Subject" className="w-full border p-2 rounded-md" />
+            <textarea placeholder="Message" rows={4} className="w-full border p-2 rounded-md"></textarea>
+            <button className="bg-[#800000] text-white w-full py-2 rounded-md hover:bg-[#660000]">
+  Send
+</button>
+          </form>
+        </div>
+      </div>
+
+      {/* Google Map */}
+      <div className="mt-12">
+        <iframe
+          title="Google Map"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3670.0859842266984!2d72.64968337517822!3d23.09583457912218!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e870af09e08d1%3A0xf2b25e38576c4918!2sNikol%2C%20Ahmedabad!5e0!3m2!1sen!2sin!4v1699982344230!5m2!1sen!2sin"
+          width="100%"
+          height="400"
+          allowFullScreen=""
+          loading="lazy"
+          className="border-0 w-full"
+        ></iframe>
+      </div>
+
+
     </div>
   );
 };

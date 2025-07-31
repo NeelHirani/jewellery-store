@@ -49,10 +49,6 @@ const ProductDetail = () => {
         if (reviewsError) console.error('Error fetching reviews:', reviewsError);
         setReviews(reviewsData || []);
 
-        const { data: { user } } = await supabase.auth.getUser();
-        console.log('Current user after fetch:', user);
-        setUser(user || null);
-
         setError(null);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -63,15 +59,38 @@ const ProductDetail = () => {
       }
     };
 
-    fetchProductData();
+    const checkUserAuthentication = () => {
+      // Check localStorage for user data (same pattern as Profile.jsx and Navbar.jsx)
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('User found in localStorage:', parsedUser);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+          setUser(null);
+        }
+      } else {
+        console.log('No user found in localStorage');
+        setUser(null);
+      }
+    };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user);
-      setUser(session?.user || null);
-    });
+    fetchProductData();
+    checkUserAuthentication();
+
+    // Listen for storage changes (when user logs in/out in another tab)
+    const handleStorageChange = (e) => {
+      if (e.key === 'user') {
+        checkUserAuthentication();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      authListener.subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, [id]);
 
@@ -152,28 +171,65 @@ const ProductDetail = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!user?.id) {
-      setSubmitStatus('Please log in to submit a review.');
-      return;
-    }
+
+    // Validation: Check if rating and comment are provided
     if (!newReview.rating || !newReview.comment.trim()) {
       setSubmitStatus('Please provide both a rating and a comment.');
       return;
     }
 
+    // Check if user is authenticated using localStorage (same pattern as Profile.jsx)
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      setSubmitStatus('Please log in to submit a review.');
+      return;
+    }
+
+    let currentUser;
     try {
+      currentUser = JSON.parse(storedUser);
+      if (!currentUser?.email) {
+        setSubmitStatus('Invalid user session. Please log in again.');
+        return;
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      setSubmitStatus('Invalid user session. Please log in again.');
+      return;
+    }
+
+    try {
+      // Get user ID from the users table using email (same pattern as Profile.jsx)
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', currentUser.email)
+        .single();
+
+      if (userError || !userData) {
+        console.error('User lookup error:', userError);
+        setSubmitStatus('User not found. Please log in again.');
+        return;
+      }
+
+      console.log('Found user for review:', userData);
+
       const { error } = await supabase
         .from('reviews')
         .insert({
           product_id: parseInt(id),
-          user_id: user.id,
+          user_id: userData.id, // This should now be an integer ID from your custom users table
           rating: newReview.rating,
           comment: newReview.comment,
           status: 'pending',
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Review insert error:', error);
+        throw error;
+      }
 
+      // Refresh reviews list
       const { data: reviewsData } = await supabase
         .from('reviews')
         .select('id, user_id, rating, comment, created_at, status')
@@ -535,7 +591,7 @@ const ProductDetail = () => {
                   </div>
                 )}
 
-                {user?.id ? (
+                {user?.email ? (
                   <form onSubmit={handleReviewSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Your Rating</label>

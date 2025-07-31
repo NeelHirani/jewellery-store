@@ -38,12 +38,12 @@ const ReviewManagement = () => {
       if (error) throw error;
       const reviewsWithEmails = await Promise.all(data.map(async (review) => {
         const { data: userData, error: userError } = await supabase
-          .from('auth.users')
-          .select('email')
+          .from('users')
+          .select('email, name')
           .eq('id', review.user_id)
           .single();
         if (userError) console.warn('Error fetching user email:', userError.message);
-        return { ...review, users: userData || { email: 'N/A' } };
+        return { ...review, users: userData || { email: 'N/A', name: 'N/A' } };
       }));
       setReviews(reviewsWithEmails || []);
     } catch (error) {

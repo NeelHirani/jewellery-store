@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,6 +31,7 @@ const OrderManagement = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -38,10 +40,17 @@ const OrderManagement = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+
+      console.log('Fetched orders:', data);
       setOrders(data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setError('Failed to load orders. Please try again.');
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -53,14 +62,29 @@ const OrderManagement = () => {
         .from('order_items')
         .select(`
           *,
-          products(name, image_base64)
+          products(name, additional_images)
         `)
         .eq('order_id', orderId);
 
-      if (error) throw error;
-      setOrderItems(data || []);
+      if (error) {
+        console.error('Error fetching order items:', error);
+        throw error;
+      }
+
+      // Process the data to use the first image from additional_images
+      const processedData = data?.map(item => ({
+        ...item,
+        products: item.products ? {
+          ...item.products,
+          image_url: item.products.additional_images?.[0] || '/placeholder-image.jpg'
+        } : null
+      })) || [];
+
+      console.log('Fetched order items:', processedData);
+      setOrderItems(processedData);
     } catch (error) {
       console.error('Error fetching order items:', error);
+      setOrderItems([]);
     }
   };
 
@@ -185,7 +209,23 @@ const OrderManagement = () => {
             {selectedOrder.shipping_address && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                <p className="text-sm text-gray-700">{selectedOrder.shipping_address}</p>
+                <div className="text-sm text-gray-700">
+                  {typeof selectedOrder.shipping_address === 'string' ? (
+                    <p>{selectedOrder.shipping_address}</p>
+                  ) : (
+                    <div className="space-y-1">
+                      <p>{selectedOrder.shipping_address.fullName}</p>
+                      <p>{selectedOrder.shipping_address.addressLine1}</p>
+                      {selectedOrder.shipping_address.addressLine2 && (
+                        <p>{selectedOrder.shipping_address.addressLine2}</p>
+                      )}
+                      <p>
+                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.postalCode}
+                      </p>
+                      <p>{selectedOrder.shipping_address.country}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -195,13 +235,16 @@ const OrderManagement = () => {
                 {orderItems.map((item) => (
                   <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                     <img
-                      src={item.products?.image_base64 || '/placeholder-image.jpg'}
-                      alt={item.products?.name}
+                      src={item.products?.image_url || '/placeholder-image.jpg'}
+                      alt={item.products?.name || 'Product'}
                       className="w-16 h-16 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.target.src = '/placeholder-image.jpg';
+                      }}
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{item.products?.name}</h4>
-                      <p className="text-sm text-gray-600">Size: {item.size}</p>
+                      <h4 className="font-medium text-gray-900">{item.products?.name || 'Unknown Product'}</h4>
+                      <p className="text-sm text-gray-600">Size: {item.size || 'N/A'}</p>
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                     </div>
                     <div className="text-right">
@@ -236,6 +279,32 @@ const OrderManagement = () => {
           Total Orders: {orders.length}
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-600"
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "../lib/supabase";
+import Header from "../components/Navbar";
 
 export default function Checkout() {
   const [cartItems, setCartItems] = useState([]);
+  const [user, setUser] = useState(null);
   const [shippingAddress, setShippingAddress] = useState({
     fullName: '',
     addressLine1: '',
@@ -22,23 +24,46 @@ export default function Checkout() {
   const [orderPlaced, setOrderPlaced] = useState(false);
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      // Fetch cart items for the current user (replace user_id with actual user ID from auth)
-      const { data: cartData, error } = await supabase
-        .from('cart')
-        .select(`
-          *,
-          products(name, price, image_url)
-        `)
-        .eq('user_id', '00000000-0000-0000-0000-000000000000'); // Replace with actual user ID
-      if (error) {
-        console.error('Error fetching cart items:', error);
+    // Load cart from localStorage
+    const loadCartFromStorage = () => {
+      try {
+        const savedCart = localStorage.getItem('jewelMartCart');
+        if (savedCart) {
+          setCartItems(JSON.parse(savedCart));
+        }
+      } catch (err) {
+        console.error('Error loading cart:', err);
         setError('Failed to load cart items.');
-        return;
       }
-      setCartItems(cartData || []);
     };
-    fetchCartItems();
+
+    // Load user from localStorage
+    const loadUserFromStorage = () => {
+      try {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          setUser(userData);
+          // Pre-fill shipping address if user has address data
+          if (userData.address) {
+            setShippingAddress(prev => ({
+              ...prev,
+              fullName: userData.name || '',
+              addressLine1: userData.address || '',
+              city: userData.city || '',
+              state: userData.state || '',
+              postalCode: userData.zip || '',
+              country: userData.country || ''
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error loading user:', err);
+      }
+    };
+
+    loadCartFromStorage();
+    loadUserFromStorage();
   }, []);
 
   const handleInputChange = (e, setState) => {
@@ -51,55 +76,72 @@ export default function Checkout() {
       setError('Your cart is empty.');
       return;
     }
+
+    if (!user || user.email === 'guest@example.com') {
+      setError('Please log in to place an order.');
+      return;
+    }
+
     if (!shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.country) {
       setError('Please fill in all required shipping address fields.');
       return;
     }
+
     setLoading(true);
     setError(null);
 
     try {
-      // Calculate total amount
-      const totalAmount = cartItems.reduce((sum, item) => sum + item.products.price * item.quantity, 0);
+      // Get user ID from database
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', user.email)
+        .single();
+
+      if (userError || !userData) {
+        throw new Error('User not found. Please log in again.');
+      }
+
+      // Calculate total amount from localStorage cart
+      const totalAmount = cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
 
       // Create order
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: '00000000-0000-0000-0000-000000000000', // Replace with actual user ID
+          user_id: userData.id,
           total_amount: totalAmount,
           shipping_address: shippingAddress,
-          payment_status: 'completed', // Simulate successful payment
+          payment_status: 'completed',
           order_status: 'processing'
         })
         .select()
         .single();
+
       if (orderError) throw orderError;
 
-      // Create order items
+      // Create order items from localStorage cart
       const orderItems = cartItems.map(item => ({
         order_id: orderData.id,
-        product_id: item.product_id,
+        product_id: item.productId,
         quantity: item.quantity,
-        size: item.size,
-        price_at_purchase: item.products.price
+        size: item.selectedSize || 'Medium',
+        price_at_purchase: item.price
       }));
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
+
       if (itemsError) throw itemsError;
 
-      // Clear cart
-      const { error: cartError } = await supabase
-        .from('cart')
-        .delete()
-        .eq('user_id', '00000000-0000-0000-0000-000000000000'); // Replace with actual user ID
-      if (cartError) throw cartError;
-
+      // Clear cart from localStorage
+      localStorage.removeItem('jewelMartCart');
       setOrderPlaced(true);
       setCartItems([]);
+
     } catch (err) {
-      setError('Failed to place order. Please try again.');
+      setError(err.message || 'Failed to place order. Please try again.');
       console.error('Error placing order:', err);
     } finally {
       setLoading(false);
@@ -149,19 +191,41 @@ export default function Checkout() {
           <p className="text-gray-600 mb-8">Complete your purchase</p>
           
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            {cartItems.length === 0 ? (
+            {!user || user.email === 'guest@example.com' ? (
               <>
-                <i className="ri-construction-line w-16 h-16 flex items-center justify-center text-amber-600 mx-auto mb-4"></i>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Checkout Coming Soon</h2>
+                <i className="ri-user-line w-16 h-16 flex items-center justify-center text-amber-600 mx-auto mb-4"></i>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Login Required</h2>
                 <p className="text-gray-600 mb-6">
-                  Your cart is empty. Add items to proceed with checkout.
+                  Please log in to complete your purchase.
                 </p>
                 <div className="flex items-center justify-center gap-4">
+                  <button 
+                    onClick={() => window.location.href = '/login'}
+                    className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-yellow-700 transition-colors whitespace-nowrap"
+                  >
+                    Login
+                  </button>
                   <button 
                     onClick={() => window.history.back()}
                     className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors whitespace-nowrap"
                   >
                     Go Back
+                  </button>
+                </div>
+              </>
+            ) : cartItems.length === 0 ? (
+              <>
+                <i className="ri-shopping-cart-line w-16 h-16 flex items-center justify-center text-amber-600 mx-auto mb-4"></i>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Cart is Empty</h2>
+                <p className="text-gray-600 mb-6">
+                  Add items to your cart to proceed with checkout.
+                </p>
+                <div className="flex items-center justify-center gap-4">
+                  <button 
+                    onClick={() => window.location.href = '/products'}
+                    className="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-yellow-700 transition-colors whitespace-nowrap"
+                  >
+                    Shop Now
                   </button>
                 </div>
               </>
@@ -174,24 +238,24 @@ export default function Checkout() {
                       <div key={item.id} className="flex items-center justify-between border-b pb-4">
                         <div className="flex items-center space-x-4">
                           <img
-                            src={item.products.image_url}
-                            alt={item.products.name}
+                            src={item.image || '/placeholder-image.jpg'}
+                            alt={item.name}
                             className="w-16 h-16 object-cover rounded-lg"
                           />
                           <div>
-                            <p className="font-medium text-gray-900">{item.products.name}</p>
-                            {item.size && <p className="text-sm text-gray-600">Size: {item.size}</p>}
+                            <p className="font-medium text-gray-900">{item.name}</p>
+                            {item.selectedSize && <p className="text-sm text-gray-600">Size: {item.selectedSize}</p>}
                             <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                           </div>
                         </div>
                         <p className="text-lg font-bold text-gray-900">
-                          ₹{(item.products.price * item.quantity).toLocaleString()}
+                          ₹{((item.price || 0) * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     ))}
                     <div className="text-right">
                       <p className="text-lg font-bold text-gray-900">
-                        Total: ₹{cartItems.reduce((sum, item) => sum + item.products.price * item.quantity, 0).toLocaleString()}
+                        Total: ₹{cartItems.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toLocaleString()}
                       </p>
                     </div>
                   </div>

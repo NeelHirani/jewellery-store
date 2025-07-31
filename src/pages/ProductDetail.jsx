@@ -17,6 +17,7 @@ const ProductDetail = () => {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [user, setUser] = useState(null);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -247,12 +248,64 @@ const ProductDetail = () => {
     }
   };
 
-  const handleRatingChange = (e) => {
-    setNewReview({ ...newReview, rating: parseInt(e.target.value) });
+  const handleRatingChange = (rating) => {
+    setNewReview({ ...newReview, rating: rating });
+  };
+
+  const handleStarHover = (rating) => {
+    setHoverRating(rating);
+  };
+
+  const handleStarLeave = () => {
+    setHoverRating(0);
   };
 
   const handleCommentChange = (e) => {
     setNewReview({ ...newReview, comment: e.target.value });
+  };
+
+  // Star Rating Component
+  const StarRating = ({ rating, onRatingChange, onHover, onLeave, interactive = true }) => {
+    return (
+      <div className="flex items-center space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => {
+          const isFilled = star <= (hoverRating || rating);
+          const isHovered = hoverRating > 0 && star <= hoverRating;
+          return (
+            <button
+              key={star}
+              type="button"
+              className={`text-2xl transition-all duration-200 transform ${
+                interactive ? 'cursor-pointer hover:scale-110 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 rounded' : 'cursor-default'
+              } ${
+                isFilled
+                  ? isHovered
+                    ? 'text-yellow-500 drop-shadow-sm'
+                    : 'text-yellow-400'
+                  : interactive
+                    ? 'text-gray-300 hover:text-yellow-200'
+                    : 'text-gray-300'
+              }`}
+              onClick={() => interactive && onRatingChange(star)}
+              onMouseEnter={() => interactive && onHover(star)}
+              onMouseLeave={() => interactive && onLeave()}
+              disabled={!interactive}
+              aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+            >
+              <i className="fas fa-star" aria-hidden="true"></i>
+            </button>
+          );
+        })}
+        {interactive && (
+          <span className="ml-3 text-sm font-medium text-gray-600">
+            {(hoverRating || rating) > 0
+              ? `${hoverRating || rating} star${(hoverRating || rating) > 1 ? 's' : ''}`
+              : 'Click to rate'
+            }
+          </span>
+        )}
+      </div>
+    );
   };
 
   if (isLoading) return <div className="text-center p-8">Loading...</div>;
@@ -594,18 +647,16 @@ const ProductDetail = () => {
                 {user?.email ? (
                   <form onSubmit={handleReviewSubmit} className="space-y-4 bg-gray-50 p-4 rounded-lg">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Your Rating</label>
-                      <select
-                        value={newReview.rating}
-                        onChange={handleRatingChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                        aria-label="Select rating"
-                      >
-                        <option value="0">Select Rating</option>
-                        {[1, 2, 3, 4, 5].map((num) => (
-                          <option key={num} value={num}>{num} Star{num > 1 ? 's' : ''}</option>
-                        ))}
-                      </select>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                      <div className="p-3 border border-gray-200 rounded-lg bg-white">
+                        <StarRating
+                          rating={newReview.rating}
+                          onRatingChange={handleRatingChange}
+                          onHover={handleStarHover}
+                          onLeave={handleStarLeave}
+                          interactive={true}
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Your Comment</label>

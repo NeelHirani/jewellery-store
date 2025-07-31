@@ -73,34 +73,41 @@ export default function Home() {
 
   return (
     <>
-      {/* Video Section */}
-      <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-lg">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover"
-        >
-          <source src="/videos/final.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-10 w-full text-center px-4">
-          <h2 className="text-white text-2xl md:text-4xl font-bold drop-shadow-lg">
-            Celebrate Raksha Bandhan with Timeless Elegance 🎁
-          </h2>
-          <p className="text-white text-base md:text-lg mt-2 drop-shadow">
-            Discover our exclusive collection of rakhis, rings & more—crafted with love for every sibling bond.
-          </p>
-          <a
-            href="/products"
-            className="inline-block mt-4 bg-white text-pink-600 font-semibold px-6 py-3 rounded-full shadow-md hover:bg-pink-100 transition duration-300"
-          >
-            Shop Now
-          </a>
-        </div>
-      </section>
+   <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-lg">
+  {/* Background Video */}
+  <video
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="absolute top-0 left-0 w-full h-full object-cover"
+  >
+    <source src="/videos/newhero2.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  {/* Gradient Overlay */}
+  <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
+
+  {/* Text Content */}
+  <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 ">
+    <h3 className="text-black text-2xl md:text-2xl font-cursive mb-6 drop-shadow-lg  font-bold">
+      Welcome to Jewel Mart
+    </h3>
+    <h2 className="text-black text-2xl md:text-4xl font-semibold drop-shadow-lg">
+      Celebrate Raksha Bandhan with Timeless Elegance 🎁
+    </h2>
+    <p className="text-black text-base md:text-lg mt-2 drop-shadow">
+      Discover our exclusive collection of rakhis, rings & more—crafted with love for every sibling bond.
+    </p>
+    <a
+      href="/products"
+      className="inline-block mt-4 bg-gradient-to-r from-rose-600 to-pink-500 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 transform transition duration-300"
+    >
+      Shop Now
+    </a>
+  </div>
+</section>
 
       {/* Promo Banner */}
       <div className="mb-6">
@@ -287,37 +294,6 @@ export default function Home() {
           <h2 className="text-4xl md:text-6xl font-serif font-semibold text-rose-900 whitespace-nowrap">
             #YourShine with US
           </h2>
-        </div>
-      </section>
-
-      {/* Best Sellers */}
-      <section className="py-16 px-6 bg-gray-50 text-center">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-10">Best Sellers</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {[1, 2, 3, 4].map((_, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white shadow rounded-xl overflow-hidden relative"
-            >
-              <img
-                src={`/images/hero${index + 1}.jpg`}
-                alt="bestseller"
-                className="h-56 w-full object-cover"
-              />
-              <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                NEW
-              </span>
-              <div className="p-4 space-y-2">
-                <h3 className="font-medium text-lg">Elegant Pendant</h3>
-                <p className="text-rose-800 font-semibold">₹7,499</p>
-                <button className="mt-2 w-full bg-rose-800 text-white py-2 rounded hover:bg-rose-900 transition">
-                  View Detail
-                </button>
-              </div>
-            </motion.div>
-          ))}
         </div>
       </section>
 

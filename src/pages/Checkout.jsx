@@ -71,6 +71,88 @@ export default function Checkout() {
     setState(prev => ({ ...prev, [name]: value }));
   };
 
+  // Add formatting functions
+  const formatCardNumber = (value) => {
+    // Remove all non-digits
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    // Add spaces every 4 digits
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiry = (value) => {
+    // Remove all non-digits
+    const v = value.replace(/\D/g, '');
+    // Add slash after 2 digits
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
+
+  const formatCVV = (value) => {
+    // Only allow digits, max 4 characters
+    return value.replace(/\D/g, '').substring(0, 4);
+  };
+
+  const handlePaymentInputChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+
+    switch (name) {
+      case 'cardNumber':
+        formattedValue = formatCardNumber(value);
+        break;
+      case 'expiry':
+        formattedValue = formatExpiry(value);
+        break;
+      case 'cvv':
+        formattedValue = formatCVV(value);
+        break;
+    }
+
+    setPaymentDetails(prev => ({ ...prev, [name]: formattedValue }));
+  };
+
+  const validatePaymentDetails = () => {
+    // Card number validation (remove spaces and check length)
+    const cardNumberClean = paymentDetails.cardNumber.replace(/\s/g, '');
+    if (cardNumberClean.length < 13 || cardNumberClean.length > 19) {
+      return 'Please enter a valid card number (13-19 digits).';
+    }
+
+    // Expiry validation
+    const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    if (!expiryPattern.test(paymentDetails.expiry)) {
+      return 'Please enter expiry date in MM/YY format.';
+    }
+
+    // Check if expiry date is not in the past
+    const [month, year] = paymentDetails.expiry.split('/');
+    const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
+    const currentDate = new Date();
+    currentDate.setDate(1); // Set to first day of current month
+    if (expiryDate < currentDate) {
+      return 'Card has expired. Please enter a valid expiry date.';
+    }
+
+    // CVV validation
+    if (paymentDetails.cvv.length < 3 || paymentDetails.cvv.length > 4) {
+      return 'Please enter a valid CVV (3-4 digits).';
+    }
+
+    return null; // No errors
+  };
+
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) {
       setError('Your cart is empty.');
@@ -84,6 +166,13 @@ export default function Checkout() {
 
     if (!shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.country) {
       setError('Please fill in all required shipping address fields.');
+      return;
+    }
+
+    // Validate payment details
+    const paymentError = validatePaymentDetails();
+    if (paymentError) {
+      setError(paymentError);
       return;
     }
 
@@ -352,9 +441,10 @@ export default function Checkout() {
                         type="text"
                         name="cardNumber"
                         value={paymentDetails.cardNumber}
-                        onChange={(e) => handleInputChange(e, setPaymentDetails)}
+                        onChange={handlePaymentInputChange}
                         className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="1234 5678 9012 3456"
+                        maxLength="19"
                         required
                       />
                     </div>
@@ -364,9 +454,10 @@ export default function Checkout() {
                         type="text"
                         name="expiry"
                         value={paymentDetails.expiry}
-                        onChange={(e) => handleInputChange(e, setPaymentDetails)}
+                        onChange={handlePaymentInputChange}
                         className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="MM/YY"
+                        maxLength="5"
                         required
                       />
                     </div>
@@ -376,9 +467,10 @@ export default function Checkout() {
                         type="text"
                         name="cvv"
                         value={paymentDetails.cvv}
-                        onChange={(e) => handleInputChange(e, setPaymentDetails)}
+                        onChange={handlePaymentInputChange}
                         className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="123"
+                        maxLength="4"
                         required
                       />
                     </div>

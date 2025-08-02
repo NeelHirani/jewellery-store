@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Header from "../components/Navbar";
+import { FaTrashAlt } from 'react-icons/fa';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load cart from localStorage on component mount
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('jewelMartCart');
@@ -23,48 +23,37 @@ const Cart = () => {
     }
   }, []);
 
-  // Save cart to localStorage whenever cart changes
   useEffect(() => {
     if (!loading) {
       localStorage.setItem('jewelMartCart', JSON.stringify(cartItems));
     }
   }, [cartItems, loading]);
 
-  // Update quantity of an item
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return;
-    
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id 
-          ? { ...item, quantity: newQuantity }
-          : item
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
-  // Remove item from cart
   const removeItem = (id) => {
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
-  // Update size for an item
   const updateSize = (id, newSize) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === id 
-          ? { ...item, selectedSize: newSize }
-          : item
+    setCartItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, selectedSize: newSize } : item
       )
     );
   };
 
-  // Clear entire cart
   const clearCart = () => {
     setCartItems([]);
   };
 
-  // Calculate totals
   const subtotal = cartItems.reduce((total, item) => {
     return total + (item.price || 0) * item.quantity;
   }, 0);
@@ -72,13 +61,8 @@ const Cart = () => {
   const tax = subtotal * 0.10;
   const total = subtotal + tax;
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   if (cartItems.length === 0) {
     return (
@@ -102,34 +86,72 @@ const Cart = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => (
-              <div key={item.id} className="bg-white p-4 rounded shadow">
-                <div className="flex items-center gap-4">
-                  <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
-                  <div className="flex-1">
-                    <h2 className="text-lg font-semibold">{item.name}</h2>
-                    <p>Metal: {item.metal}</p>
-                    <p>Stone: {item.stone}</p>
-                    <p>Size: {item.selectedSize}</p>
-                    <div className="flex gap-2 items-center mt-2">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
-                      <button onClick={() => removeItem(item.id)} className="text-red-600 ml-4">Remove</button>
+              <div key={item.id} className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <img src={item.image} alt={item.name} className="w-28 h-28 object-cover rounded-lg shadow-sm" />
+                  <div className="flex-1 space-y-1">
+                    <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
+                    <p className="text-gray-500 text-sm">Metal: <span className="text-gray-800">{item.metal}</span></p>
+                    <p className="text-gray-500 text-sm">Stone: <span className="text-gray-800">{item.stone}</span></p>
+                    <p className="text-gray-500 text-sm">Size: <span className="text-gray-800">{item.selectedSize}</span></p>
+                    <div className="flex items-center gap-3 mt-3">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                        aria-label="Decrease quantity"
+                      >-</button>
+                      <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                        aria-label="Increase quantity"
+                      >+</button>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-red-500 hover:text-red-700 ml-auto"
+                        title="Remove Item"
+                      >
+                        <FaTrashAlt />
+                      </button>
                     </div>
                   </div>
-                  <div>${(item.price * item.quantity).toFixed(2)}</div>
+                  <div className="text-lg font-semibold text-amber-600 whitespace-nowrap">
+                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                  </div>
                 </div>
               </div>
             ))}
-            <button onClick={clearCart} className="text-red-600">Clear Cart</button>
+
+            <button
+              onClick={clearCart}
+              className="text-red-600 hover:text-red-800 underline mt-4 text-sm"
+            >
+              Clear Entire Cart
+            </button>
           </div>
-          <div className="bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-4">Summary</h2>
-            <p>Subtotal: ${subtotal.toFixed(2)}</p>
-            <p>Tax: ${tax.toFixed(2)}</p>
-            <p className="font-bold">Total: ${total.toFixed(2)}</p>
-            <Link to="/checkout" className="block mt-4 bg-amber-600 text-white text-center py-2 rounded">
-              Checkout
+
+          <div className="bg-white p-6 rounded-2xl shadow-md h-fit sticky top-28">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Order Summary</h2>
+            <div className="space-y-2 text-sm text-gray-700">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Tax (10%)</span>
+                <span>₹{tax.toLocaleString('en-IN')}</span>
+              </div>
+              <hr className="my-3" />
+              <div className="flex justify-between font-semibold text-lg">
+                <span>Total</span>
+                <span className="text-amber-600">₹{total.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+            <Link
+              to="/checkout"
+              className="block mt-6 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 text-center rounded-lg transition-colors font-medium"
+            >
+              Proceed to Checkout
             </Link>
           </div>
         </div>

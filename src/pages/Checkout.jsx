@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "../lib/supabase";
-import Header from "../components/Navbar";
+import Navbar from "../components/Navbar";
 
 export default function Checkout() {
   const [cartItems, setCartItems] = useState([]);
@@ -240,7 +240,7 @@ export default function Checkout() {
   if (orderPlaced) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -270,8 +270,8 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      
+      <Navbar />
+
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -323,8 +323,8 @@ export default function Checkout() {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Cart</h2>
                   <div className="space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between border-b pb-4">
+                    {cartItems.map((item, index) => (
+                      <div key={item.id || item.productId || index} className="flex items-center justify-between border-b pb-4">
                         <div className="flex items-center space-x-4">
                           <img
                             src={item.image || '/placeholder-image.jpg'}
@@ -504,4 +504,3 @@ export default function Checkout() {
     </div>
   );
 }
- 

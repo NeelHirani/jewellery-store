@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  FaTachometerAlt, 
-  FaBox, 
-  FaShoppingCart, 
-  FaUsers, 
-  FaSignOutAlt, 
-  FaBars, 
+import {
+  FaTachometerAlt,
+  FaBox,
+  FaShoppingCart,
+  FaUsers,
+  FaSignOutAlt,
+  FaBars,
   FaTimes,
   FaPlus,
   FaList,
   FaEdit,
-  FaGem
+  FaGem,
+  FaEnvelope
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -47,6 +48,11 @@ const Sidebar = () => {
       title: 'Reviews',
       icon: FaList,
       path: '/admin/reviews'
+    },
+    {
+      title: 'Contacts',
+      icon: FaEnvelope,
+      path: '/admin/contacts'
     }
   ];
 

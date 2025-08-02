@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './Layout';
+import LoadingScreen from './components/LoadingScreen';
 
 // Public Pages
 import Home from './pages/Home';
@@ -32,10 +33,23 @@ import OrderManagement from './admin/OrderManagement';
 import UserManagement from './admin/UserManagement';
 import AddCategory from './admin/AddCategory';
 import ReviewManagement from './admin/ReviewManagement'; // Added import
+import ContactManagement from './admin/ContactManagement';
 
 library.add(fas);
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Handle loading completion
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
+
+  // Show loading screen on first visit
+  if (isLoading) {
+    return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
+  }
+
   return (
     <Router>
       <ScrollToTop />
@@ -50,6 +64,7 @@ function App() {
         <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><AddCategory /></AdminRoute>} /> {/* Updated path for clarity */}
         <Route path="/admin/reviews" element={<AdminRoute><ReviewManagement /></AdminRoute>} /> {/* Added route */}
+        <Route path="/admin/contacts" element={<AdminRoute><ContactManagement /></AdminRoute>} /> {/* Added contact management route */}
 
         {/* Public Routes with layout */}
         <Route path="/" element={<Layout />}>

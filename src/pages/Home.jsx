@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -49,6 +49,10 @@ export default function Home() {
   const [dealIndex, setDealIndex] = useState(0);
   const [showPromo, setShowPromo] = useState(true);
   const [activeCatIndex, setActiveCatIndex] = useState(0);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -71,43 +75,211 @@ export default function Home() {
     return () => clearInterval(catInterval);
   }, [categories.length]);
 
+  // Check for reduced motion preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Video event handlers
+  const handleVideoLoad = () => {
+    setVideoLoaded(true);
+    setVideoError(false);
+  };
+
+  const handleVideoError = () => {
+    setVideoError(true);
+    setVideoLoaded(false);
+  };
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.load();
+            observer.unobserve(video);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
-   <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-lg">
-  {/* Background Video */}
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="absolute top-0 left-0 w-full h-full object-cover"
-  >
-    <source src="/videos/newhero2.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+      {/* Enhanced Hero Section with Video Background */}
+      <section className="relative w-full h-[80vh] md:h-[90vh] overflow-hidden mb-16 rounded-xl shadow-2xl">
+        {/* Background Video */}
+        {!prefersReducedMotion && (
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            onLoadedData={handleVideoLoad}
+            onError={handleVideoError}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              videoLoaded && !videoError ? 'opacity-100' : 'opacity-0'
+            }`}
+            poster="/images/hero1.jpg"
+            aria-label="Luxury jewelry craftsmanship video background"
+          >
+            <source src="/videos/newhero2.mp4" type="video/mp4" />
+            <source src="/videos/newhero2.webm" type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+        )}
 
-  {/* Gradient Overlay */}
-  <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/70 to-transparent" />
+        {/* Fallback Background Image
+        <div
+          className={`absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
+            (!videoLoaded || videoError || prefersReducedMotion) ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: `url('/images/hero1.jpg')`
+          }}
+          role="img"
+          aria-label="Luxury jewelry collection showcase"
+        /> */}
 
-  {/* Text Content */}
-  <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 ">
-    <h3 className="text-black text-2xl md:text-2xl font-cursive mb-6 drop-shadow-lg  font-bold">
-      Welcome to Jewel Mart
-    </h3>
-    <h2 className="text-black text-2xl md:text-4xl font-semibold drop-shadow-lg">
-      Celebrate Raksha Bandhan with Timeless Elegance 🎁
-    </h2>
-    <p className="text-black text-base md:text-lg mt-2 drop-shadow">
-      Discover our exclusive collection of rakhis, rings & more—crafted with love for every sibling bond.
-    </p>
-    <a
-      href="/products"
-      className="inline-block mt-4 bg-gradient-to-r from-rose-600 to-pink-500 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 transform transition duration-300"
-    >
-      Shop Now
-    </a>
-  </div>
-</section>
+        {/* Elegant Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/20 via-transparent to-black/30" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/30 to-transparent" />
+
+        {/* Luxury Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-amber-300 rounded-full animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-yellow-300 rounded-full animate-pulse delay-500"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-amber-400 rounded-full animate-pulse delay-1000"></div>
+        </div>
+
+        {/* Main Content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="max-w-4xl mx-auto"
+          >
+            {/* Brand Welcome */}
+            <motion.h3
+              initial={{ opacity: 0, letterSpacing: "0.3em" }}
+              animate={{ opacity: 1, letterSpacing: "0.1em" }}
+              transition={{ duration: 1.5, delay: 0.7 }}
+              className="text-amber-200 text-xl md:text-2xl font-light mb-4 tracking-wider"
+              style={{ fontFamily: 'serif' }}
+            >
+              Welcome to Jewel Mart
+            </motion.h3>
+
+            {/* Main Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1 }}
+              className="text-black text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
+            >
+              <span className="bg-gradient-to-r from-amber-300 via-black-200 to-amber-400 bg-clip-text text-transparent">
+                Timeless Elegance
+              </span>
+              <br />
+              <span className="text-black drop-shadow-lg">
+                Crafted with Love
+              </span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.3 }}
+              className="text-amber-100 text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed"
+            >
+              Discover our exclusive collection of handcrafted jewelry, where every piece tells a story of luxury, tradition, and unmatched craftsmanship.
+            </motion.p>
+
+            {/* Call-to-Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 1.6 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <Link
+                to="/products"
+                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#800000] to-[#660000] text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+              >
+                <span className="relative z-10">Explore Collection</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-300 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              </Link>
+
+              <Link
+                to="/about"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-amber-300 text-amber-200 font-semibold rounded-full hover:bg-amber-300 hover:text-[#800000] transition-all duration-300 backdrop-blur-sm"
+              >
+                Our Story
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Decorative Elements */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 2 }}
+          className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-amber-400/60 rounded-tl-lg"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 2.2 }}
+          className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-amber-400/60 rounded-tr-lg"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 2.4 }}
+          className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-amber-400/60 rounded-bl-lg"
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 2.6 }}
+          className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-amber-400/60 rounded-br-lg"
+        />
+
+        {/* Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 3, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-amber-300"
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-sm mb-2 tracking-wider">Scroll to explore</span>
+            <div className="w-6 h-10 border-2 border-amber-300 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-amber-300 rounded-full mt-2 animate-bounce"></div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
 
       {/* Promo Banner */}
       <div className="mb-6">

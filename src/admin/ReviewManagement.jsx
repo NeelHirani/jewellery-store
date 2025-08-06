@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaCheck, FaTimes, FaSearch } from 'react-icons/fa';
+import { FaEye, FaCheck, FaTimes, FaSearch, FaTrash } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -12,6 +12,11 @@ const ReviewManagement = () => {
   const [reviewsPerPage] = useState(10);
   const [selectedReview, setSelectedReview] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -55,6 +60,7 @@ const ReviewManagement = () => {
   };
 
   const handleUpdateStatus = async (reviewId, newStatus) => {
+    setStatusUpdateLoading(true);
     try {
       const { error } = await supabase
         .from('reviews')
@@ -62,16 +68,37 @@ const ReviewManagement = () => {
         .eq('id', reviewId);
 
       if (error) throw error;
-      setReviews(prevReviews => 
-        Array.isArray(prevReviews) ? prevReviews.map(review => 
+
+      // Update the reviews list
+      setReviews(prevReviews =>
+        Array.isArray(prevReviews) ? prevReviews.map(review =>
           review.id === reviewId ? { ...review, status: newStatus } : review
         ) : []
       );
+
+      // Update the selected review if it's the one being updated
       if (selectedReview?.id === reviewId) {
         setSelectedReview({ ...selectedReview, status: newStatus });
       }
+
+      // Show success message
+      const statusText = newStatus === 'approved' ? 'approved' : 'rejected';
+      setSuccessMessage(`Review has been successfully ${statusText}.`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      // Automatically close the modal after successful status update
+      setShowReviewModal(false);
+      setSelectedReview(null);
+
+      console.log(`Review ${reviewId} status successfully updated to ${newStatus}`);
+
     } catch (error) {
       console.error('Error updating review status:', error.message);
+      // Show error message and keep modal open so admin can try again
+      setError(`Failed to update review status: ${error.message}`);
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setStatusUpdateLoading(false);
     }
   };
 
@@ -79,6 +106,131 @@ const ReviewManagement = () => {
     setSelectedReview(review);
     setShowReviewModal(true);
   };
+
+  const handleDeleteReview = (review) => {
+    setReviewToDelete(review);
+    setShowDeleteModal(true);
+  };
+
+
+
+  const confirmDeleteReview = async () => {
+    if (!reviewToDelete) return;
+
+    setDeleteLoading(true);
+    try {
+      // Always perform permanent deletion regardless of review status
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', reviewToDelete.id);
+
+      if (error) {
+        console.error('Error deleting review:', error);
+        throw new Error('Failed to delete review');
+      }
+
+      // Update the local state to remove the deleted review
+      setReviews(reviews.filter(review => review.id !== reviewToDelete.id));
+
+      setSuccessMessage(`Review has been permanently deleted.`);
+      setTimeout(() => setSuccessMessage(null), 5000);
+
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      setError(error.message || 'Failed to delete review. Please try again.');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+      setReviewToDelete(null);
+    }
+  };
+
+  const cancelDeleteReview = () => {
+    setShowDeleteModal(false);
+    setReviewToDelete(null);
+  };
+
+  // Delete Confirmation Modal Component
+  const DeleteConfirmationModal = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-lg max-w-md w-full p-6 border border-gray-200"
+      >
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+            <FaTrash className="text-red-600 text-xl" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Delete Review</h3>
+            <p className="text-sm text-gray-600">This action cannot be undone</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-gray-700">
+            Are you sure you want to permanently delete the review from <span className="font-semibold">{reviewToDelete?.users?.email || 'this user'}</span>?
+          </p>
+          <p className="text-sm text-gray-600 mt-2">
+            This will permanently remove the review from the database and it cannot be recovered.
+          </p>
+          {reviewToDelete && (
+            <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-700">
+                <strong>Product:</strong> {reviewToDelete.products?.name || 'N/A'}
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>Rating:</strong> {reviewToDelete.rating}/5 stars
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>Status:</strong> {reviewToDelete.status}
+              </p>
+              <p className="text-sm text-gray-700">
+                <strong>Comment:</strong> {reviewToDelete.comment ? `"${reviewToDelete.comment.substring(0, 100)}${reviewToDelete.comment.length > 100 ? '...' : ''}"` : 'No comment'}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex space-x-3">
+          <button
+            onClick={cancelDeleteReview}
+            disabled={deleteLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmDeleteReview}
+            disabled={deleteLoading}
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {deleteLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Processing...
+              </>
+            ) : (
+              <>
+                <FaTrash className="mr-2" />
+                Delete Permanently
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+
+
 
   const filteredReviews = reviews.filter(review => {
     const searchLower = searchTerm.toLowerCase();
@@ -154,17 +306,37 @@ const ReviewManagement = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => handleUpdateStatus(selectedReview.id, 'approved')}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                disabled={statusUpdateLoading}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Approve review"
               >
-                <FaCheck className="inline mr-2" /> Approve
+                {statusUpdateLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline mr-2"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <FaCheck className="inline mr-2" /> Approve
+                  </>
+                )}
               </button>
               <button
                 onClick={() => handleUpdateStatus(selectedReview.id, 'rejected')}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium"
+                disabled={statusUpdateLoading}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Reject review"
               >
-                <FaTimes className="inline mr-2" /> Reject
+                {statusUpdateLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline mr-2"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <FaTimes className="inline mr-2" /> Reject
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -207,6 +379,58 @@ const ReviewManagement = () => {
           Total Reviews: {reviews.length}
         </div>
       </div>
+
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-800">{successMessage}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="text-green-400 hover:text-green-600"
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-600"
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
@@ -332,13 +556,22 @@ const ReviewManagement = () => {
                     {new Date(review.created_at).toLocaleDateString()}
                   </td>
                   <td className="py-4 px-4">
-                    <button
-                      onClick={() => handleViewReview(review)}
-                      className="text-blue-600 hover:text-blue-800"
-                      aria-label="View review details"
-                    >
-                      <FaEye className="text-lg" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleViewReview(review)}
+                        className="text-blue-600 hover:text-blue-800 p-1"
+                        title="View Review Details"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(review)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                        title="Delete Review Permanently"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </td>
                 </motion.tr>
               ))}
@@ -409,6 +642,7 @@ const ReviewManagement = () => {
       </motion.div>
 
       {showReviewModal && <ReviewModal />}
+      {showDeleteModal && <DeleteConfirmationModal />}
     </div>
   );
 };

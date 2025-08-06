@@ -46,6 +46,7 @@ const ProductDetail = () => {
           .from('reviews')
           .select('id, user_id, rating, comment, created_at, status')
           .eq('product_id', parseInt(id))
+          .eq('status', 'approved') // Only fetch approved reviews for customers
           .order('created_at', { ascending: false });
         if (reviewsError) console.error('Error fetching reviews:', reviewsError);
         setReviews(reviewsData || []);
@@ -92,6 +93,112 @@ const ProductDetail = () => {
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [id]);
+
+  // Set up real-time subscription for review changes
+  useEffect(() => {
+    if (!id) return;
+
+    console.log('Setting up real-time subscription for product reviews:', id);
+
+    const channel = supabase
+      .channel(`reviews-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews',
+          filter: `product_id=eq.${id}`
+        },
+        (payload) => {
+          console.log('Real-time review change detected:', payload);
+
+          if (payload.eventType === 'DELETE') {
+            // Remove deleted review from local state
+            setReviews(prevReviews => {
+              const filtered = prevReviews.filter(review => review.id !== payload.old.id);
+              console.log(`Review ${payload.old.id} deleted via real-time. Reviews count: ${prevReviews.length} -> ${filtered.length}`);
+              return filtered;
+            });
+          } else if (payload.eventType === 'INSERT') {
+            // Only add new review if it's approved (customers should only see approved reviews)
+            const newReview = payload.new;
+            if (newReview.status === 'approved') {
+              setReviews(prevReviews => {
+                const updated = [newReview, ...prevReviews];
+                console.log(`Approved review ${newReview.id} added via real-time. Reviews count: ${prevReviews.length} -> ${updated.length}`);
+                return updated;
+              });
+            } else {
+              console.log(`Non-approved review ${newReview.id} inserted but not shown to customers (status: ${newReview.status})`);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            // Handle status changes: add if approved, remove if not approved
+            const updatedReview = payload.new;
+            setReviews(prevReviews => {
+              const existingIndex = prevReviews.findIndex(review => review.id === updatedReview.id);
+
+              if (updatedReview.status === 'approved') {
+                // If review is now approved, add it or update it
+                if (existingIndex >= 0) {
+                  // Update existing approved review
+                  const updated = prevReviews.map(review =>
+                    review.id === updatedReview.id ? updatedReview : review
+                  );
+                  console.log(`Review ${updatedReview.id} updated via real-time (still approved)`);
+                  return updated;
+                } else {
+                  // Add newly approved review
+                  const updated = [updatedReview, ...prevReviews];
+                  console.log(`Review ${updatedReview.id} approved via real-time. Reviews count: ${prevReviews.length} -> ${updated.length}`);
+                  return updated;
+                }
+              } else {
+                // If review is no longer approved (rejected or pending), remove it from customer view
+                if (existingIndex >= 0) {
+                  const filtered = prevReviews.filter(review => review.id !== updatedReview.id);
+                  console.log(`Review ${updatedReview.id} status changed to ${updatedReview.status}, removed from customer view. Reviews count: ${prevReviews.length} -> ${filtered.length}`);
+                  return filtered;
+                } else {
+                  // Review wasn't shown to customers anyway
+                  console.log(`Review ${updatedReview.id} status changed to ${updatedReview.status} but wasn't visible to customers`);
+                  return prevReviews;
+                }
+              }
+            });
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log(`Successfully subscribed to reviews for product ${id}`);
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error(`Error subscribing to reviews for product ${id}`);
+        }
+      });
+
+    // Cleanup subscription on unmount
+    return () => {
+      console.log('Cleaning up real-time subscription for reviews');
+      supabase.removeChannel(channel);
+    };
+  }, [id]);
+
+  // Handle page visibility changes to refresh reviews when user returns to tab
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && id) {
+        console.log('Page became visible, refreshing approved reviews to ensure sync');
+        refreshApprovedReviews();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [id]);
 
@@ -230,11 +337,12 @@ const ProductDetail = () => {
         throw error;
       }
 
-      // Refresh reviews list
+      // Refresh reviews list (only approved reviews for customers)
       const { data: reviewsData } = await supabase
         .from('reviews')
         .select('id, user_id, rating, comment, created_at, status')
         .eq('product_id', parseInt(id))
+        .eq('status', 'approved') // Only fetch approved reviews for customers
         .order('created_at', { ascending: false });
       setReviews(reviewsData || []);
 
@@ -245,6 +353,30 @@ const ProductDetail = () => {
       console.error('Review submission error:', err);
       setSubmitStatus(`Failed to submit review: ${err.message}`);
       setTimeout(() => setSubmitStatus(null), 3000);
+    }
+  };
+
+  // Function to refresh approved reviews data (useful for edge cases)
+  const refreshApprovedReviews = async () => {
+    if (!id) return;
+
+    try {
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from('reviews')
+        .select('id, user_id, rating, comment, created_at, status')
+        .eq('product_id', parseInt(id))
+        .eq('status', 'approved') // Only fetch approved reviews for customers
+        .order('created_at', { ascending: false });
+
+      if (reviewsError) {
+        console.error('Error refreshing approved reviews:', reviewsError);
+        return;
+      }
+
+      setReviews(reviewsData || []);
+      console.log('Approved reviews refreshed:', reviewsData?.length || 0);
+    } catch (error) {
+      console.error('Error refreshing approved reviews:', error);
     }
   };
 
@@ -365,6 +497,7 @@ const ProductDetail = () => {
     );
   }
 
+  // Calculate average rating based on approved reviews only
   const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
   return (
@@ -459,7 +592,7 @@ const ProductDetail = () => {
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex items-center">
                   {renderStars(averageRating)}
-                  <span className="text-sm text-gray-600">({reviews.length} reviews)</span>
+                  <span className="text-sm text-gray-600">({reviews.length} approved reviews)</span>
                 </div>
               </div>
               <p className="text-4xl font-bold text-yellow-600 mb-4">
@@ -632,8 +765,14 @@ const ProductDetail = () => {
                   <h3 className="text-lg font-medium text-gray-900">Customer Reviews</h3>
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">{renderStars(averageRating)}</div>
-                    <span className="text-sm text-gray-600">{averageRating.toFixed(1)} out of 5 ({reviews.length} reviews)</span>
+                    <span className="text-sm text-gray-600">{averageRating.toFixed(1)} out of 5 ({reviews.length} approved reviews)</span>
                   </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">Quality Assurance:</span> All reviews are moderated to ensure authenticity and helpfulness. Only approved reviews are displayed to maintain high quality standards.
+                  </p>
                 </div>
 
                 {submitStatus && (
@@ -707,7 +846,13 @@ const ProductDetail = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-600">No reviews available yet.</p>
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-3">
+                      <i className="fas fa-star text-4xl"></i>
+                    </div>
+                    <p className="text-gray-600 mb-2">No approved reviews yet.</p>
+                    <p className="text-sm text-gray-500">Be the first to share your experience with this product!</p>
+                  </div>
                 )}
               </div>
             )}

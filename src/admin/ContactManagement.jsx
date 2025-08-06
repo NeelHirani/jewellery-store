@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  FaEnvelope, 
-  FaPhone, 
-  FaUser, 
-  FaCalendarAlt, 
-  FaEye, 
-  FaCheck, 
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  FaEnvelope,
+  FaPhone,
+  FaUser,
+  FaCalendarAlt,
+  FaEye,
+  FaCheck,
   FaTimes,
   FaFilter,
   FaSearch,
-  FaExclamationCircle
+  FaExclamationCircle,
+  FaTrash,
+  FaCheckSquare,
+  FaSquare,
+  FaChevronLeft,
+  FaChevronRight,
+  FaSync,
+  FaDownload,
+  FaReply
 } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { format } from 'date-fns';
@@ -19,18 +27,40 @@ const ContactManagement = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch contact submissions
-  const fetchSubmissions = async () => {
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Bulk actions state
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  // Modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Real-time state
+  const [realTimeChannel, setRealTimeChannel] = useState(null);
+
+  // Fetch contact submissions with pagination
+  const fetchSubmissions = async (page = currentPage) => {
     try {
       setLoading(true);
+      setError(null);
+
+      // Build base query
       let query = supabase
         .from('contact_submissions')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
 
       // Apply filters
@@ -44,10 +74,18 @@ const ContactManagement = () => {
         query = query.or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,message.ilike.%${searchQuery}%`);
       }
 
-      const { data, error } = await query;
+      // Apply pagination
+      const from = (page - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
 
       if (error) throw error;
+
       setSubmissions(data || []);
+      setTotalCount(count || 0);
+      setCurrentPage(page);
     } catch (err) {
       console.error('Error fetching submissions:', err);
       setError('Failed to load contact submissions');
@@ -56,9 +94,68 @@ const ContactManagement = () => {
     }
   };
 
+  // Set up real-time subscription
   useEffect(() => {
-    fetchSubmissions();
+    const setupRealTime = () => {
+      const channel = supabase
+        .channel('contact_submissions_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'contact_submissions'
+          },
+          (payload) => {
+            console.log('Real-time contact submission change:', payload);
+
+            if (payload.eventType === 'INSERT') {
+              // Add new submission to the beginning of the list
+              setSubmissions(prev => [payload.new, ...prev.slice(0, itemsPerPage - 1)]);
+              setTotalCount(prev => prev + 1);
+              setSuccessMessage('New contact submission received!');
+              setTimeout(() => setSuccessMessage(null), 5000);
+            } else if (payload.eventType === 'UPDATE') {
+              // Update existing submission
+              setSubmissions(prev =>
+                prev.map(sub =>
+                  sub.id === payload.new.id ? payload.new : sub
+                )
+              );
+              if (selectedSubmission?.id === payload.new.id) {
+                setSelectedSubmission(payload.new);
+              }
+            } else if (payload.eventType === 'DELETE') {
+              // Remove deleted submission
+              setSubmissions(prev => prev.filter(sub => sub.id !== payload.old.id));
+              setTotalCount(prev => prev - 1);
+              if (selectedSubmission?.id === payload.old.id) {
+                setSelectedSubmission(null);
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      setRealTimeChannel(channel);
+    };
+
+    setupRealTime();
+
+    return () => {
+      if (realTimeChannel) {
+        supabase.removeChannel(realTimeChannel);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchSubmissions(1); // Reset to page 1 when filters change
   }, [statusFilter, subjectFilter, searchQuery]);
+
+  useEffect(() => {
+    fetchSubmissions(currentPage);
+  }, [currentPage]);
 
   // Update submission status
   const updateStatus = async (id, newStatus) => {
@@ -71,8 +168,8 @@ const ContactManagement = () => {
       if (error) throw error;
 
       // Update local state
-      setSubmissions(prev => 
-        prev.map(sub => 
+      setSubmissions(prev =>
+        prev.map(sub =>
           sub.id === id ? { ...sub, status: newStatus } : sub
         )
       );
@@ -81,11 +178,112 @@ const ContactManagement = () => {
       if (selectedSubmission && selectedSubmission.id === id) {
         setSelectedSubmission(prev => ({ ...prev, status: newStatus }));
       }
+
+      setSuccessMessage(`Status updated to ${newStatus.replace('_', ' ')}`);
+      setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       console.error('Error updating status:', err);
       setError('Failed to update status');
+      setTimeout(() => setError(null), 5000);
     }
   };
+
+  // Delete submission
+  const deleteSubmission = async (id) => {
+    try {
+      setDeleteLoading(true);
+      const { error } = await supabase
+        .from('contact_submissions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setSuccessMessage('Contact submission deleted successfully');
+      setTimeout(() => setSuccessMessage(null), 3000);
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+    } catch (err) {
+      console.error('Error deleting submission:', err);
+      setError('Failed to delete submission');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Bulk actions
+  const handleBulkStatusUpdate = async (newStatus) => {
+    if (selectedItems.length === 0) return;
+
+    try {
+      setBulkActionLoading(true);
+      const { error } = await supabase
+        .from('contact_submissions')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .in('id', selectedItems);
+
+      if (error) throw error;
+
+      setSuccessMessage(`${selectedItems.length} submissions updated to ${newStatus.replace('_', ' ')}`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+      setSelectedItems([]);
+      setShowBulkActions(false);
+    } catch (err) {
+      console.error('Error updating bulk status:', err);
+      setError('Failed to update submissions');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedItems.length === 0) return;
+
+    try {
+      setBulkActionLoading(true);
+      const { error } = await supabase
+        .from('contact_submissions')
+        .delete()
+        .in('id', selectedItems);
+
+      if (error) throw error;
+
+      setSuccessMessage(`${selectedItems.length} submissions deleted successfully`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+      setSelectedItems([]);
+      setShowBulkActions(false);
+    } catch (err) {
+      console.error('Error deleting submissions:', err);
+      setError('Failed to delete submissions');
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  // Selection handlers
+  const handleSelectAll = () => {
+    if (selectedItems.length === submissions.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(submissions.map(sub => sub.id));
+    }
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev =>
+      prev.includes(id)
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  // Pagination helpers
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, totalCount);
 
   // Get status badge color
   const getStatusColor = (status) => {
@@ -121,9 +319,78 @@ const ContactManagement = () => {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-          {error}
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="text-red-500 hover:text-red-700"
+          >
+            <FaTimes />
+          </button>
         </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex items-center justify-between">
+          <span>{successMessage}</span>
+          <button
+            onClick={() => setSuccessMessage(null)}
+            className="text-green-500 hover:text-green-700"
+          >
+            <FaTimes />
+          </button>
+        </div>
+      )}
+
+      {/* Bulk Actions Bar */}
+      {selectedItems.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-blue-800 font-medium">
+              {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected
+            </span>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handleBulkStatusUpdate('new')}
+                disabled={bulkActionLoading}
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                Mark as New
+              </button>
+              <button
+                onClick={() => handleBulkStatusUpdate('in_progress')}
+                disabled={bulkActionLoading}
+                className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50"
+              >
+                Mark as In Progress
+              </button>
+              <button
+                onClick={() => handleBulkStatusUpdate('resolved')}
+                disabled={bulkActionLoading}
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              >
+                Mark as Resolved
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                disabled={bulkActionLoading}
+                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+              >
+                Delete Selected
+              </button>
+              <button
+                onClick={() => setSelectedItems([])}
+                className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+        </motion.div>
       )}
 
       {/* Filters */}
@@ -192,9 +459,27 @@ const ContactManagement = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Submissions List */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Submissions ({submissions.length})
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Submissions ({totalCount})
+            </h2>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleSelectAll}
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+              >
+                {selectedItems.length === submissions.length ? <FaCheckSquare /> : <FaSquare />}
+                <span>Select All</span>
+              </button>
+              <button
+                onClick={() => fetchSubmissions(currentPage)}
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 rounded"
+              >
+                <FaSync />
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
           
           {submissions.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -207,21 +492,47 @@ const ContactManagement = () => {
                   key={submission.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                    selectedSubmission?.id === submission.id 
-                      ? 'border-purple-500 bg-purple-50' 
+                  className={`p-4 border rounded-lg transition-all hover:shadow-md ${
+                    selectedSubmission?.id === submission.id
+                      ? 'border-purple-500 bg-purple-50'
                       : 'border-gray-200 bg-white'
                   }`}
-                  onClick={() => setSelectedSubmission(submission)}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectItem(submission.id);
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        {selectedItems.includes(submission.id) ? <FaCheckSquare /> : <FaSquare />}
+                      </button>
                       {getPriorityIcon(submission.subject)}
-                      <h3 className="font-medium text-gray-800">{submission.name}</h3>
+                      <h3
+                        className="font-medium text-gray-800 cursor-pointer hover:text-purple-600"
+                        onClick={() => setSelectedSubmission(submission)}
+                      >
+                        {submission.name}
+                      </h3>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(submission.status)}`}>
-                      {submission.status.replace('_', ' ')}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(submission.status)}`}>
+                        {submission.status.replace('_', ' ')}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setItemToDelete(submission);
+                          setShowDeleteModal(true);
+                        }}
+                        className="text-red-400 hover:text-red-600 p-1"
+                        title="Delete submission"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
                   
                   <div className="text-sm text-gray-600 mb-2">
@@ -253,6 +564,34 @@ const ContactManagement = () => {
                   </div>
                 </motion.div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Showing {startIndex} to {endIndex} of {totalCount} submissions
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaChevronLeft />
+                </button>
+                <span className="px-3 py-1 text-sm">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -321,24 +660,49 @@ const ContactManagement = () => {
                   </div>
                 </div>
 
-                {/* Status Update Buttons */}
-                <div className="pt-4 border-t">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Update Status</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['new', 'in_progress', 'resolved', 'closed'].map((status) => (
-                      <button
-                        key={status}
-                        onClick={() => updateStatus(selectedSubmission.id, status)}
-                        disabled={selectedSubmission.status === status}
-                        className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                          selectedSubmission.status === status
-                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                            : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                        }`}
+                {/* Action Buttons */}
+                <div className="pt-4 border-t space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Update Status</label>
+                    <div className="flex flex-wrap gap-2">
+                      {['new', 'in_progress', 'resolved', 'closed'].map((status) => (
+                        <button
+                          key={status}
+                          onClick={() => updateStatus(selectedSubmission.id, status)}
+                          disabled={selectedSubmission.status === status}
+                          className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                            selectedSubmission.status === status
+                              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                              : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          }`}
+                        >
+                          {status.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Actions</label>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`mailto:${selectedSubmission.email}?subject=Re: ${selectedSubmission.subject}&body=Dear ${selectedSubmission.name},%0D%0A%0D%0AThank you for contacting us.%0D%0A%0D%0ABest regards,%0D%0ACustomer Service Team`}
+                        className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg"
                       >
-                        {status.replace('_', ' ')}
+                        <FaReply />
+                        <span>Reply via Email</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          setItemToDelete(selectedSubmission);
+                          setShowDeleteModal(true);
+                        }}
+                        className="flex items-center space-x-1 px-3 py-1 text-sm bg-red-100 text-red-700 hover:bg-red-200 rounded-lg"
+                      >
+                        <FaTrash />
+                        <span>Delete</span>
                       </button>
-                    ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -351,6 +715,77 @@ const ContactManagement = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg max-w-md w-full p-6"
+          >
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <FaTrash className="text-red-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete Contact Submission</h3>
+                <p className="text-sm text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-gray-700">
+                Are you sure you want to permanently delete the contact submission from{' '}
+                <span className="font-semibold">{itemToDelete?.name}</span>?
+              </p>
+              {itemToDelete && (
+                <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    <strong>Subject:</strong> {itemToDelete.subject}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <strong>Email:</strong> {itemToDelete.email}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <strong>Date:</strong> {format(new Date(itemToDelete.created_at), 'MMM dd, yyyy HH:mm')}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setItemToDelete(null);
+                }}
+                disabled={deleteLoading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteSubmission(itemToDelete.id)}
+                disabled={deleteLoading}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+              >
+                {deleteLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <FaTrash className="mr-2" />
+                    Delete Permanently
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

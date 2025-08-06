@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaEye, FaEdit, FaSearch, FaFilter, FaDownload } from 'react-icons/fa';
+import { FaEye, FaEdit, FaSearch, FaFilter, FaDownload, FaTrash } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -14,6 +14,10 @@ const OrderManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderItems, setOrderItems] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const orderStatuses = [
     { value: 'all', label: 'All Orders' },
@@ -36,7 +40,8 @@ const OrderManagement = () => {
         .from('orders')
         .select(`
           *,
-          users(name, email, phone)
+          users(name, email, phone),
+          order_items(id)
         `)
         .order('created_at', { ascending: false });
 
@@ -118,6 +123,208 @@ const OrderManagement = () => {
     setSelectedOrder(order);
     await fetchOrderItems(order.id);
     setShowOrderModal(true);
+  };
+
+  const handleDeleteOrder = (order) => {
+    setOrderToDelete(order);
+    setShowDeleteModal(true);
+  };
+
+  const resequenceOrderIds = async () => {
+    try {
+      // Get all orders sorted by created_at to maintain chronological order
+      const { data: allOrders, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (fetchError) {
+        throw new Error('Failed to fetch orders for resequencing');
+      }
+
+      if (!allOrders || allOrders.length === 0) {
+        return; // No orders to resequence
+      }
+
+      // Check if resequencing is actually needed
+      const needsResequencing = allOrders.some((order, index) => order.id !== index + 1);
+
+      if (!needsResequencing) {
+        console.log('Order IDs are already sequential, no resequencing needed');
+        return;
+      }
+
+      console.log('Starting order ID resequencing...');
+
+      // Create a temporary table approach to handle the resequencing safely
+      // We'll use a batch update approach to minimize conflicts
+
+      // Step 1: Create temporary negative IDs to avoid conflicts
+      const tempUpdates = [];
+      for (let i = 0; i < allOrders.length; i++) {
+        const order = allOrders[i];
+        const tempId = -(i + 1000); // Use negative numbers to avoid conflicts
+
+        if (order.id !== i + 1) {
+          tempUpdates.push({
+            oldId: order.id,
+            tempId: tempId,
+            finalId: i + 1,
+            orderData: order
+          });
+        }
+      }
+
+      // Step 2: Update to temporary IDs first
+      for (const update of tempUpdates) {
+        // Update order_items first
+        const { error: updateItemsError } = await supabase
+          .from('order_items')
+          .update({ order_id: update.tempId })
+          .eq('order_id', update.oldId);
+
+        if (updateItemsError) {
+          throw new Error(`Failed to update order items to temp ID for order ${update.oldId}`);
+        }
+
+        // Update order to temporary ID
+        const { error: updateOrderError } = await supabase
+          .from('orders')
+          .update({ id: update.tempId })
+          .eq('id', update.oldId);
+
+        if (updateOrderError) {
+          throw new Error(`Failed to update order to temp ID from ${update.oldId} to ${update.tempId}`);
+        }
+      }
+
+      // Step 3: Update from temporary IDs to final sequential IDs
+      for (const update of tempUpdates) {
+        // Update order_items to final ID
+        const { error: updateItemsError } = await supabase
+          .from('order_items')
+          .update({ order_id: update.finalId })
+          .eq('order_id', update.tempId);
+
+        if (updateItemsError) {
+          throw new Error(`Failed to update order items to final ID for temp order ${update.tempId}`);
+        }
+
+        // Update order to final ID
+        const { error: updateOrderError } = await supabase
+          .from('orders')
+          .update({ id: update.finalId })
+          .eq('id', update.tempId);
+
+        if (updateOrderError) {
+          throw new Error(`Failed to update order to final ID from ${update.tempId} to ${update.finalId}`);
+        }
+      }
+
+      console.log(`Successfully resequenced ${tempUpdates.length} orders`);
+
+    } catch (error) {
+      console.error('Error resequencing order IDs:', error);
+
+      // Attempt to recover from any partial updates by refreshing the data
+      console.log('Attempting to refresh data after resequencing error...');
+      try {
+        await fetchOrders();
+      } catch (refreshError) {
+        console.error('Failed to refresh orders after resequencing error:', refreshError);
+      }
+
+      throw error;
+    }
+  };
+
+  const validateOrderSequence = async () => {
+    try {
+      const { data: orders, error } = await supabase
+        .from('orders')
+        .select('id')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error validating order sequence:', error);
+        return false;
+      }
+
+      // Check if IDs are sequential starting from 1
+      const isSequential = orders.every((order, index) => order.id === index + 1);
+
+      if (!isSequential) {
+        console.log('Order IDs are not sequential:', orders.map(o => o.id));
+      }
+
+      return isSequential;
+    } catch (error) {
+      console.error('Error validating order sequence:', error);
+      return false;
+    }
+  };
+
+  const confirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+
+    setDeleteLoading(true);
+    try {
+      // Store the order ID for success message before deletion
+      const deletedOrderId = orderToDelete.id;
+
+      // First, delete all order items associated with this order
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderToDelete.id);
+
+      if (itemsError) {
+        console.error('Error deleting order items:', itemsError);
+        throw new Error('Failed to delete order items');
+      }
+
+      // Then delete the order itself
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderToDelete.id);
+
+      if (orderError) {
+        console.error('Error deleting order:', orderError);
+        throw new Error('Failed to delete order');
+      }
+
+      // Resequence order IDs to eliminate gaps
+      await resequenceOrderIds();
+
+      // Refresh the orders list to reflect new IDs
+      await fetchOrders();
+
+      // Show success message
+      setSuccessMessage(`Order #${deletedOrderId} has been successfully deleted and order IDs have been resequenced.`);
+      setTimeout(() => setSuccessMessage(null), 5000);
+
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      setError(error.message || 'Failed to delete order. Please try again.');
+
+      // If resequencing failed, refresh the orders to show current state
+      try {
+        await fetchOrders();
+      } catch (refreshError) {
+        console.error('Error refreshing orders after failed deletion:', refreshError);
+      }
+    } finally {
+      // Always close the modal and reset state, regardless of success or failure
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+      setOrderToDelete(null);
+    }
+  };
+
+  const cancelDeleteOrder = () => {
+    setShowDeleteModal(false);
+    setOrderToDelete(null);
   };
 
   const getStatusColor = (status) => {
@@ -263,6 +470,72 @@ const OrderManagement = () => {
     </motion.div>
   );
 
+  const DeleteConfirmationModal = () => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white rounded-lg max-w-md w-full p-6 border border-gray-200"
+      >
+        <div className="flex items-center mb-4">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+            <FaTrash className="text-red-600 text-xl" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Delete Order</h3>
+            <p className="text-sm text-gray-600">This action cannot be undone</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-gray-700">
+            Are you sure you want to delete order <span className="font-semibold">#{orderToDelete?.id}</span>?
+          </p>
+          <p className="text-sm text-gray-600 mt-2">
+            This will permanently remove the order and all associated order items from the database.
+          </p>
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> After deletion, all remaining order IDs will be automatically resequenced to maintain sequential numbering (1, 2, 3...) while preserving chronological order.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex space-x-3">
+          <button
+            onClick={cancelDeleteOrder}
+            disabled={deleteLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmDeleteOrder}
+            disabled={deleteLoading}
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {deleteLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Deleting & Resequencing...
+              </>
+            ) : (
+              <>
+                <FaTrash className="mr-2" />
+                Delete Order
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -295,6 +568,32 @@ const OrderManagement = () => {
               <button
                 onClick={() => setError(null)}
                 className="text-red-400 hover:text-red-600"
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-800">{successMessage}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <button
+                onClick={() => setSuccessMessage(null)}
+                className="text-green-400 hover:text-green-600"
               >
                 <span className="sr-only">Dismiss</span>
                 <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -361,7 +660,10 @@ const OrderManagement = () => {
                     <td className="py-4 px-4">
                       <div className="font-medium text-gray-900">#{order.id}</div>
                       <div className="text-sm text-gray-500">
-                        {order.order_items?.length || 0} items
+                        {(() => {
+                          const itemCount = order.order_items?.length || 0;
+                          return itemCount === 1 ? '1 item' : `${itemCount} items`;
+                        })()}
                       </div>
                     </td>
                     <td className="py-4 px-4">
@@ -382,13 +684,22 @@ const OrderManagement = () => {
                       </span>
                     </td>
                     <td className="py-4 px-4">
-                      <button
-                        onClick={() => handleViewOrder(order)}
-                        className="text-purple-600 hover:text-purple-900 p-1 mr-2"
-                        title="View Order Details"
-                      >
-                        <FaEye />
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleViewOrder(order)}
+                          className="text-purple-600 hover:text-purple-900 p-1"
+                          title="View Order Details"
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order)}
+                          className="text-red-600 hover:text-red-900 p-1"
+                          title="Delete Order"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </motion.tr>
                 ))
@@ -515,6 +826,7 @@ const OrderManagement = () => {
       </div>
 
       {showOrderModal && <OrderModal />}
+      {showDeleteModal && <DeleteConfirmationModal />}
     </div>
   );
 };

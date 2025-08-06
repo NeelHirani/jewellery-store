@@ -75,9 +75,9 @@ const Footer = () => {
           <div className="flex items-center space-x-3 justify-end">
             <IoGlobeOutline className="text-xl text-gray-300" />
             <select className="bg-gray-800 px-3 py-1 rounded text-white text-sm">
-              <option>IN / IND</option>
-              <option>FR / EUR</option>
               <option>EN / USD</option>
+              <option>FR / EUR</option>
+              <option>IN / INR</option>
             </select>
           </div>
         </div>

@@ -10,7 +10,7 @@ const policies = [
   {
     title: "Shipping Policy",
     content:
-      "We offer free standard shipping on orders above ₹2000. All items are dispatched within 2-3 business days and delivered within 5-7 days.",
+      "We offer free standard shipping on orders above $200. All items are dispatched within 2-3 business days and delivered within 5-7 days.",
   },
   {
     title: "Privacy Policy",

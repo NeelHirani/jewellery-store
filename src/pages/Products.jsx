@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 
 export default function Products() {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, Infinity]);
   const [selectedMetal, setSelectedMetal] = useState([]);
   const [selectedStone, setSelectedStone] = useState([]);
   const [selectedOccasion, setSelectedOccasion] = useState([]);
@@ -268,16 +268,6 @@ export default function Products() {
     </div>
   );
 
-  // Show splash screen on initial load
-  if (loading) {
-    return <SplashScreen />;
-  }
-
-  // Show error state if there's an error and no products loaded
-  if (error && products.length === 0) {
-    return <ErrorState />;
-  }
-
   // Empty State Component for when no products are found
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16">
@@ -292,6 +282,16 @@ export default function Products() {
       </p>
     </div>
   );
+
+  // Show splash screen on initial load
+  if (loading) {
+    return <SplashScreen />;
+  }
+
+  // Show error state if there's an error and no products loaded
+  if (error && products.length === 0) {
+    return <ErrorState />;
+  }
 
   return (
     <div className="min-h-screen bg-white animate-fadeIn" style={{ fontFamily: 'Open Sans, sans-serif' }}>
@@ -374,13 +374,13 @@ export default function Products() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Max Price: ${priceRange[1].toLocaleString()}</label>
+                    <label className="text-sm text-gray-600">Max Price: {priceRange[1] === Infinity ? 'Unlimited' : `$${priceRange[1].toLocaleString()}`}</label>
                     <input
                       type="range"
                       min="0"
                       max="100000"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                      value={priceRange[1] === Infinity ? 100000 : priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)])}
                       className="w-full"
                       aria-label="Maximum price"
                     />
@@ -558,63 +558,63 @@ export default function Products() {
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
-                >
-                  <div className="relative aspect-square overflow-hidden">
-                    <img
-                      src={product.additional_images && product.additional_images.length > 0
-                        ? product.additional_images[0]
-                        : 'https://via.placeholder.com/300?text=No+Image'}
-                      alt={product.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <button
-                        onClick={(e) => handleQuickView(product, e)}
-                        className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer whitespace-nowrap !rounded-button"
-                        aria-label={`Quick view ${product.name}`}
+                    {filteredProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
                       >
-                        <i className="fas fa-eye mr-2"></i>
-                        Quick View
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => toggleWishlist(product.id)}
-                      className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      aria-label={wishlist.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
-                    >
-                      <i className={`${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart ${
-                        wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400'
-                      }`} />
-                    </button>
+                        <div className="relative aspect-square overflow-hidden">
+                          <img
+                            src={product.additional_images && product.additional_images.length > 0
+                              ? product.additional_images[0]
+                              : 'https://via.placeholder.com/300?text=No+Image'}
+                            alt={product.name}
+                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                            <button
+                              onClick={(e) => handleQuickView(product, e)}
+                              className="bg-white text-gray-800 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer whitespace-nowrap !rounded-button"
+                              aria-label={`Quick view ${product.name}`}
+                            >
+                              <i className="fas fa-eye mr-2"></i>
+                              Quick View
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => toggleWishlist(product.id)}
+                            className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                            aria-label={wishlist.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
+                          >
+                            <i className={`${wishlist.includes(product.id) ? 'fas' : 'far'} fa-heart ${
+                              wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-400'
+                            }`} />
+                          </button>
+                        </div>
+                        <div className="p-4">
+                          <h3
+                            className="font-semibold text-gray-900 mb-2 line-clamp-2"
+                            style={{ fontFamily: 'Playfair Display, serif' }}
+                          >
+                            <Link to={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
+                              {product.name}
+                            </Link>
+                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <span className="text-xl font-bold text-gray-900">${product.price.toLocaleString()}</span>
+                          </div>
+                          <button
+                            onClick={() => handleAddToCart(product)}
+                            className="w-full bg-amber-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                            aria-label={`Add ${product.name} to cart`}
+                          >
+                            <i className="fas fa-shopping-cart mr-2"></i>
+                            Add to Cart
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="p-4">
-                    <h3
-                      className="font-semibold text-gray-900 mb-2 line-clamp-2"
-                      style={{ fontFamily: 'Playfair Display, serif' }}
-                    >
-                      <Link to={`/products/${product.id}`} onClick={(e) => e.stopPropagation()}>
-                        {product.name}
-                      </Link>
-                    </h3>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-xl font-bold text-gray-900">${product.price.toLocaleString()}</span>
-                    </div>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      className="w-full bg-amber-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
-                      aria-label={`Add ${product.name} to cart`}
-                    >
-                      <i className="fas fa-shopping-cart mr-2"></i>
-                      Add to Cart
-                    </button>
-                  </div>
-                </div>
-                ))}
-              </div>
 
                   <div className="text-center mt-12">
                     <button

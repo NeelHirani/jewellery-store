@@ -82,7 +82,7 @@ const Cart = () => {
     <div className="min-h-screen bg-rose-50">
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-playfair text-gray-800 mb-6">Shopping Cart</h1>
+        <h1 className="text-4xl font-playfair text-gray-800 mb-6 mt-13">Shopping Cart</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => (
@@ -116,7 +116,7 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="text-lg font-semibold text-amber-600 whitespace-nowrap">
-                    ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                    ${(item.price * item.quantity).toLocaleString('en-US')}
                   </div>
                 </div>
               </div>
@@ -135,16 +135,16 @@ const Cart = () => {
             <div className="space-y-2 text-sm text-gray-700">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                <span>${subtotal.toLocaleString('en-US')}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax (10%)</span>
-                <span>₹{tax.toLocaleString('en-IN')}</span>
+                <span>${tax.toLocaleString('en-US')}</span>
               </div>
               <hr className="my-3" />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-amber-600">₹{total.toLocaleString('en-IN')}</span>
+                <span className="text-amber-600">${total.toLocaleString('en-US')}</span>
               </div>
             </div>
             <Link

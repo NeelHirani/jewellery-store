@@ -22,9 +22,9 @@ export default function Home() {
   ];
 
   const dealsData = [
-    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "₹12,499" },
-    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "₹4,999" },
-    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "₹8,999" },
+    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "$1,249" },
+    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "$499" },
+    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "$899" },
   ];
 
   const categories = [
@@ -286,7 +286,7 @@ export default function Home() {
         {showPromo && (
           <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative rounded shadow">
             <p className="text-sm md:text-base font-medium">
-              🎉 Free Shipping on Orders Above ₹5000! Limited time only.
+              🎉 Free Shipping on Orders Above $500! Limited time only.
             </p>
             <button
               onClick={() => setShowPromo(false)}

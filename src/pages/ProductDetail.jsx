@@ -502,58 +502,8 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <div className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, serif' }}>
-                JwellMart
-              </div>
-              <nav className="hidden md:flex space-x-8">
-                <a href="/products" className="text-gray-700 hover:text-yellow-600 cursor-pointer">Collections</a>
-                <a href="/products?category=Rings" className="text-gray-700 hover:text-yellow-600 cursor-pointer">Rings</a>
-                <a href="/products?category=Necklaces" className="text-gray-700 hover:text-yellow-600 cursor-pointer">Necklaces</a>
-                <a href="/products?category=Earrings" className="text-gray-700 hover:text-yellow-600 cursor-pointer">Earrings</a>
-                <a href="/products?category=Bracelets" className="text-gray-700 hover:text-yellow-600 cursor-pointer">Bracelets</a>
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search jewelry..."
-                  className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
-                  aria-label="Search jewelry"
-                />
-                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" aria-hidden="true"></i>
-              </div>
-              <button
-                onClick={() => navigate('/wishlist')}
-                className="text-gray-600 hover:text-red-500 cursor-pointer text-lg"
-                aria-label={wishlist.includes(product.id) ? 'View wishlist' : 'Add to wishlist'}
-              >
-                <i className={`fas fa-heart ${wishlist.includes(product.id) ? 'text-red-500' : 'text-gray-600'}`}></i>
-              </button>
-              <button
-                onClick={() => navigate('/cart')}
-                className="text-gray-600 hover:text-yellow-600 cursor-pointer text-lg"
-                aria-label="View cart"
-              >
-                <i className="fas fa-shopping-bag"></i>
-              </button>
-              <button
-                onClick={() => navigate('/profile')}
-                className="text-gray-600 hover:text-gray-800 cursor-pointer text-lg"
-                aria-label="View profile"
-              >
-                <i className="fas fa-user"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         {error && <p className="text-red-600 text-center mb-4">{error}</p>}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">

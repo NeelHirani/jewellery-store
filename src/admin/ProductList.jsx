@@ -20,11 +20,28 @@ const ProductList = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [showEditProductModal, setShowEditProductModal] = useState(null); // Stores product ID for editing
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
+
+  // Initialize scroll indicators when products change
+  useEffect(() => {
+    // Small delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      const scrollContainer = document.querySelector('.product-scroll-container');
+      if (scrollContainer) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+        setCanScrollUp(scrollTop > 0);
+        setCanScrollDown(scrollTop < scrollHeight - clientHeight - 1);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [products, searchTerm, selectedCategory]);
 
   const fetchProducts = async () => {
     try {
@@ -73,6 +90,13 @@ const ProductList = () => {
       console.error('Error deleting product:', error);
       alert('Failed to delete product. Please try again.');
     }
+  };
+
+  // Handle scroll events to show/hide scroll indicators
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    setCanScrollUp(scrollTop > 0);
+    setCanScrollDown(scrollTop < scrollHeight - clientHeight - 1);
   };
 
   const filteredProducts = products.filter(product => {
@@ -147,6 +171,17 @@ const ProductList = () => {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm text-gray-600">
+            Showing {currentProducts.length} of {filteredProducts.length} products
+            {filteredProducts.length > productsPerPage && (
+              <span className="ml-2 text-purple-600 font-medium">
+                (Scroll table to see all products)
+              </span>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1">
             <div className="relative">
@@ -174,9 +209,25 @@ const ProductList = () => {
           </select>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
+        <div className="relative">
+          {/* Scroll Indicators */}
+          {canScrollUp && (
+            <div className="scroll-indicator absolute top-2 right-2 z-20 bg-purple-500 text-white px-2 py-1 rounded text-xs shadow-lg">
+              ↑ Scroll up for more
+            </div>
+          )}
+          {canScrollDown && (
+            <div className="scroll-indicator absolute bottom-2 right-2 z-20 bg-purple-500 text-white px-2 py-1 rounded text-xs shadow-lg">
+              ↓ Scroll down for more
+            </div>
+          )}
+
+          <div
+            className="product-scroll-container overflow-x-auto overflow-y-auto max-h-96 border border-gray-200 rounded-lg scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+            onScroll={handleScroll}
+          >
+            <table className="w-full">
+            <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Product</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Category</th>
@@ -247,7 +298,8 @@ const ProductList = () => {
                 </tr>
               )}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
 
         {totalPages > 1 && (
@@ -351,6 +403,54 @@ const ProductList = () => {
       )}
 
       {showDeleteModal && <DeleteModal />}
+
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        .product-scroll-container::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+
+        .product-scroll-container::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+
+        .product-scroll-container::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+          transition: background-color 0.2s;
+        }
+
+        .product-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+
+        .product-scroll-container::-webkit-scrollbar-corner {
+          background: #f1f5f9;
+        }
+
+        /* Firefox scrollbar styling */
+        .product-scroll-container {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        /* Smooth scrolling */
+        .product-scroll-container {
+          scroll-behavior: smooth;
+        }
+
+        /* Scroll indicators animation */
+        .scroll-indicator {
+          animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };

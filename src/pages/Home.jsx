@@ -22,9 +22,9 @@ export default function Home() {
   ];
 
   const dealsData = [
-    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "$1,249" },
-    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "$499" },
-    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "$899" },
+    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "₹12,499" },
+    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "₹4,999" },
+    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "₹8,999" },
   ];
 
   const categories = [
@@ -164,9 +164,9 @@ export default function Home() {
 
         {/* Luxury Pattern Overlay */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-amber-300 rounded-full animate-pulse"></div>
-          <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-yellow-300 rounded-full animate-pulse delay-500"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-amber-400 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-red-900 rounded-full animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-red-800 rounded-full animate-pulse delay-500"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-red-900 rounded-full animate-pulse delay-1000"></div>
         </div>
 
         {/* Main Content */}
@@ -182,7 +182,7 @@ export default function Home() {
               initial={{ opacity: 0, letterSpacing: "0.3em" }}
               animate={{ opacity: 1, letterSpacing: "0.1em" }}
               transition={{ duration: 1.5, delay: 0.7 }}
-              className="text-amber-200 text-xl md:text-2xl font-light mb-4 tracking-wider"
+              className="text-red-800 text-xl md:text-2xl font-semibold mb-4 tracking-wider"
               style={{ fontFamily: 'serif' }}
             >
               Welcome to Jewel Mart
@@ -195,7 +195,7 @@ export default function Home() {
               transition={{ duration: 1, delay: 1 }}
               className="text-black text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-amber-300 via-black-200 to-amber-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-red-900 via-red-800 to-red-900 bg-clip-text text-transparent">
                 Timeless Elegance
               </span>
               <br />
@@ -209,7 +209,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.3 }}
-              className="text-amber-100 text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed"
+              className="text-red-800 text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed"
             >
               Discover our exclusive collection of handcrafted jewelry, where every piece tells a story of luxury, tradition, and unmatched craftsmanship.
             </motion.p>
@@ -226,12 +226,12 @@ export default function Home() {
                 className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#800000] to-[#660000] text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10">Explore Collection</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-300 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-red-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               </Link>
 
               <Link
                 to="/about"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-amber-300 text-amber-200 font-semibold rounded-full hover:bg-amber-300 hover:text-[#800000] transition-all duration-300 backdrop-blur-sm"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-red-300 text-red-100 font-semibold rounded-full hover:bg-red-300 hover:text-[#800000] transition-all duration-300 backdrop-blur-sm"
               >
                 Our Story
               </Link>
@@ -244,25 +244,25 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 2 }}
-          className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-amber-400/60 rounded-tl-lg"
+          className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-red-900/60 rounded-tl-lg"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 2.2 }}
-          className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-amber-400/60 rounded-tr-lg"
+          className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-red-900/60 rounded-tr-lg"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 2.4 }}
-          className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-amber-400/60 rounded-bl-lg"
+          className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-red-900/60 rounded-bl-lg"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 2.6 }}
-          className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-amber-400/60 rounded-br-lg"
+          className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-red-900/60 rounded-br-lg"
         />
 
         {/* Scroll Indicator */}
@@ -270,12 +270,12 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 3, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-amber-300"
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-red-300"
         >
           <div className="flex flex-col items-center">
             <span className="text-sm mb-2 tracking-wider">Scroll to explore</span>
-            <div className="w-6 h-10 border-2 border-amber-300 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-amber-300 rounded-full mt-2 animate-bounce"></div>
+            <div className="w-6 h-10 border-2 border-red-300 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-red-300 rounded-full mt-2 animate-bounce"></div>
             </div>
           </div>
         </motion.div>
@@ -286,7 +286,7 @@ export default function Home() {
         {showPromo && (
           <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative rounded shadow">
             <p className="text-sm md:text-base font-medium">
-              🎉 Free Shipping on Orders Above $500! Limited time only.
+              🎉 Free Shipping on Orders Above ₹5000! Limited time only.
             </p>
             <button
               onClick={() => setShowPromo(false)}
@@ -311,7 +311,11 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="w-full lg:w-1/2"
           >
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl group">
+            <Link
+              to={`/products?category=${encodeURIComponent(categories[activeCatIndex].title)}`}
+              className="block relative overflow-hidden rounded-2xl shadow-2xl group cursor-pointer"
+              aria-label={`Shop ${categories[activeCatIndex].title} collection`}
+            >
               <img
                 src={categories[activeCatIndex].image}
                 alt={categories[activeCatIndex].title}
@@ -322,7 +326,12 @@ export default function Home() {
                   {categories[activeCatIndex].title}
                 </h3>
               </div>
-            </div>
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                <span className="bg-white/90 text-gray-800 px-4 py-2 rounded-full font-medium shadow-lg">
+                  Shop Now
+                </span>
+              </div>
+            </Link>
           </motion.div>
           <div className="w-full lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {categories.map((cat, i) => (
@@ -331,20 +340,26 @@ export default function Home() {
                 onMouseEnter={() => setActiveCatIndex(i)}
                 whileHover={{ scale: 1.06 }}
                 transition={{ duration: 0.3 }}
-                className={`cursor-pointer group rounded-xl overflow-hidden shadow-lg relative ring-offset-2 ${
+                className={`group rounded-xl overflow-hidden shadow-lg relative ring-offset-2 ${
                   i === activeCatIndex
                     ? "ring-2 ring-rose-400 ring-offset-rose-100"
                     : "ring-1 ring-transparent hover:ring-rose-300"
                 }`}
               >
-                <img
-                  src={cat.image}
-                  alt={cat.title}
-                  className="w-full h-28 object-cover transform transition duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                  <h3 className="text-white text-sm font-medium">{cat.title}</h3>
-                </div>
+                <Link
+                  to={`/products?category=${encodeURIComponent(cat.title)}`}
+                  className="block cursor-pointer"
+                  aria-label={`Shop ${cat.title} collection`}
+                >
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    className="w-full h-28 object-cover transform transition duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                    <h3 className="text-white text-sm font-medium">{cat.title}</h3>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </div>

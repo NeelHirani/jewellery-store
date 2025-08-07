@@ -93,7 +93,7 @@ const OrderManagement: React.FC = () => {
     }
   };
 
-  const updateOrderStatus = async (orderId, newStatus: any) => {
+  const updateOrderStatus = async (orderId: string, newStatus: any) => {
     try {
       const { error } = await supabase
         .from('orders')
@@ -119,13 +119,13 @@ const OrderManagement: React.FC = () => {
     }
   };
 
-  const handleViewOrder = async (order) => {
+  const handleViewOrder = async (order: any) => {
     setSelectedOrder(order);
     await fetchOrderItems(order.id);
     setShowOrderModal(true);
   };
 
-  const handleDeleteOrder = (order): void => {
+  const handleDeleteOrder = (order: any): void => {
     setOrderToDelete(order);
     setShowDeleteModal(true);
   };
@@ -238,7 +238,8 @@ const OrderManagement: React.FC = () => {
     }
   };
 
-  const validateOrderSequence = async () => {
+  /*
+  const validateOrderSequence = async () => { // Unused
     try {
       const { data: orders, error } = await supabase
         .from('orders')
@@ -263,6 +264,7 @@ const OrderManagement: React.FC = () => {
       return false;
     }
   };
+  */
 
   const confirmDeleteOrder = async () => {
     if (!orderToDelete) return;
@@ -446,7 +448,7 @@ const OrderManagement: React.FC = () => {
                       alt={item.products?.name || 'Product'}
                       className="w-16 h-16 object-cover rounded-lg"
                       onError={(e) => {
-                        e.target.src = '/placeholder-image.jpg';
+                        (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
                       }}
                     />
                     <div className="flex-1">

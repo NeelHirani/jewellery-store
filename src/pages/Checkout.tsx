@@ -93,7 +93,7 @@ const Checkout: React.FC = () => {
 
   const handleInputChange = (e: any, setState: any): void => {
     const { name, value } = e.target;
-    setState(prev => ({ ...prev, [name]: value }));
+    setState((prev: any) => ({ ...prev, [name]: value }));
   };
 
   // Add formatting functions
@@ -163,7 +163,7 @@ const Checkout: React.FC = () => {
 
     // Check if expiry date is not in the past
     const [month, year] = paymentDetails.expiry.split('/');
-    const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1);
+    const expiryDate = new Date(2000 + parseInt(year!), parseInt(month!) - 1);
     const currentDate = new Date();
     currentDate.setDate(1); // Set to first day of current month
     if (expiryDate < currentDate) {
@@ -255,7 +255,7 @@ const Checkout: React.FC = () => {
       setCartItems([]);
 
     } catch (err) {
-      setError(err.message || 'Failed to place order. Please try again.');
+      setError((err as Error).message || 'Failed to place order. Please try again.');
       console.error('Error placing order:', err);
     } finally {
       setLoading(false);

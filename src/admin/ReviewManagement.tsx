@@ -59,7 +59,7 @@ const ReviewManagement: React.FC = () => {
     }
   };
 
-  const handleUpdateStatus = async (reviewId, newStatus) => {
+  const handleUpdateStatus = async (reviewId: string, newStatus: string) => {
     setStatusUpdateLoading(true);
     try {
       const { error } = await supabase
@@ -102,7 +102,7 @@ const ReviewManagement: React.FC = () => {
     }
   };
 
-  const handleViewReview = (review): void => {
+  const handleViewReview = (review: any): void => {
     setSelectedReview(review);
     setShowReviewModal(true);
   };
@@ -246,7 +246,7 @@ const ReviewManagement: React.FC = () => {
   const currentReviews = filteredReviews.slice(indexOfFirstReview, indexOfLastReview);
   const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
 
-  const renderStars = (rating): void => {
+  const renderStars = (rating: number): React.ReactElement => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -260,7 +260,7 @@ const ReviewManagement: React.FC = () => {
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300" aria-hidden="true"></i>);
     }
-    return stars;
+    return <>{stars}</>;
   };
 
   const ReviewModal = () => (

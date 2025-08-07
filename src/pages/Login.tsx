@@ -13,6 +13,7 @@ interface LoginFormData {
 interface FormErrors {
   email?: string;
   password?: string;
+  general?: string;
 }
 
 const Login: React.FC = () => {
@@ -35,7 +36,7 @@ const Login: React.FC = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setLoading(true);

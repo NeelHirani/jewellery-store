@@ -39,7 +39,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
   };
 
   const [user, setUser] = useState<any>(propUser || defaultUser);
-  const [activeTab, setActiveTab] = useState<any>('overview');
+  // const [activeTab, setActiveTab] = useState<any>('overview'); // Unused
   const [orders, setOrders] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editForm, setEditForm] = useState<any>({});

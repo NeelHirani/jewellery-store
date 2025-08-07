@@ -11,6 +11,7 @@ interface SignupFormData {
   address: string;
   password: string;
   confirmPassword: string;
+  [key: string]: string;
 }
 
 interface FormErrors {
@@ -22,6 +23,7 @@ interface FormErrors {
   confirmPassword?: string;
   terms?: string;
   general?: string;
+  [key: string]: string | undefined;
 }
 
 const Signup: React.FC = () => {
@@ -60,7 +62,7 @@ const Signup: React.FC = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setSuccess("");
@@ -72,7 +74,7 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const { data, error } = await supabase.from("users").insert([
+      const { error } = await supabase.from("users").insert([
         {
           name: formData.name.trim(),
           email: formData.email,

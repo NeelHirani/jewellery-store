@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -49,11 +49,13 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleViewUser = async (user) => {
+  /*
+  const handleViewUser = async (user: any) => { // Unused
     setSelectedUser(user);
     await fetchUserOrders(user.id);
     setShowUserModal(true);
   };
+  */
 
   const filteredUsers = users.filter(user => {
     const searchLower = searchTerm.toLowerCase();
@@ -286,7 +288,7 @@ const UserManagement: React.FC = () => {
                   <td className="py-4 px-4">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-medium">
-                        {user.name?.split(' ').map(n => n[0]).join('') || 'U'}
+                        {user.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                       </div>
                       <div className="ml-3">
                         <p className="font-medium text-gray-900">{user.name}</p>

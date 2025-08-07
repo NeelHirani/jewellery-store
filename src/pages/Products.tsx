@@ -12,7 +12,7 @@ const Products: React.FC = () => {
   const [selectedOccasion, setSelectedOccasion] = useState<any[]>([]);
   const [sortBy, setSortBy] = useState<any>('newest');
   const [wishlist, setWishlist] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery] = useState<string>(''); // setSearchQuery unused
   const [showSortDropdown, setShowSortDropdown] = useState<boolean>(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [metalTypes, setMetalTypes] = useState<any[]>([]);
@@ -90,13 +90,13 @@ const Products: React.FC = () => {
     };
   }, []);
 
-  const toggleWishlist = (productId): void => {
+  const toggleWishlist = (productId: string): void => {
     setWishlist((prev) =>
       prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
     );
   };
 
-  const handleAddToCart = (product): void => {
+  const handleAddToCart = (product: any): void => {
     if (!product) {
       setError('Product data is unavailable.');
       return;
@@ -134,7 +134,7 @@ const Products: React.FC = () => {
   const filteredProducts = products
     .filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      const matchesPrice = product.price >= priceRange[0]! && product.price <= priceRange[1]!;
       const matchesMetal = selectedMetal.length === 0 || selectedMetal.includes(product.metal);
       const matchesStone = selectedStone.length === 0 || selectedStone.includes(product.stone);
       const matchesOccasion = selectedOccasion.length === 0 || selectedOccasion.includes(product.occasion);
@@ -144,7 +144,7 @@ const Products: React.FC = () => {
     .sort((a, b) => {
       if (sortBy === 'price-low-high') return a.price - b.price;
       if (sortBy === 'price-high-low') return b.price - a.price;
-      return new Date(b.created_at) - new Date(a.created_at);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
   // Full-Screen Splash Screen Loading Component
@@ -363,25 +363,25 @@ const Products: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Min Price: ${priceRange[0].toLocaleString()}</label>
+                    <label className="text-sm text-gray-600">Min Price: ${priceRange[0]!.toLocaleString()}</label>
                     <input
                       type="range"
                       min="0"
                       max="100000"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                      value={priceRange[0]!}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]!])}
                       className="w-full"
                       aria-label="Minimum price"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Max Price: {priceRange[1] === Infinity ? 'Unlimited' : `$${priceRange[1].toLocaleString()}`}</label>
+                    <label className="text-sm text-gray-600">Max Price: {priceRange[1]! === Infinity ? 'Unlimited' : `$${priceRange[1]!.toLocaleString()}`}</label>
                     <input
                       type="range"
                       min="0"
                       max="100000"
-                      value={priceRange[1] === Infinity ? 100000 : priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)])}
+                      value={priceRange[1]! === Infinity ? 100000 : priceRange[1]!}
+                      onChange={(e) => setPriceRange([priceRange[0]!, parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)])}
                       className="w-full"
                       aria-label="Maximum price"
                     />

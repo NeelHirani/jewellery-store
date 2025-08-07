@@ -14,7 +14,7 @@ interface CategoryFormData {
 }
 
 const AddCategory: React.FC<AddCategoryProps> = ({ onClose }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Unused
   const [formData, setFormData] = useState<CategoryFormData>({ name: '', icon: '' });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -42,7 +42,7 @@ const AddCategory: React.FC<AddCategoryProps> = ({ onClose }) => {
       if (error) throw error;
 
       alert('Category added successfully!');
-      onClose(); // Close the modal on success
+      onClose?.(); // Close the modal on success
     } catch (error) {
       setError('Failed to add category. Please try again.');
       console.error('Error adding category:', error);

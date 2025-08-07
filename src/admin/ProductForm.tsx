@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSave, FaArrowLeft, FaImage, FaTimes } from 'react-icons/fa';
+import { FaArrowLeft, FaImage, FaTimes } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -18,6 +18,19 @@ interface ProductFormData {
 interface ProductFormProps {
   product?: any;
   onClose: () => void;
+}
+
+interface FormErrors {
+  name?: string;
+  price?: string;
+  category?: string;
+  metal?: string;
+  stone?: string;
+  occasion?: string;
+  short_description?: string;
+  detailed_description?: string;
+  additional_images?: string;
+  [key: string]: string | undefined;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
@@ -39,7 +52,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
   const [stoneTypes, setStoneTypes] = useState<any[]>([]);
   const [occasions, setOccasions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [imagePreviews, setImagePreviews] = useState<string[]>(['', '', '', '', '']);
 
   useEffect(() => {
@@ -92,15 +105,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
     }));
 
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev: FormErrors) => ({
         ...prev,
         [name]: ''
       }));
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number): void => {
+    const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         alert('Image size should be less than 5MB');
@@ -109,23 +122,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        const base64String = e.target.result;
-        setFormData(prev => {
-          const newImages = [...prev.additional_images];
-          newImages[index] = base64String;
-          return { ...prev, additional_images: newImages };
-        });
-        setImagePreviews(prev => {
-          const newPreviews = [...prev];
-          newPreviews[index] = base64String;
-          return newPreviews;
-        });
+        const base64String = e.target?.result as string;
+        if (base64String) {
+          setFormData(prev => {
+            const newImages = [...prev.additional_images];
+            newImages[index] = base64String;
+            return { ...prev, additional_images: newImages };
+          });
+          setImagePreviews(prev => {
+            const newPreviews = [...prev];
+            newPreviews[index] = base64String;
+            return newPreviews;
+          });
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = (index): void => {
+  const removeImage = (index: number): void => {
     setFormData(prev => {
       const newImages = [...prev.additional_images];
       newImages[index] = '';
@@ -139,10 +154,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
   };
 
   const validateForm = (): boolean => {
-    const newErrors = {};
+    const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
-    if (!formData.price || formData.price <= 0) newErrors.price = 'Valid price is required';
+    if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Valid price is required';
     if (!formData.category) newErrors.category = 'Category is required';
     if (!formData.metal) newErrors.metal = 'Metal type is required';
     if (!formData.stone) newErrors.stone = 'Stone type is required';
@@ -157,7 +172,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 

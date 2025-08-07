@@ -46,7 +46,7 @@ const EditAddress: React.FC = () => {
     setForm((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async (e) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -69,7 +69,7 @@ const EditAddress: React.FC = () => {
         return;
       }
 
-      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const storedUser = JSON.parse(localStorage.getItem("user") || '{}');
       const updatedUser = { ...storedUser, ...form };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 

@@ -5,7 +5,7 @@ import {
   FaPhone,
   FaCalendarAlt,
   FaEye,
-  FaCheck,
+  // FaCheck, // Unused
   FaTimes,
   FaSearch,
   FaExclamationCircle,
@@ -37,7 +37,7 @@ const ContactManagement: React.FC = () => {
 
   // Bulk actions state
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
-  const [showBulkActions, setShowBulkActions] = useState<boolean>(false);
+  // const [showBulkActions, setShowBulkActions] = useState<boolean>(false); // Unused
   const [bulkActionLoading, setBulkActionLoading] = useState<boolean>(false);
 
   // Modal state
@@ -155,7 +155,7 @@ const ContactManagement: React.FC = () => {
   }, [currentPage]);
 
   // Update submission status
-  const updateStatus = async (id, newStatus: any) => {
+  const updateStatus = async (id: string, newStatus: any) => {
     try {
       const { error } = await supabase
         .from('contact_submissions')
@@ -173,7 +173,7 @@ const ContactManagement: React.FC = () => {
 
       // Update selected submission if it's the one being updated
       if (selectedSubmission && selectedSubmission.id === id) {
-        setSelectedSubmission(prev => ({ ...prev, status: newStatus }));
+        setSelectedSubmission((prev: any) => ({ ...prev, status: newStatus }));
       }
 
       setSuccessMessage(`Status updated to ${newStatus.replace('_', ' ')}`);
@@ -210,7 +210,7 @@ const ContactManagement: React.FC = () => {
   };
 
   // Bulk actions
-  const handleBulkStatusUpdate = async (newStatus) => {
+  const handleBulkStatusUpdate = async (newStatus: string) => {
     if (selectedItems.length === 0) return;
 
     try {
@@ -225,7 +225,7 @@ const ContactManagement: React.FC = () => {
       setSuccessMessage(`${selectedItems.length} submissions updated to ${newStatus.replace('_', ' ')}`);
       setTimeout(() => setSuccessMessage(null), 3000);
       setSelectedItems([]);
-      setShowBulkActions(false);
+      // setShowBulkActions(false); // Commented out as variable is unused
     } catch (err) {
       console.error('Error updating bulk status:', err);
       setError('Failed to update submissions');
@@ -250,7 +250,7 @@ const ContactManagement: React.FC = () => {
       setSuccessMessage(`${selectedItems.length} submissions deleted successfully`);
       setTimeout(() => setSuccessMessage(null), 3000);
       setSelectedItems([]);
-      setShowBulkActions(false);
+      // setShowBulkActions(false); // Commented out as variable is unused
     } catch (err) {
       console.error('Error deleting submissions:', err);
       setError('Failed to delete submissions');
@@ -294,7 +294,7 @@ const ContactManagement: React.FC = () => {
   };
 
   // Get priority icon based on subject
-  const getPriorityIcon = (subject): React.ReactElement | null => {
+  const getPriorityIcon = (subject: string): React.ReactElement | null => {
     if (subject === 'Complaint') return <FaExclamationCircle className="text-red-500" />;
     if (subject === 'Support') return <FaExclamationCircle className="text-orange-500" />;
     return null;

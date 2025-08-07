@@ -74,7 +74,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const handleDeleteProduct = async (productId) => {
+  const handleDeleteProduct = async (productId: string) => {
     try {
       const { error } = await supabase
         .from('products')

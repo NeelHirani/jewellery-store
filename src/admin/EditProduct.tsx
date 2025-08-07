@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ProductForm from './ProductForm';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
-const EditProduct = ({ id, onClose }): void => {
+interface EditProductProps {
+  id: string;
+  onClose: () => void;
+}
+
+const EditProduct: React.FC<EditProductProps> = ({ id, onClose }) => {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);

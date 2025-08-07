@@ -31,7 +31,7 @@ const ProductDetail: React.FC = () => {
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('id, name, price, category, metal, stone, occasion, short_description, detailed_description, created_at, additional_images')
-          .eq('id', parseInt(id))
+          .eq('id', parseInt(id!))
           .single();
 
         if (productError) throw new Error(`Product not found for ID ${id}: ${productError.message}`);
@@ -46,7 +46,7 @@ const ProductDetail: React.FC = () => {
         const { data: reviewsData, error: reviewsError } = await supabase
           .from('reviews')
           .select('id, user_id, rating, comment, created_at, status')
-          .eq('product_id', parseInt(id))
+          .eq('product_id', parseInt(id!))
           .eq('status', 'approved') // Only fetch approved reviews for customers
           .order('created_at', { ascending: false });
         if (reviewsError) console.error('Error fetching reviews:', reviewsError);
@@ -85,15 +85,15 @@ const ProductDetail: React.FC = () => {
 
     // Listen for storage changes (when user logs in/out in another tab)
     const handleStorageChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-      if (e.key === 'user') {
+      if ((e as any).key === 'user') {
         checkUserAuthentication();
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleStorageChange as any);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange as any);
     };
   }, [id]);
 
@@ -203,11 +203,11 @@ const ProductDetail: React.FC = () => {
     };
   }, [id]);
 
-  const handleQuantityChange = (change): void => {
+  const handleQuantityChange = (change: number): void => {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const toggleWishlist = (productId): void => {
+  const toggleWishlist = (productId: string): void => {
     setWishlist((prev) =>
       prev.includes(productId) ? prev.filter((pid) => pid !== productId) : [...prev, productId]
     );
@@ -267,7 +267,7 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const renderStars = (rating): void => {
+  const renderStars = (rating: number): React.ReactElement => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -275,10 +275,10 @@ const ProductDetail: React.FC = () => {
     if (hasHalfStar) stars.push(<i key="half" className="fas fa-star-half-alt text-yellow-400" aria-hidden="true"></i>);
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300" aria-hidden="true"></i>);
-    return stars;
+    return <>{stars}</>;
   };
 
-  const handleReviewSubmit = async (e) => {
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation: Check if rating and comment are provided
@@ -326,7 +326,7 @@ const ProductDetail: React.FC = () => {
       const { error } = await supabase
         .from('reviews')
         .insert({
-          product_id: parseInt(id),
+          product_id: parseInt(id!),
           user_id: userData.id, // This should now be an integer ID from your custom users table
           rating: newReview.rating,
           comment: newReview.comment,
@@ -342,7 +342,7 @@ const ProductDetail: React.FC = () => {
       const { data: reviewsData } = await supabase
         .from('reviews')
         .select('id, user_id, rating, comment, created_at, status')
-        .eq('product_id', parseInt(id))
+        .eq('product_id', parseInt(id!))
         .eq('status', 'approved') // Only fetch approved reviews for customers
         .order('created_at', { ascending: false });
       setReviews(reviewsData || []);
@@ -365,7 +365,7 @@ const ProductDetail: React.FC = () => {
       const { data: reviewsData, error: reviewsError } = await supabase
         .from('reviews')
         .select('id, user_id, rating, comment, created_at, status')
-        .eq('product_id', parseInt(id))
+        .eq('product_id', parseInt(id!))
         .eq('status', 'approved') // Only fetch approved reviews for customers
         .order('created_at', { ascending: false });
 
@@ -398,7 +398,15 @@ const ProductDetail: React.FC = () => {
   };
 
   // Star Rating Component
-  const StarRating = ({ rating, onRatingChange, onHover, onLeave, interactive = true }): React.ReactElement => {
+  interface StarRatingProps {
+    rating: number;
+    onRatingChange?: (rating: number) => void;
+    onHover?: (rating: number) => void;
+    onLeave?: () => void;
+    interactive?: boolean;
+  }
+
+  const StarRating: React.FC<StarRatingProps> = ({ rating, onRatingChange, onHover, onLeave, interactive = true }) => {
     return (
       <div className="flex items-center space-x-1">
         {[1, 2, 3, 4, 5].map((star) => {
@@ -419,9 +427,9 @@ const ProductDetail: React.FC = () => {
                     ? 'text-gray-300 hover:text-yellow-200'
                     : 'text-gray-300'
               }`}
-              onClick={() => interactive && onRatingChange(star)}
-              onMouseEnter={() => interactive && onHover(star)}
-              onMouseLeave={() => interactive && onLeave()}
+              onClick={() => interactive && onRatingChange?.(star)}
+              onMouseEnter={() => interactive && onHover?.(star)}
+              onMouseLeave={() => interactive && onLeave?.()}
               disabled={!interactive}
               aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
             >
@@ -752,7 +760,7 @@ const ProductDetail: React.FC = () => {
                       <label className="block text-sm font-medium text-gray-700">Your Comment</label>
                       <textarea
                         value={newReview.comment}
-                        onChange={handleCommentChange}
+                        onChange={(e) => handleCommentChange(e as any)}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                         rows={4}
                         placeholder="Write your review here..."

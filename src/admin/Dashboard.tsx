@@ -86,7 +86,15 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const StatCard = ({ icon: Icon, title, value, color, link }) => (
+  interface StatCardProps {
+    icon: React.ComponentType;
+    title: string;
+    value: number | string;
+    color: string;
+    link: string;
+  }
+
+  const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value, color, link }) => (
     <Link to={link} className="block">
       <motion.div
         initial={{ opacity: 0, y: 20 }}

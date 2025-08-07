@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   FaTachometerAlt,
   FaBox,
@@ -20,7 +20,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isCollapsed] = useState<boolean>(false); // setIsCollapsed unused
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -58,12 +58,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
     }
   ];
 
-  const handleLogout = (): React.ReactElement => {
+  const handleLogout = (): void => {
     localStorage.removeItem('adminUser');
     navigate('/admin/login');
   };
 
-  const isActiveRoute = (path, exact = false): boolean => {
+  const isActiveRoute = (path: string, exact = false): boolean => {
     if (exact) {
       return location.pathname === path;
     }
@@ -92,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
           <div key={item.path}>
             <motion.button
               onClick={() => {
-                if (item.subItems) return;
+                if ((item as any).subItems) return;
                 navigate(item.path);
               }}
               className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-all duration-200 hover:bg-gray-50 ${
@@ -108,9 +108,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
             </motion.button>
             
             {/* Sub-items */}
-            {item.subItems && !isCollapsed && isActiveRoute(item.path) && (
+            {(item as any).subItems && !isCollapsed && isActiveRoute(item.path) && (
               <div className="ml-6 mt-2 space-y-1">
-                {item.subItems.map((subItem) => (
+                {item.subItems.map((subItem: any) => (
                   <motion.button
                     key={subItem.path}
                     onClick={() => navigate(subItem.path)}
@@ -162,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
     <>
       {/* Mobile Menu Button */}
       <button
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        onClick={() => setIsMobileOpen?.(!isMobileOpen)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-lg"
       >
         {isMobileOpen ? <FaTimes /> : <FaBars />}
@@ -172,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
       {isMobileOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={() => setIsMobileOpen?.(false)}
         />
       )}
 

@@ -41,6 +41,7 @@ const Contact: React.FC = () => {
     email?: string;
     phone?: string;
     message?: string;
+    [key: string]: string | undefined;
   }
 
   // UI state
@@ -126,7 +127,7 @@ const Contact: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -185,7 +186,7 @@ const Contact: React.FC = () => {
   };
 
   // Toggle FAQ expansion
-  const toggleFaq = (faqId): void => {
+  const toggleFaq = (faqId: string | number): void => {
     setExpandedFaq(expandedFaq === faqId ? null : faqId);
   };
 

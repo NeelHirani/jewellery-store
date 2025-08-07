@@ -14,11 +14,13 @@ interface DealsData {
   price: string;
 }
 
-interface Category {
+/*
+interface Category { // Unused
   name: string;
   image: string;
   link: string;
 }
+*/
 
 const Home: React.FC = () => {
   const slideData: SlideData[] = [
@@ -98,7 +100,7 @@ const Home: React.FC = () => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(mediaQuery.matches);
 
-    const handleChange = (e) => setPrefersReducedMotion(e.matches);
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
@@ -323,25 +325,25 @@ const Home: React.FC = () => {
         </h2>
         <div className="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto items-center justify-center">
           <motion.div
-            key={categories[activeCatIndex].title}
+            key={categories[activeCatIndex]?.title}
             initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             className="w-full lg:w-1/2"
           >
             <Link
-              to={`/products?category=${encodeURIComponent(categories[activeCatIndex].title)}`}
+              to={`/products?category=${encodeURIComponent(categories[activeCatIndex]?.title || '')}`}
               className="block relative overflow-hidden rounded-2xl shadow-2xl group cursor-pointer"
-              aria-label={`Shop ${categories[activeCatIndex].title} collection`}
+              aria-label={`Shop ${categories[activeCatIndex]?.title} collection`}
             >
               <img
-                src={categories[activeCatIndex].image}
-                alt={categories[activeCatIndex].title}
+                src={categories[activeCatIndex]?.image}
+                alt={categories[activeCatIndex]?.title}
                 className="w-full h-[300px] md:h-[400px] object-cover transform group-hover:scale-105 transition duration-500"
               />
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition duration-300 flex items-end">
                 <h3 className="text-white text-2xl font-semibold p-4">
-                  {categories[activeCatIndex].title}
+                  {categories[activeCatIndex]?.title}
                 </h3>
               </div>
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
@@ -398,22 +400,22 @@ const Home: React.FC = () => {
         ))}
         <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-center text-center px-4">
           <motion.h1
-            key={slideData[current].heading}
+            key={slideData[current]?.heading}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-white text-4xl md:text-5xl font-bold drop-shadow-lg"
           >
-            {slideData[current].heading}
+            {slideData[current]?.heading}
           </motion.h1>
           <motion.p
-            key={slideData[current].description}
+            key={slideData[current]?.description}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
             className="mt-4 text-white text-lg"
           >
-            {slideData[current].description}
+            {slideData[current]?.description}
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -518,7 +520,7 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-black/40 z-20 flex flex-col justify-center items-start px-10 md:px-20 text-white">
             <h2 className="text-4xl font-bold mb-2">Deals of the Week</h2>
             <p className="text-lg mb-4">
-              {dealsData[dealIndex].title} — {dealsData[dealIndex].price}
+              {dealsData[dealIndex]?.title} — {dealsData[dealIndex]?.price}
             </p>
             <Link
               to="/products"

@@ -76,7 +76,13 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete }) => {
   );
 
   // Floating gems animation
-  const FloatingGem = ({ icon: Icon, className, delay = 0 }) => (
+  interface FloatingGemProps {
+    icon: React.ComponentType;
+    className: string;
+    delay?: number;
+  }
+
+  const FloatingGem: React.FC<FloatingGemProps> = ({ icon: Icon, className, delay = 0 }) => (
     <motion.div
       className={`absolute ${className}`}
       initial={{ opacity: 0, y: 20 }}

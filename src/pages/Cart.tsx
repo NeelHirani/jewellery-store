@@ -43,13 +43,15 @@ const Cart: React.FC = () => {
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateSize = (id: any, newSize: any): void => {
+  /*
+  const updateSize = (id: any, newSize: any): void => { // Unused
     setCartItems(prev =>
       prev.map(item =>
         item.id === id ? { ...item, selectedSize: newSize } : item
       )
     );
   };
+  */
 
   const clearCart = (): void => {
     setCartItems([]);

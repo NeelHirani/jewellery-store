@@ -215,14 +215,14 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
     .join(", ");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-100 to-white pt-20 pb-16 px-4 sm:px-6 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pt-20 pb-16 px-4 sm:px-6 md:px-8">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-r from-rose-600 to-pink-500 text-white px-6 py-8 text-center"
+          className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-6 py-8 text-center"
         >
           <h2 className="text-3xl font-serif font-bold tracking-tight">
             Welcome, <span className="capitalize">{user.name}</span>
@@ -236,28 +236,28 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="bg-rose-50 p-6 rounded-xl text-center shadow-md"
+            className="bg-blue-50 p-6 rounded-xl text-center shadow-md"
           >
             <div className="relative w-20 h-20 mx-auto mb-4">
-              <div className="bg-gradient-to-br from-rose-400 to-pink-600 text-white text-3xl font-bold rounded-full w-full h-full flex items-center justify-center shadow-lg border-2 border-white transition-transform hover:scale-105">
+              <div className="bg-gradient-to-br from-blue-800 to-blue-900 text-white text-3xl font-bold rounded-full w-full h-full flex items-center justify-center shadow-lg border-2 border-white transition-transform hover:scale-105">
                 {avatarLetter}
               </div>
             </div>
-            <h3 className="text-xl font-serif font-semibold text-rose-900">{user.name}</h3>
+            <h3 className="text-xl font-serif font-semibold text-blue-900">{user.name}</h3>
             <p className="text-sm text-gray-600 mt-1">{user.email}</p>
             <p className="text-xs text-gray-500 mt-2">Joined {user.joinDate}</p>
 
             <div className="mt-6 text-left">
-              <p className="text-sm font-medium text-rose-900 mb-2">Profile Completion</p>
+              <p className="text-sm font-medium text-blue-900 mb-2">Profile Completion</p>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <motion.div
-                  className="bg-rose-600 h-3 rounded-full"
+                  className="bg-blue-800 h-3 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${user.profileCompletion}%` }}
                   transition={{ duration: 1 }}
                 ></motion.div>
               </div>
-              <p className="text-xs text-rose-900 mt-1 font-medium">
+              <p className="text-xs text-blue-900 mt-1 font-medium">
                 {user.profileCompletion}% Complete
               </p>
             </div>
@@ -266,7 +266,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
             <div className="mt-6">
               <button
                 onClick={handleEditProfile}
-                className="w-full flex items-center justify-center px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors"
+                className="w-full flex items-center justify-center px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors"
               >
                 <FaEdit className="mr-2" />
                 Edit Profile
@@ -281,14 +281,14 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-rose-200"
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-blue-200"
             >
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-serif font-semibold text-rose-900 flex items-center">
-                  <FaShoppingBag className="mr-2 text-rose-600 text-xl" /> My Orders
+                <h4 className="text-lg font-serif font-semibold text-blue-900 flex items-center">
+                  <FaShoppingBag className="mr-2 text-blue-800 text-xl" /> My Orders
                 </h4>
                 {orders.length > 0 && (
-                  <span className="bg-rose-100 text-rose-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                     {orders.length} order{orders.length > 1 ? 's' : ''}
                   </span>
                 )}
@@ -338,7 +338,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
                   {orders.length > 3 && (
                     <Link
                       to="/orders"
-                      className="text-sm text-rose-600 font-medium hover:text-rose-800 transition inline-block"
+                      className="text-sm text-blue-800 font-medium hover:text-blue-900 transition inline-block"
                     >
                       View all {orders.length} orders
                     </Link>
@@ -350,7 +350,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
                   <p className="text-gray-600 text-sm mb-3">No orders placed yet.</p>
                   <Link
                     to="/products"
-                    className="inline-flex items-center px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors"
                   >
                     Browse Products
                   </Link>
@@ -363,13 +363,13 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-rose-200"
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-blue-200"
             >
-              <h4 className="text-lg font-serif font-semibold text-rose-900 flex items-center mb-3">
-                <FaHeart className="mr-2 text-rose-600 text-xl" /> My Wishlist
+              <h4 className="text-lg font-serif font-semibold text-blue-900 flex items-center mb-3">
+                <FaHeart className="mr-2 text-rose-500 text-xl" /> My Wishlist
               </h4>
               <p className="text-gray-600 text-sm">Your wishlist is currently empty.</p>
-              <button className="text-sm text-rose-600 font-medium hover:text-rose-800 transition mt-3">
+              <button className="text-sm text-blue-800 font-medium hover:text-blue-900 transition mt-3">
                 Add Your Favorites
               </button>
             </motion.div>
@@ -379,10 +379,10 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-rose-200"
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-blue-200"
             >
-              <h4 className="text-lg font-serif font-semibold text-rose-900 flex items-center mb-3">
-                <FaMapMarkerAlt className="mr-2 text-rose-600 text-xl" /> Saved Address
+              <h4 className="text-lg font-serif font-semibold text-blue-900 flex items-center mb-3">
+                <FaMapMarkerAlt className="mr-2 text-blue-800 text-xl" /> Saved Address
               </h4>
               {fullAddress ? (
                 <div className="text-gray-700 text-sm space-y-1">
@@ -396,7 +396,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               )}
               <Link
                 to="/EditAddress"
-                className="text-sm text-rose-600 font-medium hover:text-rose-800 transition mt-3 inline-block"
+                className="text-sm text-blue-800 font-medium hover:text-blue-900 transition mt-3 inline-block"
               >
                 {fullAddress ? "Edit Address" : "Add Address"}
               </Link>
@@ -407,9 +407,9 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-rose-200"
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-blue-200"
             >
-              <h4 className="text-lg font-serif font-semibold text-rose-900 mb-4">
+              <h4 className="text-lg font-serif font-semibold text-blue-900 mb-4">
                 Quick Actions
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -417,15 +417,15 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
                   <FaHeart className="text-xl mb-2" />
                   <span className="text-sm font-medium">Wishlist</span>
                 </button>
-                <button className="flex flex-col items-center p-4 border-2 border-amber-200 rounded-xl hover:bg-amber-50 hover:border-amber-300 transition-all duration-200 text-amber-600">
+                <button className="flex flex-col items-center p-4 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-blue-800">
                   <FaHistory className="text-xl mb-2" />
                   <span className="text-sm font-medium">Order History</span>
                 </button>
-                <button className="flex flex-col items-center p-4 border-2 border-rose-200 rounded-xl hover:bg-rose-50 hover:border-rose-300 transition-all duration-200 text-rose-600">
+                <button className="flex flex-col items-center p-4 border-2 border-blue-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 text-blue-800">
                   <FaCreditCard className="text-xl mb-2" />
                   <span className="text-sm font-medium">Payment</span>
                 </button>
-                <button className="flex flex-col items-center p-4 border-2 border-amber-200 rounded-xl hover:bg-amber-50 hover:border-amber-300 transition-all duration-200 text-amber-600">
+                <button className="flex flex-col items-center p-4 border-2 border-rose-200 rounded-xl hover:bg-rose-50 hover:border-rose-300 transition-all duration-200 text-rose-600">
                   <FaHeadset className="text-xl mb-2" />
                   <span className="text-sm font-medium">Support</span>
                 </button>
@@ -437,36 +437,36 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-rose-200"
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition duration-300 border border-blue-200"
             >
-              <h4 className="text-lg font-serif font-semibold text-rose-900 mb-4">
+              <h4 className="text-lg font-serif font-semibold text-blue-900 mb-4">
                 Account Settings
               </h4>
               <div className="space-y-3">
                 <button
                   onClick={handleChangePassword}
-                  className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200"
+                  className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200"
                 >
                   <div className="flex items-center">
-                    <FaLock className="mr-3 text-rose-600 text-lg" />
+                    <FaLock className="mr-3 text-blue-800 text-lg" />
                     <span className="font-medium">Change Password</span>
                   </div>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <button className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200">
+                <button className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200">
                   <div className="flex items-center">
-                    <FaShieldAlt className="mr-3 text-rose-600 text-lg" />
+                    <FaShieldAlt className="mr-3 text-blue-800 text-lg" />
                     <span className="font-medium">Privacy Settings</span>
                   </div>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <button className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200">
+                <button className="w-full flex items-center justify-between p-3 text-gray-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200">
                   <div className="flex items-center">
-                    <FaCog className="mr-3 text-rose-600 text-lg" />
+                    <FaCog className="mr-3 text-blue-800 text-lg" />
                     <span className="font-medium">Preferences</span>
                   </div>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

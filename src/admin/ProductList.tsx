@@ -7,12 +7,30 @@ import ProductForm from './ProductForm';
 import AddCategory from './AddCategory';
 import EditProduct from './EditProduct';
 
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
+  image?: string;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface Category {
+  id: string | number;
+  name: string;
+  description?: string;
+}
+
 const ProductList: React.FC = () => {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<any>('all');
-  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [productsPerPage] = useState<number>(10);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);

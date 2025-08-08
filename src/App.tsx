@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './Layout';
-import LoadingScreen from './components/LoadingScreen';
 
 // Public Pages
 import Home from './pages/Home';
@@ -38,17 +37,6 @@ import ContactManagement from './admin/ContactManagement';
 library.add(fas);
 
 const App: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Handle loading completion
-  const handleLoadingComplete = (): void => {
-    setIsLoading(false);
-  };
-
-  // Show loading screen on first visit
-  if (isLoading) {
-    return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
-  }
 
   return (
     <Router>
@@ -58,8 +46,8 @@ const App: React.FC = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="/admin/products" element={<AdminRoute><ProductList /></AdminRoute>} />
-        <Route path="/admin/products/new" element={<AdminRoute><ProductForm /></AdminRoute>} />
-        <Route path="/admin/products/edit/:id" element={<AdminRoute><EditProduct /></AdminRoute>} />
+        <Route path="/admin/products/new" element={<AdminRoute><ProductForm onClose={() => window.history.back()} /></AdminRoute>} />
+        <Route path="/admin/products/edit/:id" element={<AdminRoute><EditProduct id={''} onClose={() => window.history.back()} /></AdminRoute>} />
         <Route path="/admin/orders" element={<AdminRoute><OrderManagement /></AdminRoute>} />
         <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><AddCategory /></AdminRoute>} /> {/* Updated path for clarity */}

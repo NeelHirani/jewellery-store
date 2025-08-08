@@ -6,10 +6,19 @@ import { Link } from 'react-router-dom';
 import Header from "../components/Navbar";
 import { FaTrashAlt } from 'react-icons/fa';
 
+interface CartItem {
+  id: string | number;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  category?: string;
+}
+
 const Cart: React.FC = () => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -69,11 +78,11 @@ const Cart: React.FC = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-rose-50">
+      <div className="min-h-screen bg-blue-50">
         <Header />
         <div className="container mx-auto px-4 py-12 text-center">
           <h2 className="text-3xl font-playfair text-gray-800 mb-4 mt-60">Your Cart is Empty</h2>
-          <Link to="/products" className="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-amber-700 transition-colors">
+          <Link to="/products" className="bg-blue-800 text-white px-8 py-3 rounded-lg hover:bg-blue-900 transition-colors">
             Shop Now
           </Link>
         </div>
@@ -82,7 +91,7 @@ const Cart: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-rose-50">
+    <div className="min-h-screen bg-blue-50">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-playfair text-gray-800 mb-6 mt-13">Shopping Cart</h1>
@@ -100,13 +109,13 @@ const Cart: React.FC = () => {
                     <div className="flex items-center gap-3 mt-3">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-blue-100"
                         aria-label="Decrease quantity"
                       >-</button>
                       <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-gray-100"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-blue-100"
                         aria-label="Increase quantity"
                       >+</button>
                       <button
@@ -118,7 +127,7 @@ const Cart: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="text-lg font-semibold text-amber-600 whitespace-nowrap">
+                  <div className="text-lg font-semibold text-blue-800 whitespace-nowrap">
                     ${(item.price * item.quantity).toLocaleString('en-US')}
                   </div>
                 </div>
@@ -147,12 +156,12 @@ const Cart: React.FC = () => {
               <hr className="my-3" />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-amber-600">${total.toLocaleString('en-US')}</span>
+                <span className="text-blue-800">${total.toLocaleString('en-US')}</span>
               </div>
             </div>
             <Link
               to="/checkout"
-              className="block mt-6 bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 text-center rounded-lg transition-colors font-medium"
+              className="block mt-6 bg-blue-800 hover:bg-blue-900 text-white py-3 px-4 text-center rounded-lg transition-colors font-medium"
             >
               Proceed to Checkout
             </Link>

@@ -16,12 +16,12 @@ const About: React.FC = () => {
   {/* Content */}
   <div className="relative z-10 max-w-5xl px-6 md:px-16 text-white">
     <h1 className="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">
-      <span className="text-rose-500">About Us</span>
+      <span className="text-rose-400">About Us</span>
     </h1>
     <p className="text-lg md:text-xl mb-6 max-w-2xl font-medium drop-shadow">
       <span className="text-black">
         Take control of your financial future and achieve the life you've always dreamed of. <br />
-        At <span className="font-semibold text-rose-400">Jewel Mart</span>, we blend craftsmanship with elegance to make your moments unforgettable.
+        At <span className="font-semibold text-rose-500">Jewel Mart</span>, we blend craftsmanship with elegance to make your moments unforgettable.
       </span>
     </p>
    
@@ -31,7 +31,7 @@ const About: React.FC = () => {
 
 
       {/* Opportunities Section */}
-      <section className="bg-gray-50 py-20">
+      <section className="bg-blue-50 py-20">
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-10">
           <img
             src="https://t4.ftcdn.net/jpg/04/72/21/89/240_F_472218916_DcYjugjbxmLn73IcG4ctvCM2zHkJkCCK.jpg"
@@ -71,9 +71,9 @@ const About: React.FC = () => {
         </div>
       </section>
 
-     <section className="bg-white py-16 px-6 md:px-24 text-gray-800">
+     <section className="bg-slate-50 py-16 px-6 md:px-24 text-gray-800">
   <div className="text-center mb-12">
-    <span className="uppercase tracking-widest text-sm text-rose-700 font-semibold bg-rose-100 px-3 py-1 rounded-full">
+    <span className="uppercase tracking-widest text-sm text-blue-900 font-semibold bg-blue-100 px-3 py-1 rounded-full">
       Our Services
     </span>
     <h2 className="text-4xl font-bold mt-4">Exquisite Jewelry, Exceptional Services</h2>

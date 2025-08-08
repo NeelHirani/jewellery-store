@@ -159,8 +159,8 @@ const Home: React.FC = () => {
             poster="/images/hero1.jpg"
             aria-label="Luxury jewelry craftsmanship video background"
           >
-            <source src="/videos/newhero2.mp4" type="video/mp4" />
-            <source src="/videos/newhero2.webm" type="video/webm" />
+            <source src="/videos/u2.mp4" type="video/mp4" />
+            <source src="/videos/u2.webm" type="video/webm" />
             Your browser does not support the video tag.
           </video>
         )}
@@ -178,32 +178,32 @@ const Home: React.FC = () => {
         /> */}
 
         {/* Elegant Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/20 via-transparent to-black/30" />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-transparent to-slate-900/30" />
+        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-blue-900/30 to-transparent" />
 
         {/* Luxury Pattern Overlay */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-red-900 rounded-full animate-pulse"></div>
-          <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-red-800 rounded-full animate-pulse delay-500"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-red-900 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-blue-900 rounded-full animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-rose-500 rounded-full animate-pulse delay-500"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-blue-800 rounded-full animate-pulse delay-1000"></div>
         </div>
 
         {/* Main Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
+        <div className="absolute inset-0 flex flex-col items-start justify-center text-left px-4 z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="max-w-4xl mx-auto"
+            className="max-w-4xl"
           >
             {/* Brand Welcome */}
             <motion.h3
               initial={{ opacity: 0, letterSpacing: "0.3em" }}
               animate={{ opacity: 1, letterSpacing: "0.1em" }}
               transition={{ duration: 1.5, delay: 0.7 }}
-              className="text-red-800 text-xl md:text-2xl font-semibold mb-4 tracking-wider"
-              style={{ fontFamily: 'serif' }}
+              className="text-white font-bold text-xl md:text-2xl mb-4 tracking-wider drop-shadow-lg"
+              style={{ fontFamily: "Georgia, serif" }}
             >
               Welcome to Jewel Mart
             </motion.h3>
@@ -215,11 +215,11 @@ const Home: React.FC = () => {
               transition={{ duration: 1, delay: 1 }}
               className="text-black text-3xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-red-900 via-red-800 to-red-900 bg-clip-text text-transparent">
+              <span className="text-white drop-shadow-lg">
                 Timeless Elegance
               </span>
               <br />
-              <span className="text-black drop-shadow-lg">
+              <span className="text-white drop-shadow-lg">
                 Crafted with Love
               </span>
             </motion.h1>
@@ -229,7 +229,7 @@ const Home: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.3 }}
-              className="text-red-800 text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed"
+              className="text-white font-bold text-lg md:text-xl mb-8 max-w-2xl leading-relaxed text-right ml-auto drop-shadow-lg"
             >
               Discover our exclusive collection of handcrafted jewelry, where every piece tells a story of luxury, tradition, and unmatched craftsmanship.
             </motion.p>
@@ -239,19 +239,19 @@ const Home: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              className="flex flex-col sm:flex-row gap-4 justify-start items-start"
             >
               <Link
                 to="/products"
-                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#800000] to-[#660000] text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10">Explore Collection</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-red-800 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-slate-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               </Link>
 
               <Link
                 to="/about"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-red-300 text-red-100 font-semibold rounded-full hover:bg-red-300 hover:text-[#800000] transition-all duration-300 backdrop-blur-sm"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-rose-400 text-rose-300 font-semibold rounded-full hover:bg-rose-400 hover:text-blue-900 transition-all duration-300 backdrop-blur-sm"
               >
                 Our Story
               </Link>
@@ -259,58 +259,19 @@ const Home: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Decorative Elements */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 2 }}
-          className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-red-900/60 rounded-tl-lg"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 2.2 }}
-          className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-red-900/60 rounded-tr-lg"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 2.4 }}
-          className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-red-900/60 rounded-bl-lg"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 2.6 }}
-          className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-red-900/60 rounded-br-lg"
-        />
 
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 3, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-red-300"
-        >
-          <div className="flex flex-col items-center">
-            <span className="text-sm mb-2 tracking-wider">Scroll to explore</span>
-            <div className="w-6 h-10 border-2 border-red-300 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-red-300 rounded-full mt-2 animate-bounce"></div>
-            </div>
-          </div>
-        </motion.div>
       </section>
 
       {/* Promo Banner */}
       <div className="mb-6">
         {showPromo && (
-          <div className="bg-rose-100 text-rose-900 py-3 px-4 text-center relative rounded shadow">
+          <div className="bg-blue-50 text-blue-900 py-3 px-4 text-center relative rounded shadow">
             <p className="text-sm md:text-base font-medium">
               🎉 Free Shipping on Orders Above ₹5000! Limited time only.
             </p>
             <button
               onClick={() => setShowPromo(false)}
-              className="absolute right-4 top-1 text-rose-900 font-bold hover:text-rose-800"
+              className="absolute right-4 top-1 text-blue-900 font-bold hover:text-blue-800"
             >
               ✕
             </button>
@@ -319,7 +280,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Shop By Category */}
-      <section className="py-20 px-6 bg-gradient-to-b from-white via-rose-50 to-white text-center">
+      <section className="py-20 px-6 bg-gradient-to-b from-white via-blue-50 to-white text-center">
         <h2 className="text-4xl font-bold text-gray-800 mb-12 tracking-tight">
           Shop By Category
         </h2>
@@ -362,8 +323,8 @@ const Home: React.FC = () => {
                 transition={{ duration: 0.3 }}
                 className={`group rounded-xl overflow-hidden shadow-lg relative ring-offset-2 ${
                   i === activeCatIndex
-                    ? "ring-2 ring-rose-400 ring-offset-rose-100"
-                    : "ring-1 ring-transparent hover:ring-rose-300"
+                    ? "ring-2 ring-blue-500 ring-offset-blue-100"
+                    : "ring-1 ring-transparent hover:ring-rose-400"
                 }`}
               >
                 <Link
@@ -424,7 +385,7 @@ const Home: React.FC = () => {
           >
             <Link
               to="/products"
-              className="mt-6 inline-block bg-rose-800 text-white px-6 py-3 rounded-md hover:bg-rose-900 transition"
+              className="mt-6 inline-block bg-blue-800 text-white px-6 py-3 rounded-md hover:bg-blue-900 transition"
             >
               Shop Now
             </Link>
@@ -433,7 +394,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Customer Testimonials */}
-      <section className="bg-pink-50 py-16 px-4">
+      <section className="bg-gradient-to-b from-blue-50 to-slate-50 py-16 px-4">
         <h2 className="text-center text-4xl font-serif text-blue-900 mb-12">
           Our Special Customer Testimonials
         </h2>
@@ -498,14 +459,14 @@ const Home: React.FC = () => {
           </video>
         </div>
         <div className="w-full md:w-1/2 flex items-center justify-center">
-          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-rose-900 whitespace-nowrap">
+          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-blue-900 whitespace-nowrap">
             #YourShine with US
           </h2>
         </div>
       </section>
 
       {/* Deals of the Week */}
-      <section className="py-16 px-0 bg-rose-100">
+      <section className="py-16 px-0 bg-blue-50">
         <div className="w-full relative h-[450px] overflow-hidden">
           {dealsData.map((deal: any, index: number) => (
             <img
@@ -524,7 +485,7 @@ const Home: React.FC = () => {
             </p>
             <Link
               to="/products"
-              className="bg-rose-800 text-white px-5 py-3 rounded hover:bg-rose-900 transition"
+              className="bg-blue-800 text-white px-5 py-3 rounded hover:bg-blue-900 transition"
             >
               Shop Now
             </Link>
@@ -533,7 +494,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* About Us */}
-      <section className="py-16 px-6 bg-rose-50 text-center">
+      <section className="py-16 px-6 bg-slate-50 text-center">
         <h2 className="text-3xl font-semibold text-gray-800 mb-6">About Jewel Mart</h2>
         <p className="max-w-3xl mx-auto text-gray-600 text-lg">
           At Jewel Mart, we curate the finest jewelry from top designers and brands,

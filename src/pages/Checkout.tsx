@@ -41,6 +41,11 @@ const Checkout: React.FC = () => {
   const [error, setError] = useState<any>(null);
   const [orderPlaced, setOrderPlaced] = useState<boolean>(false);
 
+  // Address auto-fill states
+  const [useProfileAddress, setUseProfileAddress] = useState<boolean>(true);
+  const [addressAutoFilled, setAddressAutoFilled] = useState<boolean>(false);
+  const [profileAddressAvailable, setProfileAddressAvailable] = useState<boolean>(false);
+
   // Calculate subtotal, tax, and total (matching Cart.jsx logic)
   const subtotal = cartItems.reduce((total, item) => {
     return total + (item.price || 0) * item.quantity;
@@ -62,24 +67,41 @@ const Checkout: React.FC = () => {
       }
     };
 
-    // Load user from localStorage
+    // Enhanced user loading with comprehensive address auto-fill
     const loadUserFromStorage = (): void => {
       try {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
           const userData = JSON.parse(savedUser);
           setUser(userData);
-          // Pre-fill shipping address if user has address data
-          if (userData.address) {
-            setShippingAddress(prev => ({
-              ...prev,
+
+          // Check if profile has address data
+          const hasCompleteAddress = userData.address && userData.city && userData.country;
+          const hasPartialAddress = userData.address || userData.city || userData.state || userData.zip || userData.country;
+
+          setProfileAddressAvailable(hasPartialAddress);
+
+          // Auto-fill address if user has any address data and useProfileAddress is enabled
+          if (hasPartialAddress && useProfileAddress) {
+            const autoFilledAddress = {
               fullName: userData.name || '',
               addressLine1: userData.address || '',
+              addressLine2: userData.apartment || '',
               city: userData.city || '',
               state: userData.state || '',
               postalCode: userData.zip || '',
               country: userData.country || ''
-            }));
+            };
+
+            setShippingAddress(autoFilledAddress);
+            setAddressAutoFilled(true);
+
+            // Show notification for auto-filled address
+            if (hasCompleteAddress) {
+              console.log('✅ Address auto-filled from profile');
+            } else {
+              console.log('⚠️ Partial address auto-filled from profile');
+            }
           }
         }
       } catch (err) {
@@ -89,11 +111,85 @@ const Checkout: React.FC = () => {
 
     loadCartFromStorage();
     loadUserFromStorage();
-  }, []);
+  }, [useProfileAddress]);
+
+  // Address management functions
+  const toggleProfileAddress = (): void => {
+    setUseProfileAddress(!useProfileAddress);
+
+    if (!useProfileAddress && user && profileAddressAvailable) {
+      // Fill address from profile
+      const autoFilledAddress = {
+        fullName: user.name || '',
+        addressLine1: user.address || '',
+        addressLine2: user.apartment || '',
+        city: user.city || '',
+        state: user.state || '',
+        postalCode: user.zip || '',
+        country: user.country || ''
+      };
+      setShippingAddress(autoFilledAddress);
+      setAddressAutoFilled(true);
+    } else if (useProfileAddress) {
+      // Clear address fields
+      setShippingAddress({
+        fullName: '',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: ''
+      });
+      setAddressAutoFilled(false);
+    }
+  };
+
+  const clearAutoFilledAddress = (): void => {
+    setShippingAddress({
+      fullName: '',
+      addressLine1: '',
+      addressLine2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: ''
+    });
+    setAddressAutoFilled(false);
+    setUseProfileAddress(false);
+  };
+
+  const getAddressCompletionStatus = (): { isComplete: boolean; missingFields: string[] } => {
+    const requiredFields = ['fullName', 'addressLine1', 'city', 'state', 'postalCode', 'country'];
+    const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof ShippingAddress]?.trim());
+
+    return {
+      isComplete: missingFields.length === 0,
+      missingFields
+    };
+  };
+
+  const getFieldClassName = (fieldName: keyof ShippingAddress, isRequired: boolean = false): string => {
+    const baseClasses = "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm transition-all duration-200";
+    const hasValue = shippingAddress[fieldName]?.trim();
+
+    if (addressAutoFilled && hasValue) {
+      return `${baseClasses} border-rose-300 bg-rose-50/30`;
+    } else if (isRequired && !hasValue) {
+      return `${baseClasses} border-gray-300 hover:border-gray-400`;
+    } else {
+      return `${baseClasses} border-gray-300`;
+    }
+  };
 
   const handleInputChange = (e: any, setState: any): void => {
     const { name, value } = e.target;
     setState((prev: any) => ({ ...prev, [name]: value }));
+
+    // If user manually edits address, mark as no longer auto-filled
+    if (setState === setShippingAddress && addressAutoFilled) {
+      setAddressAutoFilled(false);
+    }
   };
 
   // Add formatting functions
@@ -419,82 +515,197 @@ const Checkout: React.FC = () => {
                     transition={{ delay: 0.1 }}
                     className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
                   >
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Shipping Address</h2>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-gray-900">Shipping Address</h2>
+                      {profileAddressAvailable && (
+                        <div className="flex items-center space-x-2">
+                          <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={useProfileAddress}
+                              onChange={toggleProfileAddress}
+                              className="w-4 h-4 text-[#800000] border-gray-300 rounded focus:ring-[#800000] focus:ring-2"
+                            />
+                            <span className="text-sm text-gray-700">Use profile address</span>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Address Auto-fill Status Indicator */}
+                    {addressAutoFilled && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-[#800000] rounded-full"></div>
+                            <span className="text-sm text-[#800000] font-medium">
+                              Address auto-filled from your profile
+                            </span>
+                          </div>
+                          <button
+                            onClick={clearAutoFilledAddress}
+                            className="text-xs text-gray-500 hover:text-[#800000] transition-colors"
+                          >
+                            Clear & enter manually
+                          </button>
+                        </div>
+                        {(() => {
+                          const { isComplete, missingFields } = getAddressCompletionStatus();
+                          return !isComplete && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              Please complete: {missingFields.join(', ').replace(/([A-Z])/g, ' $1').toLowerCase()}
+                            </p>
+                          );
+                        })()}
+                      </motion.div>
+                    )}
+
+                    {/* Profile Address Preview */}
+                    {profileAddressAvailable && !useProfileAddress && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm text-gray-700 font-medium">Available profile address:</p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {[user?.address, user?.apartment, user?.city, user?.state, user?.country, user?.zip]
+                                .filter(Boolean)
+                                .join(', ') || 'Partial address available'}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setUseProfileAddress(true)}
+                            className="text-xs text-[#800000] hover:text-[#5a0d15] font-medium transition-colors"
+                          >
+                            Use this address
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Full Name
+                          {addressAutoFilled && shippingAddress.fullName && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="fullName"
                           value={shippingAddress.fullName}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('fullName', true)}
                           required
+                          placeholder="Enter your full name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Address Line 1
+                          {addressAutoFilled && shippingAddress.addressLine1 && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="addressLine1"
                           value={shippingAddress.addressLine1}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('addressLine1', true)}
                           required
+                          placeholder="Street address, P.O. box"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2 (Optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Address Line 2 (Optional)
+                          {addressAutoFilled && shippingAddress.addressLine2 && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="addressLine2"
                           value={shippingAddress.addressLine2}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('addressLine2')}
+                          placeholder="Apartment, suite, unit, building, floor, etc."
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          City
+                          {addressAutoFilled && shippingAddress.city && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="city"
                           value={shippingAddress.city}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('city', true)}
                           required
+                          placeholder="Enter city"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          State
+                          {addressAutoFilled && shippingAddress.state && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="state"
                           value={shippingAddress.state}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('state', true)}
                           required
+                          placeholder="State/Province"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Postal Code
+                          {addressAutoFilled && shippingAddress.postalCode && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="postalCode"
                           value={shippingAddress.postalCode}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('postalCode', true)}
                           required
+                          placeholder="ZIP/Postal code"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Country
+                          {addressAutoFilled && shippingAddress.country && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
                         <input
                           type="text"
                           name="country"
                           value={shippingAddress.country}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getFieldClassName('country', true)}
                           required
+                          placeholder="Country"
                         />
                       </div>
                     </div>
@@ -635,6 +846,38 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Shipping Address Summary */}
+              {(shippingAddress.addressLine1 || shippingAddress.city) && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                    <i className="ri-map-pin-line mr-2 text-[#800000]"></i>
+                    Shipping Address
+                    {addressAutoFilled && (
+                      <span className="ml-2 text-xs text-[#800000] bg-rose-50 px-2 py-1 rounded-full">Auto-filled</span>
+                    )}
+                  </h3>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    {shippingAddress.fullName && <p className="font-medium text-gray-900">{shippingAddress.fullName}</p>}
+                    {shippingAddress.addressLine1 && <p>{shippingAddress.addressLine1}</p>}
+                    {shippingAddress.addressLine2 && <p>{shippingAddress.addressLine2}</p>}
+                    <p>
+                      {[shippingAddress.city, shippingAddress.state].filter(Boolean).join(', ')}
+                      {shippingAddress.postalCode && ` ${shippingAddress.postalCode}`}
+                    </p>
+                    {shippingAddress.country && <p>{shippingAddress.country}</p>}
+                  </div>
+                  {(() => {
+                    const { isComplete, missingFields } = getAddressCompletionStatus();
+                    return !isComplete && (
+                      <p className="text-xs text-amber-600 mt-2">
+                        ⚠️ Missing: {missingFields.join(', ').replace(/([A-Z])/g, ' $1').toLowerCase()}
+                      </p>
+                    );
+                  })()}
+                </div>
+              )}
+
               <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
                 <i className="ri-shield-check-line mr-2"></i>
                 Secured by 256-bit SSL encryption

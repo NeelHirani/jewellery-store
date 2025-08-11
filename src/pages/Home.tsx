@@ -26,7 +26,7 @@ const Home: React.FC = () => {
   const slideData: SlideData[] = [
     {
       image: "/images/hero1.jpg",
-      heading: "Up to 50% Off On Gold & Diamond Jewelry",
+      heading: "Up to 30% Off On Gold & Diamond Jewelry",
       description: "Discover Elegance with Every Piece",
     },
     {
@@ -42,9 +42,9 @@ const Home: React.FC = () => {
   ];
 
   const dealsData: DealsData[] = [
-    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "₹12,499" },
-    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "₹4,999" },
-    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "₹8,999" },
+    { image: "/images/deals/bangles.jpg", title: "Gold Bangles", price: "$4,499" },
+    { image: "/images/deals/earrings.jpg", title: "Diamond Earrings", price: "$12,999" },
+    { image: "/images/deals/pendants.jpg", title: "Classic Pendant", price: "$8,999" },
   ];
 
   const categories: { title: string; image: string }[] = [

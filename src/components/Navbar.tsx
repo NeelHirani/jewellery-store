@@ -53,7 +53,7 @@ const Navbar: React.FC = () => {
           <img
             src="/jewellmartb.png"
             alt="Jewel Mart Logo"
-            className="object-contain transition-all duration-300"
+            className={`object-contain transition-all duration-300 ${scrolled ? "" : "invert"}`}
             style={{ height: "50px" }}
           />
         </Link>

@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#800000]"></div>
       </div>
     );
   }
@@ -184,7 +184,7 @@ const Dashboard: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-            <Link to="/admin/orders" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            <Link to="/admin/orders" className="text-[#800000] hover:text-[#5a0d15] text-sm font-medium">
               View All
             </Link>
           </div>
@@ -219,7 +219,7 @@ const Dashboard: React.FC = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
-            <Link to="/admin/products" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            <Link to="/admin/products" className="text-[#800000] hover:text-[#5a0d15] text-sm font-medium">
               View All
             </Link>
           </div>
@@ -254,10 +254,10 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/admin/products/new"
-            className="flex items-center justify-center p-4 bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex items-center justify-center p-4 bg-rose-50 border-2 border-dashed border-rose-300 rounded-lg hover:bg-rose-100 transition-colors"
           >
-            <FaPlus className="text-blue-600 mr-2" />
-            <span className="text-blue-600 font-medium">Add New Product</span>
+            <FaPlus className="text-[#800000] mr-2" />
+            <span className="text-[#800000] font-medium">Add New Product</span>
           </Link>
           <Link
             to="/admin/orders"

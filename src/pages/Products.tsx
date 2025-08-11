@@ -150,14 +150,14 @@ const Products: React.FC = () => {
   // Full-Screen Splash Screen Loading Component
   const SplashScreen = () => (
     <div
-      className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100 flex items-center justify-center z-50 animate-fadeIn"
+      className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-rose-50 via-slate-50 to-rose-100 flex items-center justify-center z-50 animate-fadeIn"
       style={{ fontFamily: 'Open Sans, sans-serif' }}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-32 h-32 border border-blue-300 rounded-full animate-pulse"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 border border-[#800000] rounded-full animate-pulse"></div>
         <div className="absolute top-32 right-20 w-24 h-24 border border-rose-300 rounded-full animate-pulse delay-300"></div>
-        <div className="absolute bottom-20 left-32 w-40 h-40 border border-blue-400 rounded-full animate-pulse delay-700"></div>
+        <div className="absolute bottom-20 left-32 w-40 h-40 border border-[#5a0d15] rounded-full animate-pulse delay-700"></div>
         <div className="absolute bottom-32 right-10 w-28 h-28 border border-rose-400 rounded-full animate-pulse delay-500"></div>
       </div>
 
@@ -167,12 +167,12 @@ const Products: React.FC = () => {
         <div className="mb-8 animate-bounceIn">
           <div className="relative mx-auto w-24 h-24 mb-6">
             {/* Jewelry Store Logo - Using FontAwesome gem icon as placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 rounded-full flex items-center justify-center shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#800000] to-[#5a0d15] rounded-full flex items-center justify-center shadow-2xl">
               <i className="fas fa-gem text-white text-4xl animate-sparkle"></i>
             </div>
             {/* Decorative rings around logo */}
             <div className="absolute -inset-2 border-2 border-rose-400 rounded-full animate-spin-slow opacity-60"></div>
-            <div className="absolute -inset-4 border border-blue-400 rounded-full animate-spin-reverse opacity-40"></div>
+            <div className="absolute -inset-4 border border-[#800000] rounded-full animate-spin-reverse opacity-40"></div>
           </div>
         </div>
 
@@ -185,20 +185,20 @@ const Products: React.FC = () => {
             Elegance Crafted
           </h1>
           <h2
-            className="text-2xl md:text-3xl font-light text-blue-800 mb-4"
+            className="text-2xl md:text-3xl font-light text-[#800000] mb-4"
             style={{ fontFamily: 'Playfair Display, serif' }}
           >
             for Every Occasion
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-800 to-rose-500 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-[#800000] to-rose-500 mx-auto rounded-full"></div>
         </div>
 
         {/* Loading Animation */}
         <div className="mb-6 animate-fadeInDelay">
           {/* Elegant Spinner */}
           <div className="relative mx-auto w-16 h-16 mb-4">
-            <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-transparent border-t-blue-800 border-r-blue-800 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-rose-200 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-transparent border-t-[#800000] border-r-[#800000] rounded-full animate-spin"></div>
             <div className="absolute inset-2 border-2 border-transparent border-t-rose-500 rounded-full animate-spin-reverse"></div>
           </div>
 
@@ -209,16 +209,16 @@ const Products: React.FC = () => {
 
           {/* Loading Dots */}
           <div className="flex justify-center space-x-2 mt-4">
-            <div className="w-2 h-2 bg-blue-800 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-[#800000] rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce delay-100"></div>
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
+            <div className="w-2 h-2 bg-[#5a0d15] rounded-full animate-bounce delay-200"></div>
           </div>
         </div>
 
         {/* Progress Bar */}
         <div className="mb-6 animate-fadeInDelay delay-700">
-          <div className="w-48 h-1 bg-blue-100 rounded-full mx-auto overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-blue-800 to-rose-500 rounded-full animate-progress"></div>
+          <div className="w-48 h-1 bg-rose-100 rounded-full mx-auto overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-[#800000] to-rose-500 rounded-full animate-progress"></div>
           </div>
         </div>
 
@@ -234,7 +234,7 @@ const Products: React.FC = () => {
   const ErrorState = () => (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Open Sans, sans-serif' }}>
       <Header />
-      <div className="bg-gradient-to-r from-blue-50 to-slate-50 py-8">
+      <div className="bg-gradient-to-r from-rose-50 to-slate-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-4xl font-bold text-gray-900 mb-2 mt-19" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -258,7 +258,7 @@ const Products: React.FC = () => {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-blue-800 text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+            className="bg-[#800000] text-white px-6 py-3 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
             aria-label="Retry loading products"
           >
             <i className="fas fa-redo mr-2"></i>
@@ -297,7 +297,7 @@ const Products: React.FC = () => {
   return (
     <div className="min-h-screen bg-white animate-fadeIn" style={{ fontFamily: 'Open Sans, sans-serif' }}>
       <Header />
-      <div className="bg-gradient-to-r from-blue-50 to-slate-50 py-8">
+      <div className="bg-gradient-to-r from-rose-50 to-slate-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-4xl font-bold text-gray-900 mb-2 mt-19" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -313,10 +313,10 @@ const Products: React.FC = () => {
 
         {/* Refreshing indicator */}
         {refreshing && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-800 mr-3"></div>
-              <span className="text-blue-900 font-medium">Refreshing products...</span>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#800000] mr-3"></div>
+              <span className="text-[#800000] font-medium">Refreshing products...</span>
             </div>
           </div>
         )}
@@ -334,7 +334,7 @@ const Products: React.FC = () => {
                     onClick={() => setSelectedCategory('all')}
                     className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
                       selectedCategory === 'all'
-                        ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                        ? 'bg-rose-100 text-[#800000] border border-rose-300'
                         : 'hover:bg-gray-50 text-gray-700'
                     }`}
                     aria-label="Select all categories"
@@ -348,7 +348,7 @@ const Products: React.FC = () => {
                       onClick={() => setSelectedCategory(category.name)}
                       className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
                         selectedCategory === category.name
-                          ? 'bg-blue-100 text-blue-900 border border-blue-300'
+                          ? 'bg-rose-100 text-[#800000] border border-rose-300'
                           : 'hover:bg-gray-50 text-gray-700'
                       }`}
                       aria-label={`Select category ${category.name}`}
@@ -403,7 +403,7 @@ const Products: React.FC = () => {
                             setSelectedMetal(selectedMetal.filter((m) => m !== metal.name));
                           }
                         }}
-                        className="rounded border-gray-300 text-blue-800 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
                         aria-label={`Select metal ${metal.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{metal.name}</span>
@@ -426,7 +426,7 @@ const Products: React.FC = () => {
                             setSelectedStone(selectedStone.filter((s) => s !== stone.name));
                           }
                         }}
-                        className="rounded border-gray-300 text-blue-800 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
                         aria-label={`Select stone ${stone.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{stone.name}</span>
@@ -449,7 +449,7 @@ const Products: React.FC = () => {
                             setSelectedOccasion(selectedOccasion.filter((o) => o !== occasion.name));
                           }
                         }}
-                        className="rounded border-gray-300 text-blue-800 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
                         aria-label={`Select occasion ${occasion.name}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">{occasion.name}</span>
@@ -541,7 +541,7 @@ const Products: React.FC = () => {
                             setSortBy(option.id);
                             setShowSortDropdown(false);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-rose-50"
                           aria-label={`Sort by ${option.label}`}
                         >
                           {option.label}
@@ -606,7 +606,7 @@ const Products: React.FC = () => {
                           </div>
                           <button
                             onClick={() => handleAddToCart(product)}
-                            className="w-full bg-blue-800 text-white py-2 px-4 rounded-lg hover:bg-blue-900 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                            className="w-full bg-[#800000] text-white py-2 px-4 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
                             aria-label={`Add ${product.name} to cart`}
                           >
                             <i className="fas fa-shopping-cart mr-2"></i>
@@ -619,7 +619,7 @@ const Products: React.FC = () => {
 
                   <div className="text-center mt-12">
                     <button
-                      className="bg-blue-800 text-white px-8 py-3 rounded-lg hover:bg-blue-900 transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
+                      className="bg-[#800000] text-white px-8 py-3 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer whitespace-nowrap !rounded-button"
                       aria-label="Load more products"
                     >
                       Load More Products

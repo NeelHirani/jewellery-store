@@ -178,15 +178,15 @@ const Home: React.FC = () => {
         /> */}
 
         {/* Elegant Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-transparent to-slate-900/30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#800000]/20 via-transparent to-slate-900/30" />
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent" />
-        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-blue-900/30 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-[#800000]/30 to-transparent" />
 
         {/* Luxury Pattern Overlay */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-blue-900 rounded-full animate-pulse"></div>
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-[#800000] rounded-full animate-pulse"></div>
           <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-rose-500 rounded-full animate-pulse delay-500"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-blue-800 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-40 h-40 border border-[#5a0d15] rounded-full animate-pulse delay-1000"></div>
         </div>
 
         {/* Main Content */}
@@ -243,15 +243,15 @@ const Home: React.FC = () => {
             >
               <Link
                 to="/products"
-                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-800 to-blue-900 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#800000] to-[#5a0d15] text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10">Explore Collection</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-slate-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#5a0d15] to-slate-900 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               </Link>
 
               <Link
                 to="/about"
-                className="inline-flex items-center justify-center px-8 py-4 border-2 border-rose-400 text-rose-300 font-semibold rounded-full hover:bg-rose-400 hover:text-blue-900 transition-all duration-300 backdrop-blur-sm"
+                className="inline-flex items-center justify-center px-8 py-4 border-2 border-rose-400 text-rose-300 font-semibold rounded-full hover:bg-rose-400 hover:text-[#800000] transition-all duration-300 backdrop-blur-sm"
               >
                 Our Story
               </Link>
@@ -265,13 +265,13 @@ const Home: React.FC = () => {
       {/* Promo Banner */}
       <div className="mb-6">
         {showPromo && (
-          <div className="bg-blue-50 text-blue-900 py-3 px-4 text-center relative rounded shadow">
+          <div className="bg-rose-50 text-[#800000] py-3 px-4 text-center relative rounded shadow">
             <p className="text-sm md:text-base font-medium">
               🎉 Free Shipping on Orders Above ₹5000! Limited time only.
             </p>
             <button
               onClick={() => setShowPromo(false)}
-              className="absolute right-4 top-1 text-blue-900 font-bold hover:text-blue-800"
+              className="absolute right-4 top-1 text-[#800000] font-bold hover:text-[#5a0d15]"
             >
               ✕
             </button>
@@ -280,7 +280,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Shop By Category */}
-      <section className="py-20 px-6 bg-gradient-to-b from-white via-blue-50 to-white text-center">
+      <section className="py-20 px-6 bg-gradient-to-b from-white via-rose-50 to-white text-center">
         <h2 className="text-4xl font-bold text-gray-800 mb-12 tracking-tight">
           Shop By Category
         </h2>
@@ -385,7 +385,7 @@ const Home: React.FC = () => {
           >
             <Link
               to="/products"
-              className="mt-6 inline-block bg-blue-800 text-white px-6 py-3 rounded-md hover:bg-blue-900 transition"
+              className="mt-6 inline-block bg-[#800000] text-white px-6 py-3 rounded-md hover:bg-[#5a0d15] transition"
             >
               Shop Now
             </Link>
@@ -394,49 +394,49 @@ const Home: React.FC = () => {
       </section>
 
       {/* Customer Testimonials */}
-      <section className="bg-gradient-to-b from-blue-50 to-slate-50 py-16 px-4">
-        <h2 className="text-center text-4xl font-serif text-blue-900 mb-12">
+      <section className="bg-gradient-to-b from-rose-50 to-slate-50 py-16 px-4">
+        <h2 className="text-center text-4xl font-serif text-[#800000] mb-12">
           Our Special Customer Testimonials
         </h2>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-3deg]">
             <img src="https://www.weddingsutra.com/images/wedding-images/wedding_on_location/wsol_jan_2019/akansha_wsol_jan_2019_05.jpg" alt="Akanksha Khanna" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Akanksha Khanna, 27</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Akanksha Khanna, 27</h3>
             <p className="text-sm text-gray-700">
               Delighted with my engagement ring from Jewel Mart! It's my dream ring, fits perfectly and is stunning to look at.
             </p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[2deg]">
             <img src="https://zariin.com/cdn/shop/articles/divya-bhatt-mishra-for-zariin-real-women.jpg?v=1674100355&width=1100" alt="Nutan Mishra" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Nutan Mishra, 33</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Nutan Mishra, 33</h3>
             <p className="text-sm text-gray-700">
               I got a Nazariya for my baby boy. It's so cute and gives a sense of comfort knowing it’s on his wrist.
             </p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-2deg]">
             <img src="https://as2.ftcdn.net/jpg/01/95/43/59/1000_F_195435986_5Zymzu1CfIL0kEMlKa2RUIaBin8QK5JF.jpg" alt="Divya Mishra" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Divya Mishra, 26</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Divya Mishra, 26</h3>
             <p className="text-sm text-gray-700">
               On Valentine’s Day, I received a necklace I just can't take off. Everyone asks where I got it from!
             </p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[1.5deg]">
             <img src="https://www.shutterstock.com/image-photo/photo-girl-wear-white-shirt-600nw-2471646043.jpg" alt="Raj Patel" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Rajvi Patel, 30</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Rajvi Patel, 30</h3>
             <p className="text-sm text-gray-700">
               Gifted my sister a bracelet for Raksha Bandhan. She loved the packaging and craftsmanship. Great experience!
             </p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[-1deg]">
             <img src="https://images.pexels.com/photos/21898588/pexels-photo-21898588.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200" alt="Sneha Desai" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Sneha Desai, 24</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Sneha Desai, 24</h3>
             <p className="text-sm text-gray-700">
               Jewel Mart made my first online jewelry purchase so easy. The ring fit like a dream. I'm definitely coming back!
             </p>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg transform rotate-[3deg]">
             <img src="https://i.pinimg.com/736x/89/28/e0/8928e02b4aa74b8342c65ff69d004441.jpg" alt="Karan Verma" className="rounded-md mb-4" />
-            <h3 className="text-lg font-semibold text-blue-900">Karan Verma, 29</h3>
+            <h3 className="text-lg font-semibold text-[#800000]">Karan Verma, 29</h3>
             <p className="text-sm text-gray-700">
               I bought a gold chain for my dad’s birthday. He was thrilled. Delivery was quick and secure. Impressed!
             </p>
@@ -459,14 +459,14 @@ const Home: React.FC = () => {
           </video>
         </div>
         <div className="w-full md:w-1/2 flex items-center justify-center">
-          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-blue-900 whitespace-nowrap">
+          <h2 className="text-4xl md:text-6xl font-serif font-semibold text-[#800000] whitespace-nowrap">
             #YourShine with US
           </h2>
         </div>
       </section>
 
       {/* Deals of the Week */}
-      <section className="py-16 px-0 bg-blue-50">
+      <section className="py-16 px-0 bg-rose-50">
         <div className="w-full relative h-[450px] overflow-hidden">
           {dealsData.map((deal: any, index: number) => (
             <img
@@ -485,7 +485,7 @@ const Home: React.FC = () => {
             </p>
             <Link
               to="/products"
-              className="bg-blue-800 text-white px-5 py-3 rounded hover:bg-blue-900 transition"
+              className="bg-[#800000] text-white px-5 py-3 rounded hover:bg-[#5a0d15] transition"
             >
               Shop Now
             </Link>

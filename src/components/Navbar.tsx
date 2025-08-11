@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
   }, [isHomePage]);
 
   const linkClass: string = `font-medium text-sm md:text-base transition-all duration-300 hover:underline ${
-    scrolled ? "text-blue-900" : "text-white"
+    scrolled ? "text-[#800000]" : "text-white"
   }`;
 
   const handleSidebarToggle = (): void => {
@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled ? "bg-blue-50 shadow-md" : "bg-transparent"
+        scrolled ? "bg-rose-50 shadow-md" : "bg-transparent"
       }`}
     >
       <div
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
 
         {/* Hamburger Menu for Mobile */}
         <button
-          className={`md:hidden text-2xl focus:outline-none ${scrolled ? "text-blue-900" : "text-white"}`}
+          className={`md:hidden text-2xl focus:outline-none ${scrolled ? "text-[#800000]" : "text-white"}`}
           onClick={handleSidebarToggle}
         >
           {isSidebarOpen ? <FiX /> : <FiMenu />}
@@ -92,13 +92,13 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Sidebar */}
         <div
-          className={`fixed top-0 right-0 h-full w-64 bg-blue-50 shadow-lg transform ${
+          className={`fixed top-0 right-0 h-full w-64 bg-rose-50 shadow-lg transform ${
             isSidebarOpen ? "translate-x-0" : "translate-x-full"
           } transition-transform duration-300 ease-in-out z-50 md:hidden`}
         >
           <div className="flex justify-end p-4">
             <button
-              className="text-2xl text-blue-900 focus:outline-none"
+              className="text-2xl text-[#800000] focus:outline-none"
               onClick={handleSidebarToggle}
             >
               <FiX />

@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Maroon Rose Theme Variables */
+:root {
+  --primary-maroon: #800000;
+  --primary-maroon-dark: #5a0d15;
+  --primary-rose: #f43f5e;
+  --background-rose: #fdf2f8;
+  --background-rose-light: #fef7f7;
+}
+
 /* Gold Elegance Design System Fonts */
 @layer base {
   .font-playfair {
@@ -8,6 +17,27 @@
 
   .font-inter {
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Theme utility classes */
+  .bg-primary-maroon {
+    background-color: var(--primary-maroon);
+  }
+
+  .bg-primary-maroon-dark {
+    background-color: var(--primary-maroon-dark);
+  }
+
+  .text-primary-maroon {
+    color: var(--primary-maroon);
+  }
+
+  .text-primary-maroon-dark {
+    color: var(--primary-maroon-dark);
+  }
+
+  .border-primary-maroon {
+    border-color: var(--primary-maroon);
   }
 }
 

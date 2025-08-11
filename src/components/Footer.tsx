@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
               placeholder="Your email"
               className="w-full px-4 py-2 rounded-l-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none"
             />
-            <button className="bg-blue-500 px-5 py-2 rounded-r-md hover:bg-blue-900 transition">
+            <button className="bg-[#800000] px-5 py-2 rounded-r-md hover:bg-[#5a0d15] transition">
               Subscribe
             </button>
           </div>
@@ -55,9 +55,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
             <div className="flex justify-end space-x-4 text-xl text-gray-300">
-              <FaFacebookF className="hover:text-blue-400 cursor-pointer" />
-              <FaTwitter className="hover:text-blue-400 cursor-pointer" />
-              <FaInstagram className="hover:text-blue-400 cursor-pointer" />
+              <FaFacebookF className="hover:text-rose-400 cursor-pointer" />
+              <FaTwitter className="hover:text-rose-400 cursor-pointer" />
+              <FaInstagram className="hover:text-rose-400 cursor-pointer" />
             </div>
           </div>
 

@@ -10,8 +10,9 @@ import {
   FaTimes,
   FaList,
   FaGem,
-  
+
 } from 'react-icons/fa';
+import { authService } from '../lib/auth';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
@@ -59,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
   ];
 
   const handleLogout = (): void => {
-    localStorage.removeItem('adminUser');
+    authService.logout();
     navigate('/admin/login');
   };
 
@@ -107,27 +108,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, setIsMobileOpen }) => {
               {!isCollapsed && <span className="font-medium whitespace-nowrap">{item.title}</span>}
             </motion.button>
             
-            {/* Sub-items */}
-            {(item as any).subItems && !isCollapsed && isActiveRoute(item.path) && (
-              <div className="ml-6 mt-2 space-y-1">
-                {item.subItems.map((subItem: any) => (
-                  <motion.button
-                    key={subItem.path}
-                    onClick={() => navigate(subItem.path)}
-                    className={`w-full flex items-center space-x-3 p-2 rounded-lg text-sm transition-all duration-200 hover:bg-gray-50 ${
-                      location.pathname === subItem.path
-                        ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-r-4 border-purple-500 text-purple-700'
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <subItem.icon className="text-sm" />
-                    <span>{subItem.title}</span>
-                  </motion.button>
-                ))}
-              </div>
-            )}
+
           </div>
         ))}
       </nav>

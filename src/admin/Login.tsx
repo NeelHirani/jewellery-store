@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaGem } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaGem, FaShieldAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { authService } from '../lib/auth';
+import { config } from '../lib/config';
 
 interface LoginFormData {
   email: string;
@@ -23,11 +25,11 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
 
   useEffect(() => {
-    // Check if admin is already logged in
-    const adminUser = localStorage.getItem('adminUser');
-    if (adminUser) {
+    // Check if admin is already authenticated
+    if (authService.isAuthenticated()) {
       navigate('/admin');
     }
   }, [navigate]);
@@ -68,38 +70,35 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
+    // Clear previous errors and attempts
+    setErrors({});
+    setRemainingAttempts(null);
     setLoading(true);
 
     try {
-      // For demo purposes, using hardcoded admin credentials
-      // In production, this should be handled by your backend API
-      const adminCredentials = {
-        email: 'admin@jewelmart.com',
-        password: 'admin123'
-      };
+      // Use secure authentication service
+      const authResult = await authService.authenticateAdmin(formData.email, formData.password);
 
-      if (formData.email === adminCredentials.email && formData.password === adminCredentials.password) {
-        // Store admin session
-        const adminUser = {
-          email: formData.email,
-          name: 'Admin User',
-          role: 'admin',
-          loginTime: new Date().toISOString()
-        };
-        
-        localStorage.setItem('adminUser', JSON.stringify(adminUser));
+      if (authResult.success && authResult.user) {
+        // Navigate to admin dashboard on successful authentication
         navigate('/admin');
       } else {
-        setErrors({ general: 'Invalid admin credentials' });
+        // Handle authentication failure
+        setErrors({ general: authResult.error || 'Authentication failed' });
+
+        // Show remaining attempts if available
+        if (typeof authResult.remainingAttempts === 'number') {
+          setRemainingAttempts(authResult.remainingAttempts);
+        }
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setErrors({ general: 'An error occurred during login' });
+      console.error('Authentication error:', error);
+      setErrors({ general: 'Authentication service unavailable. Please try again later.' });
     } finally {
       setLoading(false);
     }
@@ -116,13 +115,13 @@ const AdminLogin: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <FaGem className="text-white text-2xl" />
+            <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#FFB300] rounded-xl flex items-center justify-center mx-auto mb-4">
+              <FaShieldAlt className="text-white text-2xl" />
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              JewelMart Admin
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#FFB300] bg-clip-text text-transparent font-playfair">
+              Secure Admin Access
             </h2>
-            <p className="text-gray-600 mt-2">Sign in to access your admin panel</p>
+            <p className="text-gray-600 mt-2 font-inter">Protected administrative dashboard</p>
           </div>
 
           {/* Login Form */}
@@ -134,8 +133,11 @@ const AdminLogin: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center text-red-700"
               >
-                <FaUser className="mr-2" />
+                <FaShieldAlt className="mr-2" />
                 {errors.general}
+                {remainingAttempts !== null && remainingAttempts > 0 && (
+                  <span className="ml-2 text-sm">({remainingAttempts} attempts remaining)</span>
+                )}
               </motion.div>
             )}
 
@@ -151,9 +153,10 @@ const AdminLogin: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="admin@jewelmart.com"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent font-inter"
+                  placeholder="Enter admin email"
                   disabled={loading}
+                  autoComplete="email"
                 />
               </div>
               {errors.email && (
@@ -173,9 +176,10 @@ const AdminLogin: React.FC = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Enter your password"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent font-inter"
+                  placeholder="Enter admin password"
                   disabled={loading}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
@@ -195,7 +199,7 @@ const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap"
+              className="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFB300] text-white font-medium rounded-lg hover:from-[#C19A33] hover:to-[#E6A200] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap font-inter"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -208,21 +212,22 @@ const AdminLogin: React.FC = () => {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              Demo credentials:
-            </p>
-            <p className="text-sm text-gray-800 text-center font-medium">
-              Email: admin@jewelmart.com<br />
-              Password: admin123
+          {/* Security Notice */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-[#D4AF37]/10 to-[#FFB300]/10 rounded-lg border border-[#D4AF37]/20">
+            <div className="flex items-center justify-center text-[#C19A33] mb-2">
+              <FaShieldAlt className="mr-2" />
+              <p className="text-sm font-medium font-inter">Secure Authentication</p>
+            </div>
+            <p className="text-xs text-gray-600 text-center font-inter">
+              This admin panel is protected with enterprise-grade security.
+              Unauthorized access attempts are monitored and logged.
             </p>
           </div>
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              © 2024 JewelMart Admin Panel. All rights reserved.
+            <p className="text-gray-400 text-sm font-inter">
+              © {new Date().getFullYear()} {config.getAppConfig().name} Admin Panel. All rights reserved.
             </p>
           </div>
         </div>

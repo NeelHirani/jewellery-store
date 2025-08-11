@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Gold Elegance Design System Fonts */
+@layer base {
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
 /* Custom animations for loading screen */
 @keyframes sparkle {
   0%, 100% {

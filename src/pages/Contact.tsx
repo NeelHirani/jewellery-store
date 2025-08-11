@@ -230,7 +230,7 @@ const Contact: React.FC = () => {
             {/* Contact Details */}
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-800 text-white p-3 rounded-lg">
+                <div className="bg-[#800000] text-white p-3 rounded-lg">
                   <FaMapMarkerAlt className="text-lg" />
                 </div>
                 <div>
@@ -244,7 +244,7 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-800 text-white p-3 rounded-lg">
+                <div className="bg-[#800000] text-white p-3 rounded-lg">
                   <FaEnvelope className="text-lg" />
                 </div>
                 <div>
@@ -261,7 +261,7 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-800 text-white p-3 rounded-lg">
+                <div className="bg-[#800000] text-white p-3 rounded-lg">
                   <FaPhone className="text-lg" />
                 </div>
                 <div>
@@ -276,7 +276,7 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-800 text-white p-3 rounded-lg">
+                <div className="bg-[#800000] text-white p-3 rounded-lg">
                   <FaClock className="text-lg" />
                 </div>
                 <div>
@@ -302,7 +302,7 @@ const Contact: React.FC = () => {
                   <a
                     key={label}
                     href={href}
-                    className="bg-gray-100 hover:bg-blue-800 text-gray-600 hover:text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105"
+                    className="bg-gray-100 hover:bg-[#800000] text-gray-600 hover:text-white p-3 rounded-lg transition-all duration-300 transform hover:scale-105"
                     aria-label={label}
                   >
                     <Icon className="text-lg" />
@@ -317,7 +317,7 @@ const Contact: React.FC = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-blue-50 p-6 rounded-xl"
+            className="bg-rose-50 p-6 rounded-xl"
           >
             <h2 className="text-2xl font-bold mb-6 text-gray-800">Send us a Message</h2>
 
@@ -363,7 +363,7 @@ const Contact: React.FC = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all ${
                       errors.name ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Your full name"
@@ -388,7 +388,7 @@ const Contact: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all ${
                       errors.email ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="your.email@example.com"
@@ -413,7 +413,7 @@ const Contact: React.FC = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all ${
                       errors.phone ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="+91 98765 43210"
@@ -435,7 +435,7 @@ const Contact: React.FC = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all"
                   disabled={loading}
                 >
                   <option value="General Inquiry">General Inquiry</option>
@@ -458,7 +458,7 @@ const Contact: React.FC = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={5}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-vertical ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent transition-all resize-vertical ${
                     errors.message ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Please describe your inquiry in detail..."
@@ -473,7 +473,7 @@ const Contact: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+                className="w-full bg-[#800000] hover:bg-[#5a0d15] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>

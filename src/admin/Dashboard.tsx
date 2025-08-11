@@ -147,7 +147,7 @@ const Dashboard: React.FC = () => {
           icon={FaUsers}
           title="Total Users"
           value={stats.totalUsers.toLocaleString()}
-          color="from-blue-500 to-blue-600"
+          color="from-[#800000] to-[#5a0d15]"
           link="/admin/users"
         />
         <StatCard
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
           icon={FaDollarSign}
           title="Total Revenue"
           value={`$${stats.totalRevenue.toLocaleString()}`}
-          color="from-purple-500 to-purple-600"
+          color="from-rose-500 to-rose-600"
           link="/admin/orders"
         />
       </div>

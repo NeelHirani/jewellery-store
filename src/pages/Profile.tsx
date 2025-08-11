@@ -215,14 +215,14 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
     .join(", ");
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pt-20 pb-16 px-4 sm:px-6 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white pt-20 pb-16 px-4 sm:px-6 md:px-8">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-6 py-8 text-center"
+          className="bg-gradient-to-r from-[#800000] to-[#5a0d15] text-white px-6 py-8 text-center"
         >
           <h2 className="text-3xl font-serif font-bold tracking-tight">
             Welcome, <span className="capitalize">{user.name}</span>
@@ -236,22 +236,22 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="bg-blue-50 p-6 rounded-xl text-center shadow-md"
+            className="bg-rose-50 p-6 rounded-xl text-center shadow-md"
           >
             <div className="relative w-20 h-20 mx-auto mb-4">
-              <div className="bg-gradient-to-br from-blue-800 to-blue-900 text-white text-3xl font-bold rounded-full w-full h-full flex items-center justify-center shadow-lg border-2 border-white transition-transform hover:scale-105">
+              <div className="bg-gradient-to-br from-[#800000] to-[#5a0d15] text-white text-3xl font-bold rounded-full w-full h-full flex items-center justify-center shadow-lg border-2 border-white transition-transform hover:scale-105">
                 {avatarLetter}
               </div>
             </div>
-            <h3 className="text-xl font-serif font-semibold text-blue-900">{user.name}</h3>
+            <h3 className="text-xl font-serif font-semibold text-[#800000]">{user.name}</h3>
             <p className="text-sm text-gray-600 mt-1">{user.email}</p>
             <p className="text-xs text-gray-500 mt-2">Joined {user.joinDate}</p>
 
             <div className="mt-6 text-left">
-              <p className="text-sm font-medium text-blue-900 mb-2">Profile Completion</p>
+              <p className="text-sm font-medium text-[#800000] mb-2">Profile Completion</p>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <motion.div
-                  className="bg-blue-800 h-3 rounded-full"
+                  className="bg-[#800000] h-3 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${user.profileCompletion}%` }}
                   transition={{ duration: 1 }}
@@ -266,7 +266,7 @@ const Profile: React.FC<ProfileProps> = ({ user: propUser }) => {
             <div className="mt-6">
               <button
                 onClick={handleEditProfile}
-                className="w-full flex items-center justify-center px-4 py-2 bg-blue-800 text-white text-sm font-medium rounded-lg hover:bg-blue-900 transition-colors"
+                className="w-full flex items-center justify-center px-4 py-2 bg-[#800000] text-white text-sm font-medium rounded-lg hover:bg-[#5a0d15] transition-colors"
               >
                 <FaEdit className="mr-2" />
                 Edit Profile

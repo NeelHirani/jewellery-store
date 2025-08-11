@@ -31,7 +31,7 @@ const About: React.FC = () => {
 
 
       {/* Opportunities Section */}
-      <section className="bg-blue-50 py-20">
+      <section className="bg-rose-50 py-20">
         <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-10">
           <img
             src="https://t4.ftcdn.net/jpg/04/72/21/89/240_F_472218916_DcYjugjbxmLn73IcG4ctvCM2zHkJkCCK.jpg"
@@ -73,7 +73,7 @@ const About: React.FC = () => {
 
      <section className="bg-slate-50 py-16 px-6 md:px-24 text-gray-800">
   <div className="text-center mb-12">
-    <span className="uppercase tracking-widest text-sm text-blue-900 font-semibold bg-blue-100 px-3 py-1 rounded-full">
+    <span className="uppercase tracking-widest text-sm text-[#800000] font-semibold bg-rose-100 px-3 py-1 rounded-full">
       Our Services
     </span>
     <h2 className="text-4xl font-bold mt-4">Exquisite Jewelry, Exceptional Services</h2>

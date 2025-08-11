@@ -264,7 +264,7 @@ const Checkout: React.FC = () => {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-12">
         <Navbar />
         <div className="max-w-2xl mx-auto px-4">
           <motion.div
@@ -285,7 +285,7 @@ const Checkout: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-900 hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                  className="bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
                 >
                   Continue Shopping
                 </button>
@@ -303,18 +303,18 @@ const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-8">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-8">
           <button
             onClick={() => window.history.back()}
-            className="inline-flex items-center text-blue-800 hover:text-blue-900 transition-colors mb-4"
+            className="inline-flex items-center text-[#800000] hover:text-[#5a0d15] transition-colors mb-4"
           >
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Cart
           </button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-rose-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent">
             Secure Checkout
           </h1>
         </div>
@@ -329,7 +329,7 @@ const Checkout: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 text-center"
                 >
-                  <i className="ri-user-line text-6xl text-blue-800 mb-4"></i>
+                  <i className="ri-user-line text-6xl text-[#800000] mb-4"></i>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Login Required</h2>
                   <p className="text-gray-600 mb-6">
                     Please log in to complete your purchase.
@@ -337,7 +337,7 @@ const Checkout: React.FC = () => {
                   <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={() => window.location.href = '/login'}
-                      className="bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-900 hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                      className="bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
                     >
                       Login
                     </button>
@@ -355,14 +355,14 @@ const Checkout: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 text-center"
                 >
-                  <i className="ri-shopping-cart-line text-6xl text-blue-800 mb-4"></i>
+                  <i className="ri-shopping-cart-line text-6xl text-[#800000] mb-4"></i>
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">Your Cart is Empty</h2>
                   <p className="text-gray-600 mb-6">
                     Add items to your cart to proceed with checkout.
                   </p>
                   <button
                     onClick={() => window.location.href = '/products'}
-                    className="bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-900 hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                    className="bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
                   >
                     Shop Now
                   </button>
@@ -384,7 +384,7 @@ const Checkout: React.FC = () => {
                               alt={item.name}
                               className="w-16 h-16 object-cover rounded-lg"
                             />
-                            <div className="absolute -top-2 -right-2 bg-blue-800 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
+                            <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
                               {item.quantity}
                             </div>
                           </div>
@@ -428,7 +428,7 @@ const Checkout: React.FC = () => {
                           name="fullName"
                           value={shippingAddress.fullName}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -439,7 +439,7 @@ const Checkout: React.FC = () => {
                           name="addressLine1"
                           value={shippingAddress.addressLine1}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -450,7 +450,7 @@ const Checkout: React.FC = () => {
                           name="addressLine2"
                           value={shippingAddress.addressLine2}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                         />
                       </div>
                       <div>
@@ -460,7 +460,7 @@ const Checkout: React.FC = () => {
                           name="city"
                           value={shippingAddress.city}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -471,7 +471,7 @@ const Checkout: React.FC = () => {
                           name="state"
                           value={shippingAddress.state}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -482,7 +482,7 @@ const Checkout: React.FC = () => {
                           name="postalCode"
                           value={shippingAddress.postalCode}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -493,7 +493,7 @@ const Checkout: React.FC = () => {
                           name="country"
                           value={shippingAddress.country}
                           onChange={(e) => handleInputChange(e, setShippingAddress)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           required
                         />
                       </div>
@@ -515,7 +515,7 @@ const Checkout: React.FC = () => {
                           name="cardNumber"
                           value={paymentDetails.cardNumber}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           placeholder="1234 5678 9012 3456"
                           maxLength={19}
                           required
@@ -528,7 +528,7 @@ const Checkout: React.FC = () => {
                           name="expiry"
                           value={paymentDetails.expiry}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           placeholder="MM/YY"
                           maxLength={5}
                           required
@@ -541,7 +541,7 @@ const Checkout: React.FC = () => {
                           name="cvv"
                           value={paymentDetails.cvv}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                           placeholder="123"
                           maxLength={4}
                           required
@@ -564,7 +564,7 @@ const Checkout: React.FC = () => {
                     <button
                       onClick={handlePlaceOrder}
                       disabled={loading}
-                      className="w-full lg:w-auto bg-gradient-to-r from-blue-800 to-blue-900 hover:from-blue-900 hover:to-slate-900 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      className="w-full lg:w-auto bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                       {loading ? (
                         <div className="flex items-center justify-center">
@@ -602,7 +602,7 @@ const Checkout: React.FC = () => {
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded-lg"
                       />
-                      <div className="absolute -top-2 -right-2 bg-blue-800 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
+                      <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
                         {item.quantity}
                       </div>
                     </div>
@@ -631,7 +631,7 @@ const Checkout: React.FC = () => {
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total</span>
-                    <span className="text-lg font-bold text-blue-800">${total.toLocaleString('en-US')}</span>
+                    <span className="text-lg font-bold text-[#800000]">${total.toLocaleString('en-US')}</span>
                   </div>
                 </div>
               </div>

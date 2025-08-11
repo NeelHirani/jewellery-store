@@ -78,11 +78,11 @@ const Cart: React.FC = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-blue-50">
+      <div className="min-h-screen bg-rose-50">
         <Header />
         <div className="container mx-auto px-4 py-12 text-center">
           <h2 className="text-3xl font-playfair text-gray-800 mb-4 mt-60">Your Cart is Empty</h2>
-          <Link to="/products" className="bg-blue-800 text-white px-8 py-3 rounded-lg hover:bg-blue-900 transition-colors">
+          <Link to="/products" className="bg-[#800000] text-white px-8 py-3 rounded-lg hover:bg-[#5a0d15] transition-colors">
             Shop Now
           </Link>
         </div>
@@ -91,7 +91,7 @@ const Cart: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-rose-50">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-playfair text-gray-800 mb-6 mt-13">Shopping Cart</h1>
@@ -109,13 +109,13 @@ const Cart: React.FC = () => {
                     <div className="flex items-center gap-3 mt-3">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-blue-100"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-rose-100"
                         aria-label="Decrease quantity"
                       >-</button>
                       <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-blue-100"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-rose-100"
                         aria-label="Increase quantity"
                       >+</button>
                       <button
@@ -127,7 +127,7 @@ const Cart: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <div className="text-lg font-semibold text-blue-800 whitespace-nowrap">
+                  <div className="text-lg font-semibold text-[#800000] whitespace-nowrap">
                     ${(item.price * item.quantity).toLocaleString('en-US')}
                   </div>
                 </div>
@@ -156,12 +156,12 @@ const Cart: React.FC = () => {
               <hr className="my-3" />
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span className="text-blue-800">${total.toLocaleString('en-US')}</span>
+                <span className="text-[#800000]">${total.toLocaleString('en-US')}</span>
               </div>
             </div>
             <Link
               to="/checkout"
-              className="block mt-6 bg-blue-800 hover:bg-blue-900 text-white py-3 px-4 text-center rounded-lg transition-colors font-medium"
+              className="block mt-6 bg-[#800000] hover:bg-[#5a0d15] text-white py-3 px-4 text-center rounded-lg transition-colors font-medium"
             >
               Proceed to Checkout
             </Link>

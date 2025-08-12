@@ -18,12 +18,6 @@ const Checkout: React.FC = () => {
     phoneNumber: string;
   }
 
-  interface PaymentDetails {
-    cardNumber: string;
-    expiry: string;
-    cvv: string;
-  }
-
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: '',
     addressLine1: '',
@@ -33,11 +27,6 @@ const Checkout: React.FC = () => {
     postalCode: '',
     country: '',
     phoneNumber: ''
-  });
-  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
-    cardNumber: '',
-    expiry: '',
-    cvv: ''
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>(null);
@@ -52,8 +41,6 @@ const Checkout: React.FC = () => {
   // Validation states
   const [addressErrors, setAddressErrors] = useState<any>({});
   const [showValidation, setShowValidation] = useState<boolean>(false);
-  const [paymentErrors, setPaymentErrors] = useState<any>({});
-  const [showPaymentValidation, setShowPaymentValidation] = useState<boolean>(false);
 
   // Calculate subtotal, tax, and total (matching Cart.jsx logic)
   const subtotal = cartItems.reduce((total, item) => {
@@ -341,116 +328,7 @@ const Checkout: React.FC = () => {
     }
   };
 
-  // Add formatting functions
-  const formatCardNumber = (value: string): string => {
-    // Remove all non-digits and limit to 16 digits
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '').substring(0, 16);
-    // Add spaces every 4 digits
-    const parts = [];
-    for (let i = 0, len = v.length; i < len; i += 4) {
-      parts.push(v.substring(i, i + 4));
-    }
-    return parts.join(' ');
-  };
 
-  const formatExpiry = (value: string): string => {
-    // Remove all non-digits
-    const v = value.replace(/\D/g, '');
-    // Add slash after 2 digits
-    if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-    return v;
-  };
-
-  const formatCVV = (value: string): string => {
-    // Only allow digits, max 3 characters for strict validation
-    return value.replace(/\D/g, '').substring(0, 3);
-  };
-
-  const handlePaymentInputChange = (e: any): void => {
-    const { name, value } = e.target;
-    let formattedValue = value;
-
-    switch (name) {
-      case 'cardNumber':
-        formattedValue = formatCardNumber(value);
-        break;
-      case 'expiry':
-        formattedValue = formatExpiry(value);
-        break;
-      case 'cvv':
-        formattedValue = formatCVV(value);
-        break;
-    }
-
-    // Clear validation error for this field when user starts typing
-    if (paymentErrors[name]) {
-      setPaymentErrors((prev: any) => ({ ...prev, [name]: '' }));
-    }
-
-    setPaymentDetails(prev => ({ ...prev, [name]: formattedValue }));
-  };
-
-  // Payment field styling with error states
-  const getPaymentFieldClassName = (fieldName: string): string => {
-    const baseClasses = "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm transition-all duration-200";
-    const hasError = showPaymentValidation && paymentErrors[fieldName];
-
-    if (hasError) {
-      return `${baseClasses} border-red-500 bg-red-50/30`;
-    } else {
-      return `${baseClasses} border-gray-300`;
-    }
-  };
-
-  // Enhanced payment validation with strict requirements
-  const validatePaymentDetails = (): boolean => {
-    const errors: any = {};
-
-    // Strict card number validation - exactly 16 digits
-    const cardNumberClean = paymentDetails.cardNumber.replace(/\s/g, '');
-    if (!cardNumberClean) {
-      errors.cardNumber = 'Card number is required';
-    } else if (!/^\d+$/.test(cardNumberClean)) {
-      errors.cardNumber = 'Card number must contain only digits';
-    } else if (cardNumberClean.length !== 16) {
-      errors.cardNumber = 'Card number must be exactly 16 digits';
-    }
-
-    // Expiry validation
-    if (!paymentDetails.expiry) {
-      errors.expiry = 'Expiry date is required';
-    } else {
-      const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
-      if (!expiryPattern.test(paymentDetails.expiry)) {
-        errors.expiry = 'Please enter expiry date in MM/YY format';
-      } else {
-        // Check if expiry date is not in the past
-        const [month, year] = paymentDetails.expiry.split('/');
-        const expiryDate = new Date(2000 + parseInt(year!), parseInt(month!) - 1);
-        const currentDate = new Date();
-        currentDate.setDate(1); // Set to first day of current month
-        if (expiryDate < currentDate) {
-          errors.expiry = 'Card has expired. Please enter a valid expiry date';
-        }
-      }
-    }
-
-    // Strict CVV validation - exactly 3 digits
-    if (!paymentDetails.cvv) {
-      errors.cvv = 'CVV is required';
-    } else if (!/^\d+$/.test(paymentDetails.cvv)) {
-      errors.cvv = 'CVV must contain only digits';
-    } else if (paymentDetails.cvv.length !== 3) {
-      errors.cvv = 'CVV must be exactly 3 digits';
-    }
-
-    setPaymentErrors(errors);
-    setShowPaymentValidation(true);
-
-    return Object.keys(errors).length === 0;
-  };
 
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) {
@@ -469,11 +347,7 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    // Validate payment details
-    if (!validatePaymentDetails()) {
-      setError('Please complete all required payment fields correctly.');
-      return;
-    }
+
 
     setLoading(true);
     setError(null);
@@ -578,6 +452,7 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-8 mt-15">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4">
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -949,70 +824,7 @@ const Checkout: React.FC = () => {
                     )}
                   </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
-                  >
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Card Number <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="cardNumber"
-                          value={paymentDetails.cardNumber}
-                          onChange={handlePaymentInputChange}
-                          className={getPaymentFieldClassName('cardNumber')}
-                          placeholder="1234 5678 9012 3456"
-                          maxLength={19}
-                          required
-                        />
-                        {showPaymentValidation && paymentErrors.cardNumber && (
-                          <p className="text-red-500 text-xs mt-1">{paymentErrors.cardNumber}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Expiry Date <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="expiry"
-                          value={paymentDetails.expiry}
-                          onChange={handlePaymentInputChange}
-                          className={getPaymentFieldClassName('expiry')}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          required
-                        />
-                        {showPaymentValidation && paymentErrors.expiry && (
-                          <p className="text-red-500 text-xs mt-1">{paymentErrors.expiry}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          CVV <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="cvv"
-                          value={paymentDetails.cvv}
-                          onChange={handlePaymentInputChange}
-                          className={getPaymentFieldClassName('cvv')}
-                          placeholder="123"
-                          maxLength={3}
-                          required
-                        />
-                        {showPaymentValidation && paymentErrors.cvv && (
-                          <p className="text-red-500 text-xs mt-1">{paymentErrors.cvv}</p>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+
 
                   {error && (
                     <p className="text-red-600 text-center mb-4">{error}</p>
@@ -1091,7 +903,7 @@ const Checkout: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <i className="ri-secure-payment-line mr-2"></i>
+                      <i className="ri-shopping-bag-line mr-2"></i>
                       Place Order
                     </>
                   )}

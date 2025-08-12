@@ -115,10 +115,10 @@ const AdminLogin: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37] to-[#FFB300] rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#800000] to-[#5a0d15] rounded-xl flex items-center justify-center mx-auto mb-4">
               <FaShieldAlt className="text-white text-2xl" />
             </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#D4AF37] to-[#FFB300] bg-clip-text text-transparent font-playfair">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#800000] to-[#5a0d15] bg-clip-text text-transparent font-playfair">
               Secure Admin Access
             </h2>
             <p className="text-gray-600 mt-2 font-inter">Protected administrative dashboard</p>
@@ -153,7 +153,7 @@ const AdminLogin: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent font-inter"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent font-inter"
                   placeholder="Enter admin email"
                   disabled={loading}
                   autoComplete="email"
@@ -176,7 +176,7 @@ const AdminLogin: React.FC = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#D4AF37] focus:border-transparent font-inter"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent font-inter"
                   placeholder="Enter admin password"
                   disabled={loading}
                   autoComplete="current-password"
@@ -199,7 +199,7 @@ const AdminLogin: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFB300] text-white font-medium rounded-lg hover:from-[#C19A33] hover:to-[#E6A200] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap font-inter"
+              className="w-full py-3 bg-gradient-to-r from-[#800000] to-[#5a0d15] text-white font-medium rounded-lg hover:from-[#5a0d15] hover:to-[#800000] transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none whitespace-nowrap font-inter"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -213,8 +213,8 @@ const AdminLogin: React.FC = () => {
           </form>
 
           {/* Security Notice */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-[#D4AF37]/10 to-[#FFB300]/10 rounded-lg border border-[#D4AF37]/20">
-            <div className="flex items-center justify-center text-[#C19A33] mb-2">
+          <div className="mt-6 p-4 bg-gradient-to-r from-[#800000]/10 to-rose-50 rounded-lg border border-[#800000]/20">
+            <div className="flex items-center justify-center text-[#800000] mb-2">
               <FaShieldAlt className="mr-2" />
               <p className="text-sm font-medium font-inter">Secure Authentication</p>
             </div>

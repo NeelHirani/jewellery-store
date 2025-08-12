@@ -62,9 +62,7 @@ const Cart: React.FC = () => {
   };
   */
 
-  const clearCart = (): void => {
-    setCartItems([]);
-  };
+
 
   const subtotal = cartItems.reduce((total, item) => {
     return total + (item.price || 0) * item.quantity;
@@ -91,7 +89,7 @@ const Cart: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-rose-50">
+    <div className="min-h-screen bg-white">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-playfair text-gray-800 mb-6 mt-13">Shopping Cart</h1>
@@ -110,44 +108,56 @@ const Cart: React.FC = () => {
                     }}
                   />
                   <div className="flex-1 space-y-1">
+                    {/* Product Name */}
                     <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
                     <p className="text-gray-500 text-sm">Metal: <span className="text-gray-800">{item.metal}</span></p>
                     <p className="text-gray-500 text-sm">Stone: <span className="text-gray-800">{item.stone}</span></p>
-                    <p className="text-gray-500 text-sm">Size: <span className="text-gray-800">{item.selectedSize}</span></p>
-                    <div className="flex items-center gap-3 mt-3">
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-rose-100"
-                        aria-label="Decrease quantity"
-                      >-</button>
-                      <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 hover:bg-rose-100"
-                        aria-label="Increase quantity"
-                      >+</button>
-                      <button
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-500 hover:text-red-700 ml-auto"
-                        title="Remove Item"
-                      >
-                        <FaTrashAlt />
-                      </button>
+                    <div className="flex items-center mt-3">
+                      {/* Quantity Selector */}
+                      <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                          aria-label="Decrease quantity"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                          </svg>
+                        </button>
+                        <div className="w-12 h-10 flex items-center justify-center border-x border-gray-300 bg-gray-50">
+                          <span className="text-sm font-medium text-gray-800">{item.quantity}</span>
+                        </div>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.quantity >= 10}
+                          className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                          aria-label="Increase quantity"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-lg font-semibold text-[#800000] whitespace-nowrap">
-                    ${(item.price * item.quantity).toLocaleString('en-US')}
+                  {/* Price and Delete Button Column */}
+                  <div className="flex flex-col items-end space-y-3">
+                    <div className="text-lg font-semibold text-[#800000] whitespace-nowrap">
+                      ${(item.price * item.quantity).toLocaleString('en-US')}
+                    </div>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="px-3 py-1.5 bg-white text-[#800000] border-2 border-[#800000] rounded-lg hover:bg-[#800000] hover:text-white transition-all duration-200 font-medium text-sm flex items-center"
+                      title="Remove Item"
+                    >
+                      <FaTrashAlt className="w-3 h-3 mr-1.5" />
+                      Remove
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
-
-            <button
-              onClick={clearCart}
-              className="text-red-600 hover:text-red-800 underline mt-4 text-sm"
-            >
-              Clear Entire Cart
-            </button>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-md h-fit sticky top-28">

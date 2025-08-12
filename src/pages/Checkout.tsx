@@ -330,6 +330,8 @@ const Checkout: React.FC = () => {
 
 
 
+
+
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) {
       setError('Your cart is empty.');
@@ -346,8 +348,6 @@ const Checkout: React.FC = () => {
       setError('Please complete all required shipping address fields.');
       return;
     }
-
-
 
     setLoading(true);
     setError(null);
@@ -367,14 +367,15 @@ const Checkout: React.FC = () => {
       // Use calculated total amount (including tax)
       const totalAmount = total;
 
-      // Create order
+      // Create order with Cash on Delivery payment method
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: userData.id,
           total_amount: totalAmount,
           shipping_address: shippingAddress,
-          payment_status: 'completed',
+          payment_method: 'cod',
+          payment_status: 'pending', // COD payment is pending until delivery
           order_status: 'processing'
         })
         .select()
@@ -505,51 +506,23 @@ const Checkout: React.FC = () => {
                 </motion.div>
               ) : (
                 <>
+                  {/* Back to Cart Button */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+                    transition={{ delay: 0.05 }}
+                    className="mb-6"
                   >
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Cart</h2>
-                    <div className="space-y-4 mb-6">
-                      {cartItems.map((item: any, index: number) => (
-                        <div key={item.id || item.productId || index} className="flex items-center space-x-4">
-                          <div className="relative">
-                            <img
-                              src={getSafeImageSrc(item.image)}
-                              alt={item.name || 'Product image'}
-                              className="w-16 h-16 object-cover rounded-lg"
-                              onError={handleImageError}
-                            />
-                            <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
-                              {item.quantity}
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
-                            {item.selectedSize && <p className="text-sm text-gray-600">Size: {item.selectedSize}</p>}
-                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          </div>
-                          <p className="font-semibold text-gray-900">${((item.price || 0) * item.quantity).toLocaleString()}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="border-t border-gray-200 pt-4 space-y-2">
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Subtotal</span>
-                        <span>${subtotal.toLocaleString('en-US')}</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Tax (10%)</span>
-                        <span>${tax.toLocaleString('en-US')}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
-                        <span>Total</span>
-                        <span>${total.toLocaleString('en-US')}</span>
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => window.location.href = '/cart'}
+                      className="flex items-center text-sm text-[#800000] hover:text-[#5a0d15] font-medium transition-all duration-200 px-4 py-2 rounded-lg hover:bg-rose-50 border border-transparent hover:border-rose-200"
+                    >
+                      <i className="ri-shopping-cart-line mr-2"></i>
+                      Back to Cart
+                    </button>
                   </motion.div>
 
+                  {/* Shipping Address Section */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -824,7 +797,83 @@ const Checkout: React.FC = () => {
                     )}
                   </motion.div>
 
+                  {/* Payment Details Section */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
+                  >
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Payment Method</h2>
+                    <p className="text-sm text-gray-600 mb-4">Select your preferred payment option</p>
 
+                    {/* Payment Method Selection */}
+                    <div className="space-y-3">
+                      {/* Cash on Delivery - Default Selected */}
+                      <div
+                        className="p-4 border-2 border-[#800000] bg-rose-50 rounded-xl transition-all duration-200 relative"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-[#800000] rounded-full flex items-center justify-center mr-4">
+                              <i className="ri-hand-coin-line text-white text-lg"></i>
+                            </div>
+                            <div>
+                              <div className="font-medium text-[#800000]">Cash on Delivery</div>
+                              <div className="text-sm text-gray-600">Pay when you receive your order</div>
+                            </div>
+                          </div>
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <i className="ri-check-line text-white text-sm"></i>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Razorpay - Coming Soon */}
+                      <div
+                        className="p-4 border-2 border-gray-200 bg-gray-50 rounded-xl transition-all duration-200 relative opacity-60 cursor-not-allowed"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center mr-4">
+                              <i className="ri-secure-payment-line text-white text-lg"></i>
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-500 flex items-center">
+                                Razorpay
+                                <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full font-medium">
+                                  Coming Soon
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-400">UPI, Cards, Wallets</div>
+                            </div>
+                          </div>
+                          <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Information */}
+                    <div className="mt-6 bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <div className="flex items-start">
+                        <i className="ri-information-line text-[#800000] text-lg mr-3 mt-0.5"></i>
+                        <div>
+                          <h4 className="font-medium text-[#800000] mb-1">Cash on Delivery</h4>
+                          <p className="text-sm text-gray-600">
+                            Pay in cash when your order is delivered to your address. Our delivery partner will collect the payment upon delivery.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Security Notice */}
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <div className="flex items-center justify-center text-sm text-gray-500">
+                        <i className="ri-shield-check-line mr-2 text-green-600"></i>
+                        Secure and reliable delivery service
+                      </div>
+                    </div>
+                  </motion.div>
 
                   {error && (
                     <p className="text-red-600 text-center mb-4">{error}</p>
@@ -848,16 +897,13 @@ const Checkout: React.FC = () => {
               <div className="space-y-4 mb-6">
                 {cartItems.map((item: any, index: number) => (
                   <div key={item.id || item.productId || index} className="flex items-center space-x-4">
-                    <div className="relative">
+                    <div>
                       <img
                         src={getSafeImageSrc(item.image)}
                         alt={item.name || 'Product image'}
                         className="w-16 h-16 object-cover rounded-lg"
                         onError={handleImageError}
                       />
-                      <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
-                        {item.quantity}
-                      </div>
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
@@ -890,7 +936,7 @@ const Checkout: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-6 space-y-3">
+              <div className="mt-6">
                 <button
                   onClick={handlePlaceOrder}
                   disabled={loading}
@@ -903,18 +949,10 @@ const Checkout: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <i className="ri-shopping-bag-line mr-2"></i>
+                      <i className="ri-secure-payment-line mr-2"></i>
                       Place Order
                     </>
                   )}
-                </button>
-
-                <button
-                  onClick={() => window.history.back()}
-                  className="w-full border-2 border-[#800000] text-[#800000] hover:bg-rose-50 font-semibold py-3 px-6 rounded-xl transition-all duration-200"
-                >
-                  <i className="ri-arrow-left-line mr-2"></i>
-                  Go Back
                 </button>
               </div>
 

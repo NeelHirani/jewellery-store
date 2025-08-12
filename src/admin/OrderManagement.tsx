@@ -405,33 +405,41 @@ const OrderManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Customer Information</h3>
+              <div className="bg-rose-50 p-4 rounded-lg border border-rose-200">
+                <h3 className="font-semibold text-[#800000] mb-3">Customer Information</h3>
                 <div className="space-y-2 text-sm">
-                  <p><span className="font-medium">Name:</span> {selectedOrder.users?.name || 'N/A'}</p>
-                  <p><span className="font-medium">Email:</span> {selectedOrder.users?.email || 'N/A'}</p>
-                  <p><span className="font-medium">Phone:</span> {selectedOrder.users?.phone || 'N/A'}</p>
+                  <p><span className="font-medium text-[#800000]">Name:</span> <span className="text-gray-700">{selectedOrder.users?.name || 'N/A'}</span></p>
+                  <p><span className="font-medium text-[#800000]">Email:</span> <span className="text-gray-700">{selectedOrder.users?.email || 'N/A'}</span></p>
+                  <p><span className="font-medium text-[#800000]">Phone:</span> <span className="text-gray-700">{
+                    // Try to get phone from shipping address first, then fallback to user phone
+                    (selectedOrder.shipping_address && typeof selectedOrder.shipping_address === 'object' && selectedOrder.shipping_address.phoneNumber) ||
+                    selectedOrder.users?.phone ||
+                    'Not provided'
+                  }</span></p>
                 </div>
               </div>
             </div>
 
             {selectedOrder.shipping_address && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Shipping Address</h3>
-                <div className="text-sm text-gray-700">
+              <div className="bg-rose-50 p-4 rounded-lg border border-rose-200">
+                <h3 className="font-semibold text-[#800000] mb-3">Shipping Address</h3>
+                <div className="text-sm">
                   {typeof selectedOrder.shipping_address === 'string' ? (
-                    <p>{selectedOrder.shipping_address}</p>
+                    <p className="text-gray-700">{selectedOrder.shipping_address}</p>
                   ) : (
-                    <div className="space-y-1">
-                      <p>{selectedOrder.shipping_address.fullName}</p>
-                      <p>{selectedOrder.shipping_address.addressLine1}</p>
+                    <div className="space-y-2">
+                      <p><span className="font-medium text-[#800000]">Name:</span> <span className="text-gray-700">{selectedOrder.shipping_address.fullName || 'N/A'}</span></p>
+                      <p><span className="font-medium text-[#800000]">Address:</span> <span className="text-gray-700">{selectedOrder.shipping_address.addressLine1 || 'N/A'}</span></p>
                       {selectedOrder.shipping_address.addressLine2 && (
-                        <p>{selectedOrder.shipping_address.addressLine2}</p>
+                        <p><span className="font-medium text-[#800000]">Address Line 2:</span> <span className="text-gray-700">{selectedOrder.shipping_address.addressLine2}</span></p>
                       )}
-                      <p>
-                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.postalCode}
-                      </p>
-                      <p>{selectedOrder.shipping_address.country}</p>
+                      <p><span className="font-medium text-[#800000]">City:</span> <span className="text-gray-700">{selectedOrder.shipping_address.city || 'N/A'}</span></p>
+                      <p><span className="font-medium text-[#800000]">State:</span> <span className="text-gray-700">{selectedOrder.shipping_address.state || 'N/A'}</span></p>
+                      <p><span className="font-medium text-[#800000]">Postal Code:</span> <span className="text-gray-700">{selectedOrder.shipping_address.postalCode || 'N/A'}</span></p>
+                      <p><span className="font-medium text-[#800000]">Country:</span> <span className="text-gray-700">{selectedOrder.shipping_address.country || 'N/A'}</span></p>
+                      {selectedOrder.shipping_address.phoneNumber && (
+                        <p><span className="font-medium text-[#800000]">Phone:</span> <span className="text-gray-700">{selectedOrder.shipping_address.phoneNumber}</span></p>
+                      )}
                     </div>
                   )}
                 </div>

@@ -15,6 +15,7 @@ const Checkout: React.FC = () => {
     state: string;
     postalCode: string;
     country: string;
+    phoneNumber: string;
   }
 
   interface PaymentDetails {
@@ -30,7 +31,8 @@ const Checkout: React.FC = () => {
     city: '',
     state: '',
     postalCode: '',
-    country: ''
+    country: '',
+    phoneNumber: ''
   });
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
     cardNumber: '',
@@ -41,10 +43,17 @@ const Checkout: React.FC = () => {
   const [error, setError] = useState<any>(null);
   const [orderPlaced, setOrderPlaced] = useState<boolean>(false);
 
-  // Address auto-fill states
-  const [useProfileAddress, setUseProfileAddress] = useState<boolean>(true);
+  // Address management states
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [showAddressForm, setShowAddressForm] = useState<boolean>(false);
   const [addressAutoFilled, setAddressAutoFilled] = useState<boolean>(false);
-  const [profileAddressAvailable, setProfileAddressAvailable] = useState<boolean>(false);
+
+  // Validation states
+  const [addressErrors, setAddressErrors] = useState<any>({});
+  const [showValidation, setShowValidation] = useState<boolean>(false);
+  const [paymentErrors, setPaymentErrors] = useState<any>({});
+  const [showPaymentValidation, setShowPaymentValidation] = useState<boolean>(false);
 
   // Calculate subtotal, tax, and total (matching Cart.jsx logic)
   const subtotal = cartItems.reduce((total, item) => {
@@ -54,20 +63,40 @@ const Checkout: React.FC = () => {
   const total = subtotal + tax;
 
   useEffect(() => {
-    // Load cart from localStorage
+    // Load cart from localStorage with data validation
     const loadCartFromStorage = (): void => {
       try {
         const savedCart = localStorage.getItem('jewelMartCart');
         if (savedCart) {
-          setCartItems(JSON.parse(savedCart));
+          const cartData = JSON.parse(savedCart);
+
+          // Validate and clean cart data
+          const cleanedCartItems = cartData.map((item: any) => ({
+            ...item,
+            // Ensure required fields exist
+            id: item.id || item.productId || `item_${Date.now()}_${Math.random()}`,
+            name: item.name || 'Unknown Product',
+            price: typeof item.price === 'number' ? item.price : 0,
+            quantity: typeof item.quantity === 'number' ? item.quantity : 1,
+            // Clean up image URL if it's corrupted
+            image: item.image && typeof item.image === 'string' ? item.image : '/images/hero1.jpg'
+          }));
+
+          setCartItems(cleanedCartItems);
+
+          // Save cleaned data back to localStorage
+          localStorage.setItem('jewelMartCart', JSON.stringify(cleanedCartItems));
         }
       } catch (err) {
         console.error('Error loading cart:', err);
         setError('Failed to load cart items.');
+        // Clear corrupted cart data
+        localStorage.removeItem('jewelMartCart');
+        setCartItems([]);
       }
     };
 
-    // Enhanced user loading with comprehensive address auto-fill
+    // Enhanced user loading with address management
     const loadUserFromStorage = (): void => {
       try {
         const savedUser = localStorage.getItem('user');
@@ -75,77 +104,96 @@ const Checkout: React.FC = () => {
           const userData = JSON.parse(savedUser);
           setUser(userData);
 
-          // Check if profile has address data
-          const hasCompleteAddress = userData.address && userData.city && userData.country;
-          const hasPartialAddress = userData.address || userData.city || userData.state || userData.zip || userData.country;
-
-          setProfileAddressAvailable(hasPartialAddress);
-
-          // Auto-fill address if user has any address data and useProfileAddress is enabled
-          if (hasPartialAddress && useProfileAddress) {
-            const autoFilledAddress = {
-              fullName: userData.name || '',
-              addressLine1: userData.address || '',
-              addressLine2: userData.apartment || '',
-              city: userData.city || '',
-              state: userData.state || '',
-              postalCode: userData.zip || '',
-              country: userData.country || ''
-            };
-
-            setShippingAddress(autoFilledAddress);
-            setAddressAutoFilled(true);
-
-            // Show notification for auto-filled address
-            if (hasCompleteAddress) {
-              console.log('✅ Address auto-filled from profile');
-            } else {
-              console.log('⚠️ Partial address auto-filled from profile');
-            }
-          }
+          // Load saved addresses
+          loadSavedAddresses(userData.email);
         }
       } catch (err) {
         console.error('Error loading user:', err);
       }
     };
 
+    // Load saved addresses for the user
+    const loadSavedAddresses = (userEmail: string): void => {
+      try {
+        const savedAddressesData = localStorage.getItem(`addresses_${userEmail}`);
+        if (savedAddressesData) {
+          const addresses = JSON.parse(savedAddressesData);
+          setSavedAddresses(addresses);
+
+          // Find default address and auto-select it
+          const defaultAddress = addresses.find((addr: any) => addr.isDefault) || addresses[0];
+          if (defaultAddress) {
+            setSelectedAddressId(defaultAddress.id);
+            selectAddress(defaultAddress);
+          } else {
+            setShowAddressForm(true);
+          }
+        } else {
+          // No saved addresses, check if user has profile address
+          const userData = JSON.parse(localStorage.getItem('user') || '{}');
+          const hasProfileAddress = userData.address || userData.city || userData.state;
+
+          if (hasProfileAddress) {
+            // Create a temporary address from profile data
+            const profileAddress = {
+              id: 'profile-temp',
+              label: 'Profile Address',
+              fullName: userData.name || '',
+              address: userData.address || '',
+              apartment: userData.apartment || '',
+              city: userData.city || '',
+              state: userData.state || '',
+              country: userData.country || '',
+              zip: userData.zip || '',
+              isDefault: true
+            };
+            setSavedAddresses([profileAddress]);
+            setSelectedAddressId(profileAddress.id);
+            selectAddress(profileAddress);
+          } else {
+            // No addresses at all, show form
+            setShowAddressForm(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved addresses:', error);
+        setShowAddressForm(true);
+      }
+    };
+
     loadCartFromStorage();
     loadUserFromStorage();
-  }, [useProfileAddress]);
+  }, []);
 
-  // Address management functions
-  const toggleProfileAddress = (): void => {
-    setUseProfileAddress(!useProfileAddress);
+  // Address selection functions
+  const selectAddress = (address: any): void => {
+    const selectedAddress = {
+      fullName: address.fullName || '',
+      addressLine1: address.address || '',
+      addressLine2: address.apartment || '',
+      city: address.city || '',
+      state: address.state || '',
+      postalCode: address.zip || '',
+      country: address.country || '',
+      phoneNumber: address.phoneNumber || ''
+    };
 
-    if (!useProfileAddress && user && profileAddressAvailable) {
-      // Fill address from profile
-      const autoFilledAddress = {
-        fullName: user.name || '',
-        addressLine1: user.address || '',
-        addressLine2: user.apartment || '',
-        city: user.city || '',
-        state: user.state || '',
-        postalCode: user.zip || '',
-        country: user.country || ''
-      };
-      setShippingAddress(autoFilledAddress);
-      setAddressAutoFilled(true);
-    } else if (useProfileAddress) {
-      // Clear address fields
-      setShippingAddress({
-        fullName: '',
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: ''
-      });
-      setAddressAutoFilled(false);
+    setShippingAddress(selectedAddress);
+    setSelectedAddressId(address.id);
+    setAddressAutoFilled(true);
+    setShowAddressForm(false);
+  };
+
+  const handleAddressSelection = (addressId: string): void => {
+    const selectedAddr = savedAddresses.find(addr => addr.id === addressId);
+    if (selectedAddr) {
+      selectAddress(selectedAddr);
     }
   };
 
-  const clearAutoFilledAddress = (): void => {
+  const showNewAddressForm = (): void => {
+    setShowAddressForm(true);
+    setSelectedAddressId(null);
     setShippingAddress({
       fullName: '',
       addressLine1: '',
@@ -153,38 +201,139 @@ const Checkout: React.FC = () => {
       city: '',
       state: '',
       postalCode: '',
-      country: ''
+      country: '',
+      phoneNumber: ''
     });
     setAddressAutoFilled(false);
-    setUseProfileAddress(false);
   };
 
-  const getAddressCompletionStatus = (): { isComplete: boolean; missingFields: string[] } => {
-    const requiredFields = ['fullName', 'addressLine1', 'city', 'state', 'postalCode', 'country'];
-    const missingFields = requiredFields.filter(field => !shippingAddress[field as keyof ShippingAddress]?.trim());
+  const cancelAddressForm = (): void => {
+    setShowAddressForm(false);
+    // If there are saved addresses, select the first one
+    if (savedAddresses.length > 0) {
+      const firstAddress = savedAddresses[0];
+      setSelectedAddressId(firstAddress.id);
+      selectAddress(firstAddress);
+    }
+  };
 
-    return {
-      isComplete: missingFields.length === 0,
-      missingFields
-    };
+  // Enhanced validation functions
+  const validatePhoneNumber = (phone: string): boolean => {
+    // Basic phone validation - accepts various formats
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$|^[\+]?[(]?[\d\s\-\(\)]{10,}$/;
+    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+  };
+
+  const validateAddressForm = (): boolean => {
+    const errors: any = {};
+
+    // Required field validation
+    if (!shippingAddress.fullName?.trim()) {
+      errors.fullName = 'Full name is required';
+    }
+
+    if (!shippingAddress.addressLine1?.trim()) {
+      errors.addressLine1 = 'Address is required';
+    }
+
+    if (!shippingAddress.city?.trim()) {
+      errors.city = 'City is required';
+    }
+
+    if (!shippingAddress.state?.trim()) {
+      errors.state = 'State/Province is required';
+    }
+
+    if (!shippingAddress.postalCode?.trim()) {
+      errors.postalCode = 'Postal/ZIP code is required';
+    }
+
+    if (!shippingAddress.country?.trim()) {
+      errors.country = 'Country is required';
+    }
+
+    if (!shippingAddress.phoneNumber?.trim()) {
+      errors.phoneNumber = 'Phone number is required';
+    } else if (!validatePhoneNumber(shippingAddress.phoneNumber)) {
+      errors.phoneNumber = 'Please enter a valid phone number';
+    }
+
+    setAddressErrors(errors);
+    setShowValidation(true);
+
+    return Object.keys(errors).length === 0;
   };
 
   const getFieldClassName = (fieldName: keyof ShippingAddress, isRequired: boolean = false): string => {
     const baseClasses = "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm transition-all duration-200";
     const hasValue = shippingAddress[fieldName]?.trim();
+    const hasError = showValidation && addressErrors[fieldName];
 
-    if (addressAutoFilled && hasValue) {
+    if (hasError) {
+      return `${baseClasses} border-red-500 bg-red-50/30`;
+    } else if (addressAutoFilled && hasValue) {
       return `${baseClasses} border-rose-300 bg-rose-50/30`;
-    } else if (isRequired && !hasValue) {
-      return `${baseClasses} border-gray-300 hover:border-gray-400`;
+    } else if (isRequired && !hasValue && showValidation) {
+      return `${baseClasses} border-red-300 hover:border-red-400`;
     } else {
       return `${baseClasses} border-gray-300`;
+    }
+  };
+
+
+
+  // Image error handling function
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>): void => {
+    const target = e.target as HTMLImageElement;
+    target.src = '/images/hero1.jpg'; // Use existing image as fallback
+    console.warn('Image failed to load, using fallback image');
+  };
+
+  // Safe image source function
+  const getSafeImageSrc = (imageSrc: string | undefined): string => {
+    const fallbackImage = '/images/hero1.jpg'; // Use existing image as fallback
+
+    if (!imageSrc) return fallbackImage;
+
+    // Check if it's a valid URL or data URL
+    try {
+      if (imageSrc.startsWith('data:image/')) {
+        // Validate data URL format
+        const isValidDataUrl = /^data:image\/(jpeg|jpg|png|gif|webp);base64,/.test(imageSrc);
+        if (!isValidDataUrl) {
+          console.warn('Invalid data URL format, using fallback image');
+          return fallbackImage;
+        }
+
+        // Additional check for corrupted base64 data
+        const base64Data = imageSrc.split(',')[1];
+        if (!base64Data || base64Data.length < 10) {
+          console.warn('Corrupted base64 data, using fallback image');
+          return fallbackImage;
+        }
+      } else if (imageSrc.startsWith('http') || imageSrc.startsWith('/')) {
+        // Valid HTTP URL or relative path
+        return imageSrc;
+      } else {
+        // Invalid format
+        console.warn('Invalid image source format, using fallback image');
+        return fallbackImage;
+      }
+      return imageSrc;
+    } catch (error) {
+      console.error('Error processing image source, using fallback:', error);
+      return fallbackImage;
     }
   };
 
   const handleInputChange = (e: any, setState: any): void => {
     const { name, value } = e.target;
     setState((prev: any) => ({ ...prev, [name]: value }));
+
+    // Clear validation error for this field when user starts typing
+    if (setState === setShippingAddress && addressErrors[name]) {
+      setAddressErrors((prev: any) => ({ ...prev, [name]: '' }));
+    }
 
     // If user manually edits address, mark as no longer auto-filled
     if (setState === setShippingAddress && addressAutoFilled) {
@@ -194,20 +343,14 @@ const Checkout: React.FC = () => {
 
   // Add formatting functions
   const formatCardNumber = (value: string): string => {
-    // Remove all non-digits
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    // Remove all non-digits and limit to 16 digits
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '').substring(0, 16);
     // Add spaces every 4 digits
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
     const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+    for (let i = 0, len = v.length; i < len; i += 4) {
+      parts.push(v.substring(i, i + 4));
     }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return v;
-    }
+    return parts.join(' ');
   };
 
   const formatExpiry = (value: string): string => {
@@ -221,8 +364,8 @@ const Checkout: React.FC = () => {
   };
 
   const formatCVV = (value: string): string => {
-    // Only allow digits, max 4 characters
-    return value.replace(/\D/g, '').substring(0, 4);
+    // Only allow digits, max 3 characters for strict validation
+    return value.replace(/\D/g, '').substring(0, 3);
   };
 
   const handlePaymentInputChange = (e: any): void => {
@@ -241,37 +384,72 @@ const Checkout: React.FC = () => {
         break;
     }
 
+    // Clear validation error for this field when user starts typing
+    if (paymentErrors[name]) {
+      setPaymentErrors((prev: any) => ({ ...prev, [name]: '' }));
+    }
+
     setPaymentDetails(prev => ({ ...prev, [name]: formattedValue }));
   };
 
-  const validatePaymentDetails = (): string | null => {
-    // Card number validation (remove spaces and check length)
+  // Payment field styling with error states
+  const getPaymentFieldClassName = (fieldName: string): string => {
+    const baseClasses = "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm transition-all duration-200";
+    const hasError = showPaymentValidation && paymentErrors[fieldName];
+
+    if (hasError) {
+      return `${baseClasses} border-red-500 bg-red-50/30`;
+    } else {
+      return `${baseClasses} border-gray-300`;
+    }
+  };
+
+  // Enhanced payment validation with strict requirements
+  const validatePaymentDetails = (): boolean => {
+    const errors: any = {};
+
+    // Strict card number validation - exactly 16 digits
     const cardNumberClean = paymentDetails.cardNumber.replace(/\s/g, '');
-    if (cardNumberClean.length < 13 || cardNumberClean.length > 19) {
-      return 'Please enter a valid card number (13-19 digits).';
+    if (!cardNumberClean) {
+      errors.cardNumber = 'Card number is required';
+    } else if (!/^\d+$/.test(cardNumberClean)) {
+      errors.cardNumber = 'Card number must contain only digits';
+    } else if (cardNumberClean.length !== 16) {
+      errors.cardNumber = 'Card number must be exactly 16 digits';
     }
 
     // Expiry validation
-    const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
-    if (!expiryPattern.test(paymentDetails.expiry)) {
-      return 'Please enter expiry date in MM/YY format.';
+    if (!paymentDetails.expiry) {
+      errors.expiry = 'Expiry date is required';
+    } else {
+      const expiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+      if (!expiryPattern.test(paymentDetails.expiry)) {
+        errors.expiry = 'Please enter expiry date in MM/YY format';
+      } else {
+        // Check if expiry date is not in the past
+        const [month, year] = paymentDetails.expiry.split('/');
+        const expiryDate = new Date(2000 + parseInt(year!), parseInt(month!) - 1);
+        const currentDate = new Date();
+        currentDate.setDate(1); // Set to first day of current month
+        if (expiryDate < currentDate) {
+          errors.expiry = 'Card has expired. Please enter a valid expiry date';
+        }
+      }
     }
 
-    // Check if expiry date is not in the past
-    const [month, year] = paymentDetails.expiry.split('/');
-    const expiryDate = new Date(2000 + parseInt(year!), parseInt(month!) - 1);
-    const currentDate = new Date();
-    currentDate.setDate(1); // Set to first day of current month
-    if (expiryDate < currentDate) {
-      return 'Card has expired. Please enter a valid expiry date.';
+    // Strict CVV validation - exactly 3 digits
+    if (!paymentDetails.cvv) {
+      errors.cvv = 'CVV is required';
+    } else if (!/^\d+$/.test(paymentDetails.cvv)) {
+      errors.cvv = 'CVV must contain only digits';
+    } else if (paymentDetails.cvv.length !== 3) {
+      errors.cvv = 'CVV must be exactly 3 digits';
     }
 
-    // CVV validation
-    if (paymentDetails.cvv.length < 3 || paymentDetails.cvv.length > 4) {
-      return 'Please enter a valid CVV (3-4 digits).';
-    }
+    setPaymentErrors(errors);
+    setShowPaymentValidation(true);
 
-    return null; // No errors
+    return Object.keys(errors).length === 0;
   };
 
   const handlePlaceOrder = async () => {
@@ -285,15 +463,15 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!shippingAddress.fullName || !shippingAddress.addressLine1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.country) {
-      setError('Please fill in all required shipping address fields.');
+    // Validate shipping address
+    if (!validateAddressForm()) {
+      setError('Please complete all required shipping address fields.');
       return;
     }
 
     // Validate payment details
-    const paymentError = validatePaymentDetails();
-    if (paymentError) {
-      setError(paymentError);
+    if (!validatePaymentDetails()) {
+      setError('Please complete all required payment fields correctly.');
       return;
     }
 
@@ -360,7 +538,7 @@ const Checkout: React.FC = () => {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-12 mt-15">
         <Navbar />
         <div className="max-w-2xl mx-auto px-4">
           <motion.div
@@ -399,21 +577,8 @@ const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-8">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50 py-8 mt-15">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-8">
-          <button
-            onClick={() => window.history.back()}
-            className="inline-flex items-center text-[#800000] hover:text-[#5a0d15] transition-colors mb-4"
-          >
-            <i className="ri-arrow-left-line mr-2"></i>
-            Back to Cart
-          </button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent">
-            Secure Checkout
-          </h1>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
@@ -476,9 +641,10 @@ const Checkout: React.FC = () => {
                         <div key={item.id || item.productId || index} className="flex items-center space-x-4">
                           <div className="relative">
                             <img
-                              src={item.image || '/placeholder-image.jpg'}
-                              alt={item.name}
+                              src={getSafeImageSrc(item.image)}
+                              alt={item.name || 'Product image'}
                               className="w-16 h-16 object-cover rounded-lg"
+                              onError={handleImageError}
                             />
                             <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
                               {item.quantity}
@@ -515,84 +681,116 @@ const Checkout: React.FC = () => {
                     transition={{ delay: 0.1 }}
                     className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100"
                   >
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-6">
                       <h2 className="text-xl font-semibold text-gray-900">Shipping Address</h2>
-                      {profileAddressAvailable && (
-                        <div className="flex items-center space-x-2">
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={useProfileAddress}
-                              onChange={toggleProfileAddress}
-                              className="w-4 h-4 text-[#800000] border-gray-300 rounded focus:ring-[#800000] focus:ring-2"
-                            />
-                            <span className="text-sm text-gray-700">Use profile address</span>
-                          </label>
-                        </div>
+                      {savedAddresses.length > 0 && !showAddressForm && (
+                        <button
+                          onClick={showNewAddressForm}
+                          className="text-sm text-[#800000] hover:text-[#5a0d15] font-medium transition-colors"
+                        >
+                          + Add New Address
+                        </button>
                       )}
                     </div>
 
+                    {/* Address Selection Cards */}
+                    {savedAddresses.length > 0 && !showAddressForm ? (
+                      <div className="space-y-3 mb-6">
+                        {savedAddresses.map((address, index) => (
+                          <motion.div
+                            key={address.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`relative p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+                              selectedAddressId === address.id
+                                ? 'border-[#800000] bg-rose-50 shadow-md'
+                                : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'
+                            }`}
+                            onClick={() => handleAddressSelection(address.id)}
+                          >
+                            <div className="flex items-start">
+                              <input
+                                type="radio"
+                                name="selectedAddress"
+                                checked={selectedAddressId === address.id}
+                                onChange={() => handleAddressSelection(address.id)}
+                                className="mt-1 w-4 h-4 text-[#800000] border-gray-300 focus:ring-[#800000] focus:ring-2"
+                              />
+                              <div className="ml-3 flex-1">
+                                <div className="flex items-center mb-2">
+                                  <span className="text-sm font-medium text-gray-900 flex items-center">
+                                    {address.label === 'Home' && <i className="ri-home-line mr-1 text-[#800000]"></i>}
+                                    {address.label === 'Work' && <i className="ri-briefcase-line mr-1 text-[#800000]"></i>}
+                                    {address.label !== 'Home' && address.label !== 'Work' && <i className="ri-map-pin-line mr-1 text-[#800000]"></i>}
+                                    {address.label}
+                                  </span>
+                                  {address.isDefault && (
+                                    <span className="ml-2 px-2 py-1 bg-[#800000] text-white text-xs rounded-full">
+                                      Default
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-sm text-gray-600 space-y-1">
+                                  <p className="font-medium text-gray-900">{address.fullName}</p>
+                                  <p>{address.address}</p>
+                                  {address.apartment && <p>{address.apartment}</p>}
+                                  <p>{[address.city, address.state].filter(Boolean).join(', ')} {address.zip}</p>
+                                  <p>{address.country}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : savedAddresses.length === 0 && !showAddressForm ? (
+                      <div className="text-center py-8 mb-6">
+                        <i className="ri-map-pin-line text-4xl text-gray-400 mb-3"></i>
+                        <p className="text-gray-600 text-sm mb-4">No saved addresses found.</p>
+                        <button
+                          onClick={showNewAddressForm}
+                          className="inline-flex items-center px-4 py-2 bg-[#800000] text-white text-sm font-medium rounded-lg hover:bg-[#5a0d15] transition-colors"
+                        >
+                          <i className="ri-add-line mr-2"></i>
+                          Add Shipping Address
+                        </button>
+                      </div>
+                    ) : null}
+
                     {/* Address Auto-fill Status Indicator */}
-                    {addressAutoFilled && (
+                    {addressAutoFilled && selectedAddressId && !showAddressForm && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-[#800000] rounded-full"></div>
-                            <span className="text-sm text-[#800000] font-medium">
-                              Address auto-filled from your profile
-                            </span>
-                          </div>
-                          <button
-                            onClick={clearAutoFilledAddress}
-                            className="text-xs text-gray-500 hover:text-[#800000] transition-colors"
-                          >
-                            Clear & enter manually
-                          </button>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-[#800000] rounded-full"></div>
+                          <span className="text-sm text-[#800000] font-medium">
+                            Address selected for delivery
+                          </span>
                         </div>
-                        {(() => {
-                          const { isComplete, missingFields } = getAddressCompletionStatus();
-                          return !isComplete && (
-                            <p className="text-xs text-amber-600 mt-1">
-                              Please complete: {missingFields.join(', ').replace(/([A-Z])/g, ' $1').toLowerCase()}
-                            </p>
-                          );
-                        })()}
                       </motion.div>
                     )}
+                    {/* Address Form - Show when no saved addresses or when adding new address */}
+                    {(savedAddresses.length === 0 || showAddressForm) && (
+                      <>
+                        {savedAddresses.length > 0 && showAddressForm && (
+                          <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-medium text-gray-900">Add New Address</h3>
+                            <button
+                              onClick={cancelAddressForm}
+                              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
 
-                    {/* Profile Address Preview */}
-                    {profileAddressAvailable && !useProfileAddress && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-700 font-medium">Available profile address:</p>
-                            <p className="text-xs text-gray-600 mt-1">
-                              {[user?.address, user?.apartment, user?.city, user?.state, user?.country, user?.zip]
-                                .filter(Boolean)
-                                .join(', ') || 'Partial address available'}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setUseProfileAddress(true)}
-                            className="text-xs text-[#800000] hover:text-[#5a0d15] font-medium transition-colors"
-                          >
-                            Use this address
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name
+                          Full Name <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.fullName && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -606,10 +804,13 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="Enter your full name"
                         />
+                        {showValidation && addressErrors.fullName && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.fullName}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Address Line 1
+                          Address Line 1 <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.addressLine1 && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -623,6 +824,9 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="Street address, P.O. box"
                         />
+                        {showValidation && addressErrors.addressLine1 && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.addressLine1}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -642,7 +846,7 @@ const Checkout: React.FC = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          City
+                          City <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.city && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -656,10 +860,13 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="Enter city"
                         />
+                        {showValidation && addressErrors.city && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          State
+                          State/Province <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.state && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -673,10 +880,13 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="State/Province"
                         />
+                        {showValidation && addressErrors.state && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Postal Code
+                          Postal/ZIP Code <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.postalCode && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -690,10 +900,13 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="ZIP/Postal code"
                         />
+                        {showValidation && addressErrors.postalCode && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.postalCode}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Country
+                          Country <span className="text-red-500">*</span>
                           {addressAutoFilled && shippingAddress.country && (
                             <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
                           )}
@@ -707,8 +920,33 @@ const Checkout: React.FC = () => {
                           required
                           placeholder="Country"
                         />
+                        {showValidation && addressErrors.country && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.country}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone Number <span className="text-red-500">*</span>
+                          {addressAutoFilled && shippingAddress.phoneNumber && (
+                            <span className="ml-2 text-xs text-[#800000] font-normal">• Auto-filled</span>
+                          )}
+                        </label>
+                        <input
+                          type="tel"
+                          name="phoneNumber"
+                          value={shippingAddress.phoneNumber}
+                          onChange={(e) => handleInputChange(e, setShippingAddress)}
+                          className={getFieldClassName('phoneNumber', true)}
+                          required
+                          placeholder="+1 (555) 123-4567"
+                        />
+                        {showValidation && addressErrors.phoneNumber && (
+                          <p className="text-red-500 text-xs mt-1">{addressErrors.phoneNumber}</p>
+                        )}
                       </div>
                     </div>
+                      </>
+                    )}
                   </motion.div>
 
                   <motion.div
@@ -720,43 +958,58 @@ const Checkout: React.FC = () => {
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Details</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Card Number <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="cardNumber"
                           value={paymentDetails.cardNumber}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getPaymentFieldClassName('cardNumber')}
                           placeholder="1234 5678 9012 3456"
                           maxLength={19}
                           required
                         />
+                        {showPaymentValidation && paymentErrors.cardNumber && (
+                          <p className="text-red-500 text-xs mt-1">{paymentErrors.cardNumber}</p>
+                        )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Expiry Date <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="expiry"
                           value={paymentDetails.expiry}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getPaymentFieldClassName('expiry')}
                           placeholder="MM/YY"
                           maxLength={5}
                           required
                         />
+                        {showPaymentValidation && paymentErrors.expiry && (
+                          <p className="text-red-500 text-xs mt-1">{paymentErrors.expiry}</p>
+                        )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          CVV <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="cvv"
                           value={paymentDetails.cvv}
                           onChange={handlePaymentInputChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
+                          className={getPaymentFieldClassName('cvv')}
                           placeholder="123"
-                          maxLength={4}
+                          maxLength={3}
                           required
                         />
+                        {showPaymentValidation && paymentErrors.cvv && (
+                          <p className="text-red-500 text-xs mt-1">{paymentErrors.cvv}</p>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -765,31 +1018,7 @@ const Checkout: React.FC = () => {
                     <p className="text-red-600 text-center mb-4">{error}</p>
                   )}
 
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={() => window.history.back()}
-                      className="border-2 border-rose-400 text-rose-600 hover:bg-rose-50 font-semibold py-3 px-6 rounded-xl transition-all duration-200 whitespace-nowrap"
-                    >
-                      Go Back
-                    </button>
-                    <button
-                      onClick={handlePlaceOrder}
-                      disabled={loading}
-                      className="w-full lg:w-auto bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                    >
-                      {loading ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <>
-                          <i className="ri-secure-payment-line mr-2"></i>
-                          Place Order
-                        </>
-                      )}
-                    </button>
-                  </div>
+
                 </>
               )}
             </div>
@@ -809,9 +1038,10 @@ const Checkout: React.FC = () => {
                   <div key={item.id || item.productId || index} className="flex items-center space-x-4">
                     <div className="relative">
                       <img
-                        src={item.image || '/placeholder-image.jpg'}
-                        alt={item.name}
+                        src={getSafeImageSrc(item.image)}
+                        alt={item.name || 'Product image'}
                         className="w-16 h-16 object-cover rounded-lg"
+                        onError={handleImageError}
                       />
                       <div className="absolute -top-2 -right-2 bg-[#800000] text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-medium">
                         {item.quantity}
@@ -847,36 +1077,34 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
 
-              {/* Shipping Address Summary */}
-              {(shippingAddress.addressLine1 || shippingAddress.city) && (
-                <div className="mt-6 pt-4 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
-                    <i className="ri-map-pin-line mr-2 text-[#800000]"></i>
-                    Shipping Address
-                    {addressAutoFilled && (
-                      <span className="ml-2 text-xs text-[#800000] bg-rose-50 px-2 py-1 rounded-full">Auto-filled</span>
-                    )}
-                  </h3>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    {shippingAddress.fullName && <p className="font-medium text-gray-900">{shippingAddress.fullName}</p>}
-                    {shippingAddress.addressLine1 && <p>{shippingAddress.addressLine1}</p>}
-                    {shippingAddress.addressLine2 && <p>{shippingAddress.addressLine2}</p>}
-                    <p>
-                      {[shippingAddress.city, shippingAddress.state].filter(Boolean).join(', ')}
-                      {shippingAddress.postalCode && ` ${shippingAddress.postalCode}`}
-                    </p>
-                    {shippingAddress.country && <p>{shippingAddress.country}</p>}
-                  </div>
-                  {(() => {
-                    const { isComplete, missingFields } = getAddressCompletionStatus();
-                    return !isComplete && (
-                      <p className="text-xs text-amber-600 mt-2">
-                        ⚠️ Missing: {missingFields.join(', ').replace(/([A-Z])/g, ' $1').toLowerCase()}
-                      </p>
-                    );
-                  })()}
-                </div>
-              )}
+              {/* Action Buttons */}
+              <div className="mt-6 space-y-3">
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#800000] to-[#5a0d15] hover:from-[#5a0d15] hover:to-slate-900 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    <>
+                      <i className="ri-secure-payment-line mr-2"></i>
+                      Place Order
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => window.history.back()}
+                  className="w-full border-2 border-[#800000] text-[#800000] hover:bg-rose-50 font-semibold py-3 px-6 rounded-xl transition-all duration-200"
+                >
+                  <i className="ri-arrow-left-line mr-2"></i>
+                  Go Back
+                </button>
+              </div>
 
               <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
                 <i className="ri-shield-check-line mr-2"></i>

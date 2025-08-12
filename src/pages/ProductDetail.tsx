@@ -274,7 +274,7 @@ const ProductDetail: React.FC = () => {
     for (let i = 0; i < fullStars; i++) stars.push(<i key={i} className="fas fa-star text-rose-400" aria-hidden="true"></i>);
     if (hasHalfStar) stars.push(<i key="half" className="fas fa-star-half-alt text-rose-400" aria-hidden="true"></i>);
     const emptyStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < emptyStars; i++) stars.push(<i key={`empty-${i}`} className="far fa-star text-blue-300" aria-hidden="true"></i>);
+    for (let i = 0; i < emptyStars; i++) stars.push(<i key={`empty-${i}`} className="far fa-star text-gray-300" aria-hidden="true"></i>);
     return <>{stars}</>;
   };
 
@@ -424,8 +424,8 @@ const ProductDetail: React.FC = () => {
                     ? 'text-rose-500 drop-shadow-sm'
                     : 'text-rose-400'
                   : interactive
-                    ? 'text-blue-300 hover:text-rose-300'
-                    : 'text-blue-300'
+                    ? 'text-gray-300 hover:text-rose-300'
+                    : 'text-gray-300'
               }`}
               onClick={() => interactive && onRatingChange?.(star)}
               onMouseEnter={() => interactive && onHover?.(star)}
@@ -453,20 +453,20 @@ const ProductDetail: React.FC = () => {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-blue-50" style={{ fontFamily: 'Open Sans, sans-serif' }}>
-        <header className="bg-white shadow-sm border-b border-blue-200">
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+        <header className="bg-white shadow-sm border-b border-rose-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-8">
-                <div className="text-2xl font-bold text-blue-900" style={{ fontFamily: 'Playfair Display, serif' }}>
+                <div className="text-2xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent" style={{ fontFamily: 'Playfair Display, serif' }}>
                   JwellMart
                 </div>
                 <nav className="hidden md:flex space-x-8">
-                  <a href="/products" className="text-blue-800 hover:underline cursor-pointer transition-all">Collections</a>
-                  <a href="/products?category=Rings" className="text-blue-800 hover:underline cursor-pointer transition-all">Rings</a>
-                  <a href="/products?category=Necklaces" className="text-blue-800 hover:underline cursor-pointer transition-all">Necklaces</a>
-                  <a href="/products?category=Earrings" className="text-blue-800 hover:underline cursor-pointer transition-all">Earrings</a>
-                  <a href="/products?category=Bracelets" className="text-blue-800 hover:underline cursor-pointer transition-all">Bracelets</a>
+                  <a href="/products" className="text-[#800000] hover:text-[#5a0d15] cursor-pointer transition-all">Collections</a>
+                  <a href="/products?category=Rings" className="text-[#800000] hover:text-[#5a0d15] cursor-pointer transition-all">Rings</a>
+                  <a href="/products?category=Necklaces" className="text-[#800000] hover:text-[#5a0d15] cursor-pointer transition-all">Necklaces</a>
+                  <a href="/products?category=Earrings" className="text-[#800000] hover:text-[#5a0d15] cursor-pointer transition-all">Earrings</a>
+                  <a href="/products?category=Bracelets" className="text-[#800000] hover:text-[#5a0d15] cursor-pointer transition-all">Bracelets</a>
                 </nav>
               </div>
               <div className="flex items-center space-x-4">
@@ -474,18 +474,18 @@ const ProductDetail: React.FC = () => {
                   <input
                     type="text"
                     placeholder="Search jewelry..."
-                    className="w-64 pl-10 pr-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm"
+                    className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent text-sm"
                     aria-label="Search jewelry"
                   />
-                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 text-sm" aria-hidden="true"></i>
+                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" aria-hidden="true"></i>
                 </div>
-                <button onClick={() => navigate('/wishlist')} className="text-blue-800 hover:text-rose-500 cursor-pointer text-lg transition-colors" aria-label="View wishlist">
+                <button onClick={() => navigate('/wishlist')} className="text-[#800000] hover:text-[#5a0d15] cursor-pointer text-lg transition-colors" aria-label="View wishlist">
                   <i className="fas fa-heart"></i>
                 </button>
-                <button onClick={() => navigate('/cart')} className="text-blue-800 hover:text-rose-500 cursor-pointer text-lg transition-colors" aria-label="View cart">
+                <button onClick={() => navigate('/cart')} className="text-[#800000] hover:text-[#5a0d15] cursor-pointer text-lg transition-colors" aria-label="View cart">
                   <i className="fas fa-shopping-bag"></i>
                 </button>
-                <button onClick={() => navigate('/profile')} className="text-blue-800 hover:text-rose-500 cursor-pointer text-lg transition-colors" aria-label="View profile">
+                <button onClick={() => navigate('/profile')} className="text-[#800000] hover:text-[#5a0d15] cursor-pointer text-lg transition-colors" aria-label="View profile">
                   <i className="fas fa-user"></i>
                 </button>
               </div>
@@ -496,7 +496,7 @@ const ProductDetail: React.FC = () => {
           <p className="text-rose-600 text-lg mb-4">{error || 'Product not found.'}</p>
           <button
             onClick={() => navigate('/products')}
-            className="bg-blue-800 text-white py-2 px-4 rounded-lg hover:bg-blue-900 transition-colors font-medium cursor-pointer !rounded-button"
+            className="bg-[#800000] text-white py-2 px-4 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button"
             aria-label="Return to products page"
           >
             Back to Products
@@ -510,13 +510,13 @@ const ProductDetail: React.FC = () => {
   const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
   return (
-    <div className="min-h-screen bg-blue-50" style={{ fontFamily: 'Open Sans, sans-serif' }}>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50" style={{ fontFamily: 'Open Sans, sans-serif' }}>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         {error && <p className="text-rose-600 text-center mb-4">{error}</p>}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-blue-100">
+            <div className="aspect-square overflow-hidden rounded-lg bg-rose-100">
               <img
                 src={productImages[selectedImage]}
                 alt={product.name}
@@ -545,59 +545,59 @@ const ProductDetail: React.FC = () => {
 
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-blue-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
                 {product.name}
               </h1>
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex items-center">
                   {renderStars(averageRating)}
-                  <span className="text-sm text-blue-600">({reviews.length} approved reviews)</span>
+                  <span className="text-sm text-[#800000]">({reviews.length} approved reviews)</span>
                 </div>
               </div>
-              <p className="text-4xl font-bold text-rose-600 mb-4">
+              <p className="text-4xl font-bold text-[#800000] mb-4">
                 {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </p>
-              <p className="text-blue-800 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed">
                 {product.short_description || 'No short description available.'}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 p-4 bg-blue-100 rounded-lg">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-rose-50 rounded-lg border border-rose-200">
               <div>
-                <span className="text-sm font-medium text-blue-800">Metal:</span>
-                <span className="text-sm text-blue-900 ml-2">{product.metal || 'N/A'}</span>
+                <span className="text-sm font-medium text-[#800000]">Metal:</span>
+                <span className="text-sm text-gray-700 ml-2">{product.metal || 'N/A'}</span>
               </div>
               <div>
-                <span className="text-sm font-medium text-blue-800">Stone:</span>
-                <span className="text-sm text-blue-900 ml-2">{product.stone || 'N/A'}</span>
+                <span className="text-sm font-medium text-[#800000]">Stone:</span>
+                <span className="text-sm text-gray-700 ml-2">{product.stone || 'N/A'}</span>
               </div>
               <div>
-                <span className="text-sm font-medium text-blue-800">Category:</span>
-                <span className="text-sm text-blue-900 ml-2">{product.category || 'N/A'}</span>
+                <span className="text-sm font-medium text-[#800000]">Category:</span>
+                <span className="text-sm text-gray-700 ml-2">{product.category || 'N/A'}</span>
               </div>
               <div>
-                <span className="text-sm font-medium text-blue-800">Occasion:</span>
-                <span className="text-sm text-blue-900 ml-2">{product.occasion || 'N/A'}</span>
+                <span className="text-sm font-medium text-[#800000]">Occasion:</span>
+                <span className="text-sm text-gray-700 ml-2">{product.occasion || 'N/A'}</span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-blue-900 mb-3">Quantity</h3>
+              <h3 className="text-sm font-medium text-[#800000] mb-3">Quantity</h3>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => handleQuantityChange(-1)}
-                  className="w-10 h-10 border border-blue-300 rounded-lg flex items-center justify-center hover:bg-blue-100 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
+                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
                   aria-label="Decrease quantity"
                 >
-                  <span className="text-lg font-semibold text-blue-800">-</span>
+                  <span className="text-lg font-semibold text-[#800000]">-</span>
                 </button>
-                <span className="w-12 text-center font-medium text-blue-900">{quantity}</span>
+                <span className="w-12 text-center font-medium text-gray-900">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
-                  className="w-10 h-10 border border-blue-300 rounded-lg flex items-center justify-center hover:bg-blue-100 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
+                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
                   aria-label="Increase quantity"
                 >
-                  <span className="text-lg font-semibold text-blue-800">+</span>
+                  <span className="text-lg font-semibold text-[#800000]">+</span>
                 </button>
               </div>
             </div>
@@ -606,30 +606,30 @@ const ProductDetail: React.FC = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-blue-800 text-white py-3 px-6 rounded-lg hover:bg-blue-900 transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
+                  className="flex-1 bg-[#800000] text-white py-3 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
                   aria-label={`Add ${product.name} to cart`}
                 >
                   Add to Cart
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-rose-600 text-white py-3 px-6 rounded-lg hover:bg-rose-700 transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
+                  className="flex-1 bg-[#800000] text-white py-3 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
                   aria-label={`Buy ${product.name} now`}
                 >
                   Buy Now
                 </button>
                 <button
                   onClick={() => toggleWishlist(product.id)}
-                  className="w-12 h-12 border border-blue-300 rounded-lg flex items-center justify-center hover:bg-blue-100 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
+                  className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
                   aria-label={wishlist.includes(product.id) ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
                 >
-                  <i className={`fas fa-heart ${wishlist.includes(product.id) ? 'text-rose-500' : 'text-blue-600'} text-lg`} aria-hidden="true"></i>
+                  <i className={`fas fa-heart ${wishlist.includes(product.id) ? 'text-rose-500' : 'text-[#800000]'} text-lg`} aria-hidden="true"></i>
                 </button>
               </div>
             </div>
 
-            <div className="border-t border-blue-200 pt-6">
-              <div className="flex items-center space-x-4 text-sm text-blue-600">
+            <div className="border-t border-rose-200 pt-6">
+              <div className="flex items-center space-x-4 text-sm text-[#800000]">
                 <div className="flex items-center space-x-2">
                   <i className="fas fa-truck" aria-hidden="true"></i>
                   <span>Delivers in 5-7 days</span>
@@ -661,8 +661,8 @@ const ProductDetail: React.FC = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap transition-colors ${
                     activeTab === tab.id
-                      ? 'border-rose-500 text-rose-600'
-                      : 'border-transparent text-blue-600 hover:text-blue-800 hover:border-blue-300'
+                      ? 'border-[#800000] text-[#800000]'
+                      : 'border-transparent text-gray-600 hover:text-[#800000] hover:border-rose-300'
                   }`}
                   aria-label={`View ${tab.label}`}
                 >
@@ -675,7 +675,7 @@ const ProductDetail: React.FC = () => {
           <div className="py-8">
             {activeTab === 'description' && (
               <div className="prose max-w-none">
-                <p className="text-blue-800 leading-relaxed mb-4">
+                <p className="text-gray-700 leading-relaxed mb-4">
                   {product.detailed_description || 'No detailed description available.'}
                 </p>
               </div>
@@ -685,33 +685,33 @@ const ProductDetail: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <table className="w-full">
                   <tbody className="space-y-2">
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Metal Type</td>
-                      <td className="py-2 text-blue-900">{product.metal || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Metal Type</td>
+                      <td className="py-2 text-gray-700">{product.metal || 'N/A'}</td>
                     </tr>
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Stone Type</td>
-                      <td className="py-2 text-blue-900">{product.stone || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Stone Type</td>
+                      <td className="py-2 text-gray-700">{product.stone || 'N/A'}</td>
                     </tr>
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Category</td>
-                      <td className="py-2 text-blue-900">{product.category || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Category</td>
+                      <td className="py-2 text-gray-700">{product.category || 'N/A'}</td>
                     </tr>
                   </tbody>
                 </table>
                 <table className="w-full">
                   <tbody className="space-y-2">
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Occasion</td>
-                      <td className="py-2 text-blue-900">{product.occasion || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Occasion</td>
+                      <td className="py-2 text-gray-700">{product.occasion || 'N/A'}</td>
                     </tr>
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Rating</td>
-                      <td className="py-2 text-blue-900">{averageRating.toFixed(1) || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Rating</td>
+                      <td className="py-2 text-gray-700">{averageRating.toFixed(1) || 'N/A'}</td>
                     </tr>
-                    <tr className="border-b border-blue-200">
-                      <td className="py-2 font-medium text-blue-800">Reviews</td>
-                      <td className="py-2 text-blue-900">{reviews.length || 'N/A'}</td>
+                    <tr className="border-b border-rose-200">
+                      <td className="py-2 font-medium text-[#800000]">Reviews</td>
+                      <td className="py-2 text-gray-700">{reviews.length || 'N/A'}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -721,15 +721,15 @@ const ProductDetail: React.FC = () => {
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-blue-900">Customer Reviews</h3>
+                  <h3 className="text-lg font-medium text-[#800000]">Customer Reviews</h3>
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">{renderStars(averageRating)}</div>
-                    <span className="text-sm text-blue-600">{averageRating.toFixed(1)} out of 5 ({reviews.length} approved reviews)</span>
+                    <span className="text-sm text-[#800000]">{averageRating.toFixed(1)} out of 5 ({reviews.length} approved reviews)</span>
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                  <p className="text-sm text-blue-800">
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-[#800000]">
                     <span className="font-medium">Quality Assurance:</span> All reviews are moderated to ensure authenticity and helpfulness. Only approved reviews are displayed to maintain high quality standards.
                   </p>
                 </div>
@@ -743,10 +743,10 @@ const ProductDetail: React.FC = () => {
                 )}
 
                 {user?.email ? (
-                  <form onSubmit={handleReviewSubmit} className="space-y-4 bg-blue-100 p-4 rounded-lg">
+                  <form onSubmit={handleReviewSubmit} className="space-y-4 bg-rose-50 p-4 rounded-lg border border-rose-200">
                     <div>
-                      <label className="block text-sm font-medium text-blue-800 mb-2">Your Rating</label>
-                      <div className="p-3 border border-blue-200 rounded-lg bg-white">
+                      <label className="block text-sm font-medium text-[#800000] mb-2">Your Rating</label>
+                      <div className="p-3 border border-rose-200 rounded-lg bg-white">
                         <StarRating
                           rating={newReview.rating}
                           onRatingChange={handleRatingChange}
@@ -757,11 +757,11 @@ const ProductDetail: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-blue-800">Your Comment</label>
+                      <label className="block text-sm font-medium text-[#800000]">Your Comment</label>
                       <textarea
                         value={newReview.comment}
                         onChange={(e) => handleCommentChange(e as any)}
-                        className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#800000] focus:border-transparent"
                         rows={4}
                         placeholder="Write your review here..."
                         aria-label="Enter review comment"
@@ -769,48 +769,48 @@ const ProductDetail: React.FC = () => {
                     </div>
                     <button
                       type="submit"
-                      className="w-full px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                      className="w-full px-6 py-2 bg-[#800000] text-white rounded-lg hover:bg-[#5a0d15] transition-colors"
                       aria-label="Submit review"
                     >
                       Submit Review
                     </button>
                   </form>
                 ) : (
-                  <p className="text-blue-600 text-center">
-                    Please <a href="/login" className="text-rose-600 hover:underline">log in</a> to submit a review.
+                  <p className="text-gray-600 text-center">
+                    Please <a href="/login" className="text-[#800000] hover:text-[#5a0d15] hover:underline">log in</a> to submit a review.
                   </p>
                 )}
 
                 {reviews.length > 0 ? (
                   <div className="space-y-4">
                     {reviews.map((review: any) => (
-                      <div key={review.id} className="border-b border-blue-200 pb-4">
+                      <div key={review.id} className="border-b border-rose-200 pb-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <div className="flex">{renderStars(review.rating)}</div>
-                            <span className="text-sm text-blue-600">{new Date(review.created_at).toLocaleDateString()}</span>
+                            <span className="text-sm text-[#800000]">{new Date(review.created_at).toLocaleDateString()}</span>
                           </div>
                           {review.status && (
                             <span className={`text-xs px-2 py-1 rounded ${
                               review.status === 'approved' ? 'bg-green-100 text-green-800' :
                               review.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              'bg-blue-100 text-blue-800'
+                              'bg-rose-100 text-[#800000]'
                             }`}>
                               {review.status}
                             </span>
                           )}
                         </div>
-                        <p className="mt-2 text-blue-800">{review.comment}</p>
+                        <p className="mt-2 text-gray-700">{review.comment}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="text-blue-400 mb-3">
+                    <div className="text-gray-400 mb-3">
                       <i className="fas fa-star text-4xl"></i>
                     </div>
-                    <p className="text-blue-600 mb-2">No approved reviews yet.</p>
-                    <p className="text-sm text-blue-500">Be the first to share your experience with this product!</p>
+                    <p className="text-[#800000] mb-2">No approved reviews yet.</p>
+                    <p className="text-sm text-gray-500">Be the first to share your experience with this product!</p>
                   </div>
                 )}
               </div>
@@ -819,8 +819,8 @@ const ProductDetail: React.FC = () => {
             {activeTab === 'shipping' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-lg font-medium text-blue-900 mb-4">Shipping Information</h3>
-                  <ul className="space-y-3 text-blue-800">
+                  <h3 className="text-lg font-medium text-[#800000] mb-4">Shipping Information</h3>
+                  <ul className="space-y-3 text-gray-700">
                     <li className="flex items-start space-x-2">
                       <i className="fas fa-check text-green-500 mt-1" aria-hidden="true"></i>
                       <span>Free shipping on orders over $500</span>
@@ -840,8 +840,8 @@ const ProductDetail: React.FC = () => {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-blue-900 mb-4">Return Policy</h3>
-                  <ul className="space-y-3 text-blue-800">
+                  <h3 className="text-lg font-medium text-[#800000] mb-4">Return Policy</h3>
+                  <ul className="space-y-3 text-gray-700">
                     <li className="flex items-start space-x-2">
                       <i className="fas fa-check text-green-500 mt-1" aria-hidden="true"></i>
                       <span>30-day return policy</span>
@@ -867,7 +867,7 @@ const ProductDetail: React.FC = () => {
 
         <div className="fixed bottom-6 right-6 z-50">
           <button
-            className="w-14 h-14 bg-rose-600 text-white rounded-full shadow-lg hover:bg-rose-700 transition-colors flex items-center justify-center cursor-pointer"
+            className="w-14 h-14 bg-[#800000] text-white rounded-full shadow-lg hover:bg-[#5a0d15] transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Open chat support"
           >
             <i className="fas fa-comments text-xl" aria-hidden="true"></i>
@@ -877,7 +877,7 @@ const ProductDetail: React.FC = () => {
         <div className="fixed bottom-6 left-6 z-50">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="w-12 h-12 bg-blue-800 text-white rounded-full shadow-lg hover:bg-blue-900 transition-colors flex items-center justify-center cursor-pointer"
+            className="w-12 h-12 bg-[#800000] text-white rounded-full shadow-lg hover:bg-[#5a0d15] transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Scroll to top"
           >
             <i className="fas fa-arrow-up" aria-hidden="true"></i>

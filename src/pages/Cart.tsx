@@ -100,7 +100,15 @@ const Cart: React.FC = () => {
             {cartItems.map((item: any) => (
               <div key={item.id} className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  <img src={item.image} alt={item.name} className="w-28 h-28 object-cover rounded-lg shadow-sm" />
+                  <img
+                    src={item.image || '/images/hero1.jpg'}
+                    alt={item.name || 'Product image'}
+                    className="w-28 h-28 object-cover rounded-lg shadow-sm"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/hero1.jpg';
+                    }}
+                  />
                   <div className="flex-1 space-y-1">
                     <h2 className="text-xl font-semibold text-gray-800">{item.name}</h2>
                     <p className="text-gray-500 text-sm">Metal: <span className="text-gray-800">{item.metal}</span></p>

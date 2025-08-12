@@ -104,12 +104,37 @@ const Products: React.FC = () => {
     try {
       const savedCart = localStorage.getItem('jewelMartCart');
       const cart = savedCart ? JSON.parse(savedCart) : [];
+      // Get a safe image URL
+      const getSafeProductImage = (product: any): string => {
+        const fallbackImage = '/images/hero1.jpg';
+
+        // Try additional_images first
+        if (product.additional_images && Array.isArray(product.additional_images) && product.additional_images.length > 0) {
+          const firstImage = product.additional_images[0];
+          if (firstImage && typeof firstImage === 'string' && firstImage.trim() !== '') {
+            // Validate if it's a proper image URL or data URL
+            if (firstImage.startsWith('http') || firstImage.startsWith('/') ||
+                (firstImage.startsWith('data:image/') && firstImage.includes('base64,'))) {
+              return firstImage;
+            }
+          }
+        }
+
+        // Try main image property
+        if (product.image && typeof product.image === 'string' && product.image.trim() !== '') {
+          return product.image;
+        }
+
+        // Return fallback
+        return fallbackImage;
+      };
+
       const newItem = {
         id: `${product.id}-${Date.now()}`,
         productId: product.id,
         name: product.name,
         price: product.price,
-        image: product.additional_images[0] || '', // Use first image as main image
+        image: getSafeProductImage(product),
         metal: product.metal,
         stone: product.stone,
         quantity: 1,

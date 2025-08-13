@@ -212,11 +212,15 @@ const ProductDetail: React.FC = () => {
   // Touch gesture handlers for image swiping
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(0); // Reset touchEnd
-    setTouchStart(e.targetTouches[0].clientX);
+    if (e.targetTouches[0]) {
+      setTouchStart(e.targetTouches[0].clientX);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (e.targetTouches[0]) {
+      setTouchEnd(e.targetTouches[0].clientX);
+    }
   };
 
   const handleTouchEnd = () => {

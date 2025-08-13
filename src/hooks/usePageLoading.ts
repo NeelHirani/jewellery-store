@@ -18,9 +18,12 @@ export const usePageLoading = (initialLoading: boolean = false): UsePageLoadingR
       const timer = setTimeout(() => {
         setIsLoading(false);
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
+
+    // Return undefined for the else case
+    return undefined;
   }, [isLoading]);
 
   return {

@@ -87,11 +87,6 @@ const AdminLogin: React.FC = () => {
       } else {
         // Handle authentication failure
         setErrors({ general: authResult.error || 'Authentication failed' });
-
-        // Show remaining attempts if available
-        if (typeof authResult.remainingAttempts === 'number') {
-          setRemainingAttempts(authResult.remainingAttempts);
-        }
       }
     } catch (error) {
       console.error('Authentication error:', error);

@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
   };
 
   interface StatCardProps {
-    icon: React.ComponentType;
+    icon: React.ComponentType<{ className?: string }>;
     title: string;
     value: number | string;
     color: string;

@@ -9,9 +9,7 @@ const UserManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [usersPerPage] = useState<number>(10);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
-  const [userOrders, setUserOrders] = useState<any[]>([]);
 
   useEffect(() => {
     fetchUsers();
@@ -34,28 +32,7 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const fetchUserOrders = async (userId: any) => {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setUserOrders(data || []);
-    } catch (error) {
-      console.error('Error fetching user orders:', error);
-    }
-  };
-
-  /*
-  const handleViewUser = async (user: any) => { // Unused
-    setSelectedUser(user);
-    await fetchUserOrders(user.id);
-    setShowUserModal(true);
-  };
-  */
+  // User management functions can be added here as needed
 
   const filteredUsers = users.filter(user => {
     const searchLower = searchTerm.toLowerCase();
@@ -93,63 +70,7 @@ const UserManagement: React.FC = () => {
           </button>
         </div>
 
-        {selectedUser && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Personal Information</h3>
-                <div className="space-y-2 text-sm">
-                  <p><span className="font-medium">Name:</span> {selectedUser.name}</p>
-                  <p><span className="font-medium">Email:</span> {selectedUser.email}</p>
-                  <p><span className="font-medium">Phone:</span> {selectedUser.phone || 'N/A'}</p>
-                  <p><span className="font-medium">Joined:</span> {new Date(selectedUser.created_at).toLocaleDateString()}</p>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Address Information</h3>
-                <div className="space-y-2 text-sm">
-                  <p><span className="font-medium">Address:</span> {selectedUser.address || 'N/A'}</p>
-                  <p><span className="font-medium">Apartment:</span> {selectedUser.apartment || 'N/A'}</p>
-                  <p><span className="font-medium">City:</span> {selectedUser.city || 'N/A'}</p>
-                  <p><span className="font-medium">State:</span> {selectedUser.state || 'N/A'}</p>
-                  <p><span className="font-medium">Country:</span> {selectedUser.country || 'N/A'}</p>
-                  <p><span className="font-medium">ZIP:</span> {selectedUser.zip || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Order History ({userOrders.length} orders)</h3>
-              {userOrders.length > 0 ? (
-                <div className="space-y-3">
-                  {userOrders.map((order: any) => (
-                    <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Order #{order.id}</p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">${order.total_amount}</p>
-                        <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                          order.order_status === 'completed' ? 'bg-green-100 text-green-800' :
-                          order.order_status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {order.order_status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No orders found</p>
-              )}
-            </div>
-          </div>
-        )}
+        {/* User details modal can be implemented here when needed */}
       </motion.div>
     </motion.div>
   );

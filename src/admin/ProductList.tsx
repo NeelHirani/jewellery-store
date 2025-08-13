@@ -82,7 +82,7 @@ const ProductList: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('name')
+        .select('id, name')
         .order('name');
 
       if (error) throw error;

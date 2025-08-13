@@ -77,7 +77,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onLoadingComplete }) => {
 
   // Floating gems animation
   interface FloatingGemProps {
-    icon: React.ComponentType;
+    icon: React.ComponentType<{ className?: string }>;
     className: string;
     delay?: number;
   }

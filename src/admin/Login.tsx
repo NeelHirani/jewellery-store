@@ -52,16 +52,13 @@ const AdminLogin: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+    // Demo-friendly validation - very lenient
+    if (!formData.email.trim()) {
+      newErrors.email = 'Please enter an email';
     }
 
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    if (!formData.password.trim()) {
+      newErrors.password = 'Please enter a password';
     }
 
     setErrors(newErrors);
@@ -119,9 +116,22 @@ const AdminLogin: React.FC = () => {
               <FaShieldAlt className="text-white text-2xl" />
             </div>
             <h2 className="text-2xl font-bold bg-gradient-to-r from-[#800000] to-[#5a0d15] bg-clip-text text-transparent font-playfair">
-              Secure Admin Access
+              Demo Admin Panel
             </h2>
-            <p className="text-gray-600 mt-2 font-inter">Protected administrative dashboard</p>
+            <p className="text-gray-600 mt-2 font-inter">Public demonstration access</p>
+          </div>
+
+          {/* Demo Credentials Info */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-center text-blue-700 mb-2">
+              <FaShieldAlt className="mr-2" />
+              <p className="text-sm font-medium font-inter">Demo Credentials</p>
+            </div>
+            <div className="text-xs text-blue-600 text-center font-inter space-y-1">
+              <p><strong>Email:</strong> neelhirani1011@gmail.com</p>
+              <p><strong>Password:</strong> Neel@101</p>
+              <p className="text-blue-500 mt-2">Anyone can use these credentials to explore the admin panel</p>
+            </div>
           </div>
 
           {/* Login Form */}
@@ -212,15 +222,15 @@ const AdminLogin: React.FC = () => {
             </button>
           </form>
 
-          {/* Security Notice */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-[#800000]/10 to-rose-50 rounded-lg border border-[#800000]/20">
-            <div className="flex items-center justify-center text-[#800000] mb-2">
+          {/* Demo Notice */}
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+            <div className="flex items-center justify-center text-green-700 mb-2">
               <FaShieldAlt className="mr-2" />
-              <p className="text-sm font-medium font-inter">Secure Authentication</p>
+              <p className="text-sm font-medium font-inter">Demo Environment</p>
             </div>
-            <p className="text-xs text-gray-600 text-center font-inter">
-              This admin panel is protected with enterprise-grade security.
-              Unauthorized access attempts are monitored and logged.
+            <p className="text-xs text-green-600 text-center font-inter">
+              This is a demonstration admin panel. No rate limiting, no restrictions.
+              Perfect for exploring all admin features without barriers.
             </p>
           </div>
 

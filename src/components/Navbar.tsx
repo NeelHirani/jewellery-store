@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
+import { CircleUserRound } from 'lucide-react';
+
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -78,14 +80,8 @@ const Navbar: React.FC = () => {
           </Link>
           {isLoggedIn && (
             <Link
-              to="/profile"
-              className="w-8 h-8 border-2 border-transparent hover:border-rose-500 rounded-full transition"
-            >
-              <img
-                src="/icon.png"
-                alt="Profile"
-                className="w-full h-full object-cover rounded-full"
-              />
+              to="/profile" className={`${linkClass}`}>
+<CircleUserRound strokeWidth={1.25} />
             </Link>
           )}
         </div>

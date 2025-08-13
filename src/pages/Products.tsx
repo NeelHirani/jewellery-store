@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Header from '../components/Navbar';
 import { supabase } from '../lib/supabase';
+import { FiFilter, FiX } from 'react-icons/fi';
 
 const Products: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<any>('all');
@@ -14,6 +15,7 @@ const Products: React.FC = () => {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [searchQuery] = useState<string>(''); // setSearchQuery unused
   const [showSortDropdown, setShowSortDropdown] = useState<boolean>(false);
+  const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [metalTypes, setMetalTypes] = useState<any[]>([]);
   const [stoneTypes, setStoneTypes] = useState<any[]>([]);
@@ -22,7 +24,143 @@ const Products: React.FC = () => {
   const [error, setError] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [isFilterScrolled, setIsFilterScrolled] = useState<boolean>(false);
+  const [isFilteringProducts, setIsFilteringProducts] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  // Load saved filter state from localStorage
+  useEffect(() => {
+    const savedFilters = localStorage.getItem('jewelMartFilters');
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters);
+        setSelectedCategory(filters.category || 'all');
+        setSelectedMetal(filters.metal || []);
+        setSelectedStone(filters.stone || []);
+        setSelectedOccasion(filters.occasion || []);
+        // Ensure priceRange is properly formatted with valid numbers
+        const savedPriceRange = filters.priceRange;
+        if (Array.isArray(savedPriceRange) && savedPriceRange.length === 2) {
+          const minPrice = typeof savedPriceRange[0] === 'number' ? savedPriceRange[0] : 0;
+          const maxPrice = typeof savedPriceRange[1] === 'number' ? savedPriceRange[1] : Infinity;
+          setPriceRange([minPrice, maxPrice]);
+        } else {
+          setPriceRange([0, Infinity]);
+        }
+      } catch (error) {
+        console.error('Error loading saved filters:', error);
+      }
+    }
+  }, []);
+
+  // Save filter state to localStorage
+  useEffect(() => {
+    const filters = {
+      category: selectedCategory,
+      metal: selectedMetal,
+      stone: selectedStone,
+      occasion: selectedOccasion,
+      priceRange: priceRange,
+    };
+    localStorage.setItem('jewelMartFilters', JSON.stringify(filters));
+  }, [selectedCategory, selectedMetal, selectedStone, selectedOccasion, priceRange]);
+
+  // Validate and fix priceRange state if it becomes invalid
+  useEffect(() => {
+    if (!Array.isArray(priceRange) || priceRange.length !== 2) {
+      console.warn('Invalid priceRange detected, resetting to default');
+      setPriceRange([0, Infinity]);
+      return;
+    }
+
+    const [minPrice, maxPrice] = priceRange;
+    if (typeof minPrice !== 'number' || typeof maxPrice !== 'number' ||
+        isNaN(minPrice) || (isNaN(maxPrice) && maxPrice !== Infinity)) {
+      console.warn('Invalid price values detected, resetting to default');
+      setPriceRange([0, Infinity]);
+    }
+  }, [priceRange]);
+
+  // Debounced filtering effect for better performance
+  useEffect(() => {
+    setIsFilteringProducts(true);
+    const timer = setTimeout(() => {
+      setIsFilteringProducts(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [selectedCategory, selectedMetal, selectedStone, selectedOccasion, priceRange]);
+
+  // Helper function to safely format price values
+  const formatPrice = (price: number | null | undefined): string => {
+    if (price === null || price === undefined || isNaN(price)) {
+      console.warn('formatPrice: Invalid price value:', price, 'returning "0"');
+      return '0';
+    }
+    if (price === Infinity) {
+      return 'Unlimited';
+    }
+    return price.toLocaleString();
+  };
+
+  // Helper function to safely get price range values
+  const getSafePriceRange = (): [number, number] => {
+    const minPrice = typeof priceRange[0] === 'number' && !isNaN(priceRange[0]) ? priceRange[0] : 0;
+    const maxPrice = typeof priceRange[1] === 'number' && !isNaN(priceRange[1]) ? priceRange[1] : Infinity;
+    return [minPrice, maxPrice];
+  };
+
+  // Calculate active filter count
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (selectedCategory !== 'all') count++;
+    if (selectedMetal.length > 0) count++;
+    if (selectedStone.length > 0) count++;
+    if (selectedOccasion.length > 0) count++;
+    const [minPrice, maxPrice] = getSafePriceRange();
+    if (minPrice !== 0 || maxPrice !== Infinity) count++;
+    return count;
+  };
+
+  // Close mobile filters when clicking outside
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowMobileFilters(false);
+      }
+    };
+
+    if (showMobileFilters) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileFilters]);
+
+  // Debounced filter container scroll handler for better performance
+  const handleFilterScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    // Use requestAnimationFrame for smooth performance
+    requestAnimationFrame(() => {
+      setIsFilterScrolled(scrollTop > 10);
+    });
+  };
+
+  // Clear all filters function
+  const clearAllFilters = () => {
+    setSelectedCategory('all');
+    setSelectedMetal([]);
+    setSelectedStone([]);
+    setSelectedOccasion([]);
+    setPriceRange([0, Infinity]);
+    localStorage.removeItem('jewelMartFilters');
+  };
 
   const sortOptions = [
     { id: 'newest', label: 'Newest' },
@@ -159,7 +297,8 @@ const Products: React.FC = () => {
   const filteredProducts = products
     .filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-      const matchesPrice = product.price >= priceRange[0]! && product.price <= priceRange[1]!;
+      const [minPrice, maxPrice] = getSafePriceRange();
+      const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
       const matchesMetal = selectedMetal.length === 0 || selectedMetal.includes(product.metal);
       const matchesStone = selectedStone.length === 0 || selectedStone.includes(product.stone);
       const matchesOccasion = selectedOccasion.length === 0 || selectedOccasion.includes(product.occasion);
@@ -346,9 +485,34 @@ const Products: React.FC = () => {
           </div>
         )}
 
+        {/* Mobile Filter Toggle Button */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setShowMobileFilters(true)}
+            className={`flex items-center justify-center w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors ${
+              getActiveFilterCount() > 0 ? 'filter-active border-[#800000]' : ''
+            }`}
+            aria-label="Open filters"
+          >
+            <FiFilter className="mr-2" />
+            <span className="font-medium">Filters</span>
+            {getActiveFilterCount() > 0 && (
+              <span className="ml-2 bg-[#800000] text-white text-xs px-2 py-1 rounded-full">
+                {getActiveFilterCount()}
+              </span>
+            )}
+          </button>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-8">
-          <div className="lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
+          {/* Desktop Sticky Filters */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0">
+            <div
+              className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky-filters scrollbar-thin transition-all duration-300 ${
+                isFilterScrolled ? 'shadow-lg border-gray-300' : ''
+              }`}
+              onScroll={handleFilterScroll}
+            >
               <h3 className="text-lg font-semibold text-gray-900 mb-4" style={{ fontFamily: 'Playfair Display, serif' }}>
                 Filters
               </h3>
@@ -364,7 +528,7 @@ const Products: React.FC = () => {
                     }`}
                     aria-label="Select all categories"
                   >
-                    <i className="fas fa-th-large mr-3 text-sm"></i>
+                    <i className="fas fa-tag mr-3 text-sm"></i>
                     <span className="text-sm">All Categories</span>
                   </button>
                   {categories.map((category: any) => (
@@ -378,7 +542,7 @@ const Products: React.FC = () => {
                       }`}
                       aria-label={`Select category ${category.name}`}
                     >
-                      <i className={`${category.icon || 'fas fa-circle'} mr-3 text-sm`}></i>
+                      <i className="fas fa-tag mr-3 text-sm"></i>
                       <span className="text-sm">{category.name}</span>
                     </button>
                   ))}
@@ -388,25 +552,31 @@ const Products: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Min Price: ${priceRange[0]!.toLocaleString()}</label>
+                    <label className="text-sm text-gray-600">Min Price: ${formatPrice(getSafePriceRange()[0])}</label>
                     <input
                       type="range"
                       min="0"
                       max="100000"
-                      value={priceRange[0]!}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]!])}
+                      value={getSafePriceRange()[0]}
+                      onChange={(e) => {
+                        const [, maxPrice] = getSafePriceRange();
+                        setPriceRange([parseInt(e.target.value), maxPrice]);
+                      }}
                       className="w-full"
                       aria-label="Minimum price"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Max Price: {priceRange[1]! === Infinity ? 'Unlimited' : `$${priceRange[1]!.toLocaleString()}`}</label>
+                    <label className="text-sm text-gray-600">Max Price: {getSafePriceRange()[1] === Infinity ? 'Unlimited' : `$${formatPrice(getSafePriceRange()[1])}`}</label>
                     <input
                       type="range"
                       min="0"
                       max="100000"
-                      value={priceRange[1]! === Infinity ? 100000 : priceRange[1]!}
-                      onChange={(e) => setPriceRange([priceRange[0]!, parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)])}
+                      value={getSafePriceRange()[1] === Infinity ? 100000 : getSafePriceRange()[1]}
+                      onChange={(e) => {
+                        const [minPrice] = getSafePriceRange();
+                        setPriceRange([minPrice, parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)]);
+                      }}
                       className="w-full"
                       aria-label="Maximum price"
                     />
@@ -482,6 +652,17 @@ const Products: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Clear Filters Button */}
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={clearAllFilters}
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+                  aria-label="Clear all filters"
+                >
+                  Clear All Filters
+                </button>
+              </div>
             </div>
           </div>
 
@@ -491,7 +672,16 @@ const Products: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Luxury Jewelry Collection
                 </h2>
-                <p className="text-gray-600 mt-1">{filteredProducts.length} products found</p>
+                <p className="text-gray-600 mt-1">
+                  {isFilteringProducts ? (
+                    <span className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#800000] mr-2"></div>
+                      Filtering products...
+                    </span>
+                  ) : (
+                    `${filteredProducts.length} products found`
+                  )}
+                </p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -657,6 +847,203 @@ const Products: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Filter Drawer */}
+      {showMobileFilters && (
+        <>
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setShowMobileFilters(false)}
+          />
+
+          {/* Drawer */}
+          <div className={`fixed inset-y-0 left-0 w-80 max-w-[85vw] sm:max-w-[75vw] md:max-w-[60vw] bg-white z-50 lg:hidden overflow-y-auto shadow-xl mobile-drawer ${
+            showMobileFilters ? 'open' : ''
+          }`}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+              <h3 className="text-lg font-semibold text-gray-900" style={{ fontFamily: 'Playfair Display, serif' }}>
+                Filters
+              </h3>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close filters"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter Content */}
+            <div className="p-4 space-y-6">
+              {/* Category Filter */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Category</h4>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
+                      selectedCategory === 'all'
+                        ? 'bg-rose-100 text-[#800000] border border-rose-300'
+                        : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                    aria-label="Select all categories"
+                  >
+                    <i className="fas fa-tag mr-3 text-sm"></i>
+                    <span className="text-sm">All Categories</span>
+                  </button>
+                  {categories.map((category: any) => (
+                    <button
+                      key={category.name}
+                      onClick={() => setSelectedCategory(category.name)}
+                      className={`w-full flex items-center px-3 py-2 rounded-lg text-left cursor-pointer whitespace-nowrap !rounded-button ${
+                        selectedCategory === category.name
+                          ? 'bg-rose-100 text-[#800000] border border-rose-300'
+                          : 'hover:bg-gray-50 text-gray-700'
+                      }`}
+                      aria-label={`Select category ${category.name}`}
+                    >
+                      <i className="fas fa-tag mr-3 text-sm"></i>
+                      <span className="text-sm">{category.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range Filter */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm text-gray-600">Min Price: ${formatPrice(getSafePriceRange()[0])}</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      value={getSafePriceRange()[0]}
+                      onChange={(e) => {
+                        const [, maxPrice] = getSafePriceRange();
+                        setPriceRange([parseInt(e.target.value), maxPrice]);
+                      }}
+                      className="w-full"
+                      aria-label="Minimum price"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Max Price: {getSafePriceRange()[1] === Infinity ? 'Unlimited' : `$${formatPrice(getSafePriceRange()[1])}`}</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100000"
+                      value={getSafePriceRange()[1] === Infinity ? 100000 : getSafePriceRange()[1]}
+                      onChange={(e) => {
+                        const [minPrice] = getSafePriceRange();
+                        setPriceRange([minPrice, parseInt(e.target.value) === 100000 ? Infinity : parseInt(e.target.value)]);
+                      }}
+                      className="w-full"
+                      aria-label="Maximum price"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Metal Type Filter */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Metal Type</h4>
+                <div className="space-y-2">
+                  {metalTypes.map((metal: any) => (
+                    <label key={metal.id} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedMetal.includes(metal.name)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedMetal([...selectedMetal, metal.name]);
+                          } else {
+                            setSelectedMetal(selectedMetal.filter((m) => m !== metal.name));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
+                        aria-label={`Select metal ${metal.name}`}
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{metal.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stone Type Filter */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Stone Type</h4>
+                <div className="space-y-2">
+                  {stoneTypes.map((stone: any) => (
+                    <label key={stone.id} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedStone.includes(stone.name)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStone([...selectedStone, stone.name]);
+                          } else {
+                            setSelectedStone(selectedStone.filter((s) => s !== stone.name));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
+                        aria-label={`Select stone ${stone.name}`}
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{stone.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Occasion Filter */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Occasion</h4>
+                <div className="space-y-2">
+                  {occasions.map((occasion: any) => (
+                    <label key={occasion.id} className="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedOccasion.includes(occasion.name)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedOccasion([...selectedOccasion, occasion.name]);
+                          } else {
+                            setSelectedOccasion(selectedOccasion.filter((o) => o !== occasion.name));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-[#800000] focus:ring-[#800000]"
+                        aria-label={`Select occasion ${occasion.name}`}
+                      />
+                      <span className="ml-2 text-sm text-gray-700">{occasion.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={() => setShowMobileFilters(false)}
+                  className="w-full bg-[#800000] text-white py-3 px-4 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium"
+                  aria-label="Apply filters and close"
+                >
+                  Apply Filters
+                </button>
+                <button
+                  onClick={clearAllFilters}
+                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  aria-label="Clear all filters"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       <style>{`
         .!rounded-button {
           border-radius: 0.5rem;
@@ -666,6 +1053,132 @@ const Products: React.FC = () => {
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+
+        /* Custom Scrollbar Styles */
+        .scrollbar-thin {
+          scrollbar-width: thin;
+        }
+
+        .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+          background-color: #d1d5db;
+          border-radius: 0.375rem;
+        }
+
+        .scrollbar-track-gray-100::-webkit-scrollbar-track {
+          background-color: #f3f4f6;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: #d1d5db;
+          border-radius: 0.375rem;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background-color: #f3f4f6;
+        }
+
+        /* Enhanced sticky positioning */
+        .sticky-filters {
+          position: sticky;
+          top: 6rem; /* Account for navbar height */
+          max-height: calc(100vh - 8rem);
+          overflow-y: auto;
+          z-index: 20; /* Higher than navbar content but lower than modals */
+          transition: box-shadow 0.3s ease;
+          will-change: transform; /* Optimize for animations */
+        }
+
+        .sticky-filters:hover {
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Smooth scroll behavior for filter container */
+        .sticky-filters {
+          scroll-behavior: smooth;
+        }
+
+        /* Better focus states for filter elements */
+        .filter-option:focus {
+          outline: 2px solid #800000;
+          outline-offset: 2px;
+        }
+
+        /* Mobile drawer animation */
+        .mobile-drawer {
+          transform: translateX(-100%);
+          transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mobile-drawer.open {
+          transform: translateX(0);
+        }
+
+        /* Overlay animation */
+        .overlay-enter {
+          opacity: 0;
+        }
+
+        .overlay-enter-active {
+          opacity: 1;
+          transition: opacity 300ms ease-in-out;
+        }
+
+        .overlay-exit {
+          opacity: 1;
+        }
+
+        .overlay-exit-active {
+          opacity: 0;
+          transition: opacity 300ms ease-in-out;
+        }
+
+        /* Filter button pulse animation when active */
+        .filter-active {
+          animation: pulse-subtle 2s infinite;
+        }
+
+        @keyframes pulse-subtle {
+          0%, 100% {
+            box-shadow: 0 0 0 0 rgba(128, 0, 0, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.1);
+          }
+        }
+
+        /* Responsive optimizations */
+        @media (max-width: 640px) {
+          .mobile-drawer {
+            width: 100vw;
+            max-width: 100vw;
+          }
+
+          .sticky-filters {
+            top: 5rem; /* Smaller top offset on mobile */
+            max-height: calc(100vh - 6rem);
+          }
+        }
+
+        @media (max-width: 1024px) and (min-width: 641px) {
+          .sticky-filters {
+            top: 5.5rem;
+            max-height: calc(100vh - 7rem);
+          }
+        }
+
+        /* Reduce animations on devices that prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          .mobile-drawer,
+          .sticky-filters,
+          .filter-active {
+            transition: none;
+            animation: none;
+          }
         }
 
         /* Splash Screen Animations */

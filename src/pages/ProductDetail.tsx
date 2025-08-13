@@ -19,6 +19,8 @@ const ProductDetail: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [submitStatus, setSubmitStatus] = useState<any>(null);
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [touchStart, setTouchStart] = useState<number>(0);
+  const [touchEnd, setTouchEnd] = useState<number>(0);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -205,6 +207,31 @@ const ProductDetail: React.FC = () => {
 
   const handleQuantityChange = (change: number): void => {
     setQuantity(Math.max(1, quantity + change));
+  };
+
+  // Touch gesture handlers for image swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(0); // Reset touchEnd
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && selectedImage < productImages.length - 1) {
+      setSelectedImage(selectedImage + 1);
+    }
+    if (isRightSwipe && selectedImage > 0) {
+      setSelectedImage(selectedImage - 1);
+    }
   };
 
   const toggleWishlist = (productId: string): void => {
@@ -512,120 +539,165 @@ const ProductDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-slate-50" style={{ fontFamily: 'Open Sans, sans-serif' }}>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 lg:pt-24 pb-8">
         {error && <p className="text-rose-600 text-center mb-4">{error}</p>}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-rose-100">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+          <div className="space-y-3 sm:space-y-4">
+            {/* Main Product Image */}
+            <div
+              className="aspect-square overflow-hidden rounded-lg bg-rose-100 relative"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <img
                 src={productImages[selectedImage]}
                 alt={product.name}
-                className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in"
+                className="w-full h-full object-cover object-top hover:scale-110 transition-transform duration-300 cursor-zoom-in select-none"
               />
+
+              {/* Mobile Navigation Arrows */}
+              {productImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedImage(selectedImage > 0 ? selectedImage - 1 : productImages.length - 1)}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors lg:hidden"
+                    aria-label="Previous image"
+                  >
+                    <i className="fas fa-chevron-left text-[#800000]"></i>
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage(selectedImage < productImages.length - 1 ? selectedImage + 1 : 0)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors lg:hidden"
+                    aria-label="Next image"
+                  >
+                    <i className="fas fa-chevron-right text-[#800000]"></i>
+                  </button>
+                </>
+              )}
+
+              {/* Image Counter for Mobile */}
+              {productImages.length > 1 && (
+                <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full lg:hidden">
+                  {selectedImage + 1} / {productImages.length}
+                </div>
+              )}
             </div>
-            <div className="grid grid-cols-4 gap-4">
+
+            {/* Thumbnail Gallery */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
               {productImages.map((image: any, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer ${
-                    selectedImage === index ? 'border-rose-500' : 'border-blue-200'
+                  className={`aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all duration-200 min-h-[60px] sm:min-h-[80px] ${
+                    selectedImage === index
+                      ? 'border-rose-500 ring-2 ring-rose-200'
+                      : 'border-gray-200 hover:border-rose-300'
                   }`}
                   aria-label={`Select image ${index + 1}`}
                 >
                   <img
                     src={image}
                     alt={`Product ${index + 1}`}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-200"
                   />
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#800000] to-rose-600 bg-clip-text text-transparent mb-2 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
                 {product.name}
               </h1>
-              <div className="flex items-center space-x-4 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   {renderStars(averageRating)}
-                  <span className="text-sm text-[#800000]">({reviews.length} approved reviews)</span>
+                  <span className="text-sm text-[#800000] ml-2">({reviews.length} reviews)</span>
                 </div>
               </div>
-              <p className="text-4xl font-bold text-[#800000] mb-4">
+              <p className="text-3xl sm:text-4xl font-bold text-[#800000] mb-4">
                 {product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </p>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
                 {product.short_description || 'No short description available.'}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 p-4 bg-rose-50 rounded-lg border border-rose-200">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-4 bg-rose-50 rounded-lg border border-rose-200">
+              <div className="flex justify-between sm:block">
                 <span className="text-sm font-medium text-[#800000]">Metal:</span>
-                <span className="text-sm text-gray-700 ml-2">{product.metal || 'N/A'}</span>
+                <span className="text-sm text-gray-700 sm:ml-2">{product.metal || 'N/A'}</span>
               </div>
-              <div>
+              <div className="flex justify-between sm:block">
                 <span className="text-sm font-medium text-[#800000]">Stone:</span>
-                <span className="text-sm text-gray-700 ml-2">{product.stone || 'N/A'}</span>
+                <span className="text-sm text-gray-700 sm:ml-2">{product.stone || 'N/A'}</span>
               </div>
-              <div>
+              <div className="flex justify-between sm:block">
                 <span className="text-sm font-medium text-[#800000]">Category:</span>
-                <span className="text-sm text-gray-700 ml-2">{product.category || 'N/A'}</span>
+                <span className="text-sm text-gray-700 sm:ml-2">{product.category || 'N/A'}</span>
               </div>
-              <div>
+              <div className="flex justify-between sm:block">
                 <span className="text-sm font-medium text-[#800000]">Occasion:</span>
-                <span className="text-sm text-gray-700 ml-2">{product.occasion || 'N/A'}</span>
+                <span className="text-sm text-gray-700 sm:ml-2">{product.occasion || 'N/A'}</span>
               </div>
             </div>
 
             <div>
               <h3 className="text-sm font-medium text-[#800000] mb-3">Quantity</h3>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={() => handleQuantityChange(-1)}
-                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
+                  className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors active:scale-95"
                   aria-label="Decrease quantity"
                 >
-                  <span className="text-lg font-semibold text-[#800000]">-</span>
+                  <span className="text-xl font-semibold text-[#800000]">-</span>
                 </button>
-                <span className="w-12 text-center font-medium text-gray-900">{quantity}</span>
+                <span className="w-16 text-center font-medium text-gray-900 text-lg">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
-                  className="w-10 h-10 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
+                  className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors active:scale-95"
                   aria-label="Increase quantity"
                 >
-                  <span className="text-lg font-semibold text-[#800000]">+</span>
+                  <span className="text-xl font-semibold text-[#800000]">+</span>
                 </button>
               </div>
             </div>
 
             <div className="space-y-4">
-              <div className="flex space-x-4">
+              {/* Mobile: Stack buttons vertically, Desktop: Side by side */}
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-[#800000] text-white py-3 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
+                  className="flex-1 bg-[#800000] text-white py-4 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap active:scale-95 min-h-[48px]"
                   aria-label={`Add ${product.name} to cart`}
                 >
+                  <i className="fas fa-shopping-cart mr-2"></i>
                   Add to Cart
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-[#800000] text-white py-3 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap"
+                  className="flex-1 bg-[#800000] text-white py-4 px-6 rounded-lg hover:bg-[#5a0d15] transition-colors font-medium cursor-pointer !rounded-button whitespace-nowrap active:scale-95 min-h-[48px]"
                   aria-label={`Buy ${product.name} now`}
                 >
+                  <i className="fas fa-bolt mr-2"></i>
                   Buy Now
                 </button>
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors"
-                  aria-label={wishlist.includes(product.id) ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-                >
-                  <i className={`fas fa-heart ${wishlist.includes(product.id) ? 'text-rose-500' : 'text-[#800000]'} text-lg`} aria-hidden="true"></i>
-                </button>
               </div>
+
+              {/* Wishlist button - full width on mobile */}
+              <button
+                onClick={() => toggleWishlist(product.id)}
+                className="w-full sm:w-auto sm:self-start border border-gray-300 rounded-lg flex items-center justify-center hover:bg-rose-50 cursor-pointer !rounded-button whitespace-nowrap transition-colors active:scale-95 py-3 px-6 min-h-[48px]"
+                aria-label={wishlist.includes(product.id) ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+              >
+                <i className={`fas fa-heart ${wishlist.includes(product.id) ? 'text-rose-500' : 'text-[#800000]'} text-lg mr-2`} aria-hidden="true"></i>
+                <span className="font-medium text-gray-700">
+                  {wishlist.includes(product.id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </span>
+              </button>
             </div>
 
             <div className="border-t border-rose-200 pt-6">
@@ -647,19 +719,19 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-16">
+        <div className="mt-12 sm:mt-16">
           <div className="border-b border-blue-200">
-            <nav className="flex space-x-8">
+            <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
               {[
                 { id: 'description', label: 'Description' },
-                { id: 'specifications', label: 'Specifications' },
+                { id: 'specifications', label: 'Specs' },
                 { id: 'reviews', label: 'Reviews' },
-                { id: 'shipping', label: 'Shipping & Returns' },
+                { id: 'shipping', label: 'Shipping' },
               ].map((tab: any) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap transition-colors ${
+                  className={`py-4 px-2 sm:px-1 border-b-2 font-medium text-sm cursor-pointer whitespace-nowrap transition-colors min-h-[48px] ${
                     activeTab === tab.id
                       ? 'border-[#800000] text-[#800000]'
                       : 'border-transparent text-gray-600 hover:text-[#800000] hover:border-rose-300'
@@ -887,6 +959,41 @@ const ProductDetail: React.FC = () => {
         <style>{`
           .!rounded-button {
             border-radius: 8px;
+          }
+
+          /* Hide scrollbar for mobile tab navigation */
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+
+          /* Ensure touch targets are at least 44px */
+          @media (max-width: 768px) {
+            button {
+              min-height: 44px;
+              min-width: 44px;
+            }
+
+            /* Prevent zoom on input focus on iOS */
+            input, select, textarea {
+              font-size: 16px;
+            }
+
+            /* Improve touch scrolling */
+            .aspect-square {
+              -webkit-overflow-scrolling: touch;
+            }
+          }
+
+          /* Optimize for very small screens */
+          @media (max-width: 320px) {
+            .grid-cols-3 {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
           }
         `}</style>
       </div>

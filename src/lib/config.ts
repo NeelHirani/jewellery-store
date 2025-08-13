@@ -3,14 +3,19 @@
  * Handles secure access to environment variables
  */
 
+interface AdminAccount {
+  email: string;
+  password: string;
+  name: string;
+}
+
 interface AppConfig {
   supabase: {
     url: string;
     anonKey: string;
   };
   admin: {
-    email: string;
-    password: string;
+    accounts: AdminAccount[];
   };
   app: {
     name: string;
@@ -40,14 +45,27 @@ class ConfigManager {
   }
 
   private loadConfig(): AppConfig {
+    // Load admin accounts from environment variables
+    const adminAccounts: AdminAccount[] = [
+      {
+        email: import.meta.env.VITE_ADMIN_1_EMAIL || '',
+        password: import.meta.env.VITE_ADMIN_1_PASSWORD || '',
+        name: import.meta.env.VITE_ADMIN_1_NAME || 'Admin 1',
+      },
+      {
+        email: import.meta.env.VITE_ADMIN_2_EMAIL || '',
+        password: import.meta.env.VITE_ADMIN_2_PASSWORD || '',
+        name: import.meta.env.VITE_ADMIN_2_NAME || 'Admin 2',
+      }
+    ];
+
     return {
       supabase: {
         url: import.meta.env.VITE_SUPABASE_URL || '',
         anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
       },
       admin: {
-        email: import.meta.env.VITE_ADMIN_EMAIL || '',
-        password: import.meta.env.VITE_ADMIN_PASSWORD || '',
+        accounts: adminAccounts,
       },
       app: {
         name: import.meta.env.VITE_APP_NAME || 'Jewel Mart',
@@ -72,22 +90,29 @@ class ConfigManager {
       errors.push('VITE_SUPABASE_ANON_KEY is required');
     }
 
-    // Validate admin credentials
-    if (!this.config.admin.email) {
-      errors.push('VITE_ADMIN_EMAIL is required');
-    }
-    if (!this.config.admin.password) {
-      errors.push('VITE_ADMIN_PASSWORD is required');
-    }
+    // Validate admin accounts
+    if (!this.config.admin.accounts || this.config.admin.accounts.length === 0) {
+      errors.push('At least one admin account is required');
+    } else {
+      this.config.admin.accounts.forEach((account, index) => {
+        const adminPrefix = `Admin ${index + 1}`;
 
-    // Validate admin email format
-    if (this.config.admin.email && !this.isValidEmail(this.config.admin.email)) {
-      errors.push('VITE_ADMIN_EMAIL must be a valid email address');
-    }
+        if (!account.email) {
+          errors.push(`${adminPrefix} email is required`);
+        } else if (!this.isValidEmail(account.email)) {
+          errors.push(`${adminPrefix} email must be a valid email address`);
+        }
 
-    // Validate admin password strength
-    if (this.config.admin.password && !this.isStrongPassword(this.config.admin.password)) {
-      errors.push('VITE_ADMIN_PASSWORD must be at least 8 characters');
+        if (!account.password) {
+          errors.push(`${adminPrefix} password is required`);
+        } else if (!this.isStrongPassword(account.password)) {
+          errors.push(`${adminPrefix} password must be at least 8 characters`);
+        }
+
+        if (!account.name) {
+          errors.push(`${adminPrefix} name is required`);
+        }
+      });
     }
 
     if (errors.length > 0) {
@@ -122,20 +147,44 @@ class ConfigManager {
   // Secure admin credential validation
   public validateAdminCredentials(email: string, password: string): boolean {
     try {
-      return email === this.config.admin.email && password === this.config.admin.password;
+      return this.config.admin.accounts.some(account =>
+        account.email === email && account.password === password
+      );
     } catch (error) {
       console.error('Admin credential validation error:', error);
       return false;
     }
   }
 
-  // Get admin user info (without sensitive data)
-  public getAdminUserInfo() {
-    return {
-      email: this.config.admin.email,
-      name: 'Admin User',
-      role: 'admin' as const,
-    };
+  // Get admin user info by email (without sensitive data)
+  public getAdminUserInfo(email?: string) {
+    try {
+      if (email) {
+        const account = this.config.admin.accounts.find(account => account.email === email);
+        if (account) {
+          return {
+            email: account.email,
+            name: account.name,
+            role: 'admin' as const,
+          };
+        }
+      }
+
+      // Fallback to first admin account if no email provided or not found
+      const firstAdmin = this.config.admin.accounts[0];
+      return {
+        email: firstAdmin?.email || '',
+        name: firstAdmin?.name || 'Admin User',
+        role: 'admin' as const,
+      };
+    } catch (error) {
+      console.error('Get admin user info error:', error);
+      return {
+        email: '',
+        name: 'Admin User',
+        role: 'admin' as const,
+      };
+    }
   }
 
   // Development mode check
@@ -153,4 +202,4 @@ class ConfigManager {
 export const config = ConfigManager.getInstance();
 
 // Export types for TypeScript support
-export type { AppConfig };
+export type { AppConfig, AdminAccount };

@@ -83,7 +83,7 @@ class AuthService {
       this.clearFailedAttempts();
 
       // Create admin user session
-      const adminUser = this.createAdminSession();
+      const adminUser = this.createAdminSession(email.trim());
 
       // Store session securely
       this.storeSession(adminUser);
@@ -160,8 +160,8 @@ class AuthService {
   /**
    * Create admin session with security metadata
    */
-  private createAdminSession(): AdminUser {
-    const adminInfo = config.getAdminUserInfo();
+  private createAdminSession(email: string): AdminUser {
+    const adminInfo = config.getAdminUserInfo(email);
     const sessionId = this.generateSessionId();
 
     return {

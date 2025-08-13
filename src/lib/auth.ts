@@ -30,6 +30,7 @@ class AuthService {
   private readonly STORAGE_KEY = 'adminUser';
   private readonly ATTEMPTS_KEY = 'loginAttempts';
   private readonly SESSION_KEY = 'adminSession';
+  private readonly SESSIONS_KEY = 'adminSessions'; // For concurrent sessions
 
   private constructor() {
     this.cleanupExpiredSessions();
@@ -83,7 +84,7 @@ class AuthService {
       this.clearFailedAttempts();
 
       // Create admin user session
-      const adminUser = this.createAdminSession(email.trim());
+      const adminUser = this.createAdminSession();
 
       // Store session securely
       this.storeSession(adminUser);
@@ -145,12 +146,25 @@ class AuthService {
   }
 
   /**
-   * Logout admin user
+   * Logout admin user (removes current session but preserves other concurrent sessions)
    */
   public logout(): void {
     try {
+      const currentSession = this.getStoredSession();
+
+      // Remove current session from storage
       localStorage.removeItem(this.STORAGE_KEY);
       localStorage.removeItem(this.SESSION_KEY);
+
+      // Remove current session from concurrent sessions list
+      if (currentSession) {
+        const allSessions = this.getAllSessions();
+        const updatedSessions = allSessions.filter(session =>
+          session.sessionId !== currentSession.sessionId
+        );
+        localStorage.setItem(this.SESSIONS_KEY, JSON.stringify(updatedSessions));
+      }
+
       this.clearFailedAttempts();
     } catch (error) {
       console.error('Logout error:', error);
@@ -160,8 +174,8 @@ class AuthService {
   /**
    * Create admin session with security metadata
    */
-  private createAdminSession(email: string): AdminUser {
-    const adminInfo = config.getAdminUserInfo(email);
+  private createAdminSession(): AdminUser {
+    const adminInfo = config.getAdminUserInfo();
     const sessionId = this.generateSessionId();
 
     return {
@@ -174,21 +188,28 @@ class AuthService {
   }
 
   /**
-   * Generate secure session ID
+   * Generate secure session ID (enhanced for concurrent sessions)
    */
   private generateSessionId(): string {
     const timestamp = Date.now().toString();
     const random = Math.random().toString(36).substring(2);
-    return `admin_${timestamp}_${random}`;
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+    return `admin_${timestamp}_${random}_${randomSuffix}`;
   }
 
   /**
-   * Store session securely in localStorage
+   * Store session securely in localStorage (supports concurrent sessions)
    */
   private storeSession(adminUser: AdminUser): void {
     try {
+      // Store current session (for backward compatibility)
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(adminUser));
       localStorage.setItem(this.SESSION_KEY, adminUser.sessionId);
+
+      // Store in concurrent sessions list
+      const existingSessions = this.getAllSessions();
+      const updatedSessions = [...existingSessions, adminUser];
+      localStorage.setItem(this.SESSIONS_KEY, JSON.stringify(updatedSessions));
     } catch (error) {
       console.error('Session storage error:', error);
       throw new Error('Failed to store session');
@@ -220,6 +241,42 @@ class AuthService {
       console.error('Session retrieval error:', error);
       this.logout();
       return null;
+    }
+  }
+
+  /**
+   * Get all active sessions (for concurrent session support)
+   */
+  private getAllSessions(): AdminUser[] {
+    try {
+      const storedSessions = localStorage.getItem(this.SESSIONS_KEY);
+      if (!storedSessions) {
+        return [];
+      }
+      return JSON.parse(storedSessions);
+    } catch (error) {
+      console.error('Sessions retrieval error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clean up expired sessions from the sessions list
+   */
+  private cleanupExpiredSessionsList(): void {
+    try {
+      const allSessions = this.getAllSessions();
+      const currentTime = Date.now();
+      const sessionTimeout = config.getSecurityConfig().sessionTimeout;
+
+      const activeSessions = allSessions.filter(session => {
+        const loginTime = new Date(session.loginTime).getTime();
+        return currentTime - loginTime <= sessionTimeout;
+      });
+
+      localStorage.setItem(this.SESSIONS_KEY, JSON.stringify(activeSessions));
+    } catch (error) {
+      console.error('Session cleanup error:', error);
     }
   }
 
@@ -307,6 +364,10 @@ class AuthService {
    */
   private cleanupExpiredSessions(): void {
     try {
+      // Clean up expired sessions from the concurrent sessions list
+      this.cleanupExpiredSessionsList();
+
+      // Check if current session is still valid
       if (!this.isAuthenticated()) {
         this.logout();
       }

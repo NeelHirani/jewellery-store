@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaGem, FaShieldAlt } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaShieldAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { authService } from '../lib/auth';
 import { config } from '../lib/config';
